@@ -1,5 +1,5 @@
 ﻿# chains/sequential_chain.py
-from langchain_core.chains import SequentialChain
+from langchain.chains import SequentialChain
 
 def build_sequential_chain(chains_list: list, input_variables: list) -> SequentialChain:
     """

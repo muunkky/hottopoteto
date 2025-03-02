@@ -2,7 +2,10 @@
 
 import os
 import pytest
+import logging
 from utils.config_loader import load_config
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # --- Dummy chain implementations for testing --- #
 class DummyChain:
@@ -90,42 +93,43 @@ def patch_build_functions(monkeypatch):
 
 # --- Integration test --- #
 def test_full_workflow(sample_recipe_file, caplog):
-    # Load recipe configuration from temporary file
-    recipe = load_config(sample_recipe_file)
-    steps = recipe.steps
+    with caplog.at_level(logging.INFO):
+        # Load recipe configuration from temporary file
+        recipe = load_config(sample_recipe_file)
+        steps = recipe.steps
 
-    chains_list = []
-    input_variables = {"user_input": "test input"}
-    
-    # Build chain objects based on the recipe steps
-    for step in steps:
-        if step.type == "prompt":
-            from chains.prompt_chain import build_prompt_chain
-            chain = build_prompt_chain(step.dict())
-        elif step.type == "sql":
-            from chains.sql_chain import build_sql_chain
-            chain = build_sql_chain(step.dict())
-        elif step.type == "agent":
-            from chains.agent_chain import build_agent_chain
-            chain = build_agent_chain(step.dict())
-        else:
-            raise ValueError(f"Unsupported step type: {step.type}")
-        chains_list.append(chain)
-    
-    # Build the sequential chain using the patched dummy sequential chain
-    from chains.sequential_chain import build_sequential_chain
-    sequential_chain = build_sequential_chain(chains_list, list(input_variables.keys()))
-    
-    # Run the sequential chain
-    result = sequential_chain.run(input_variables)
-    
-    # Assert that the outputs from each step are as expected
-    expected_result = {
-        "step_1": "prompt_output",
-        "step_2": "sql_output",
-        "step_3": "agent_output"
-    }
-    assert result == expected_result
+        chains_list = []
+        input_variables = {"user_input": "test input"}
+        
+        # Build chain objects based on the recipe steps
+        for step in steps:
+            if step.type == "prompt":
+                from chains.prompt_chain import build_prompt_chain
+                chain = build_prompt_chain(step.model_dump())
+            elif step.type == "sql":
+                from chains.sql_chain import build_sql_chain
+                chain = build_sql_chain(step.model_dump())
+            elif step.type == "agent":
+                from chains.agent_chain import build_agent_chain
+                chain = build_agent_chain(step.model_dump())
+            else:
+                raise ValueError(f"Unsupported step type: {step.type}")
+            chains_list.append(chain)
+        
+        # Build the sequential chain using the patched dummy sequential chain
+        from chains.sequential_chain import build_sequential_chain
+        sequential_chain = build_sequential_chain(chains_list, list(input_variables.keys()))
+        
+        # Run the sequential chain
+        result = sequential_chain.run(input_variables)
+        
+        # Assert that the outputs from each step are as expected
+        expected_result = {
+            "step_1": "prompt_output",
+            "step_2": "sql_output",
+            "step_3": "agent_output"
+        }
+        assert result == expected_result
 
-    # Check that logging captured expected messages (e.g., successful configuration loading)
-    assert "Successfully loaded configuration file:" in caplog.text
+        # Check that logging captured expected messages (e.g., successful configuration loading)
+        assert "Successfully loaded configuration file:" in caplog.text

@@ -1,36 +1,25 @@
 ﻿# chains/sql_chain.py
-from langchain_community.chains.sql_database.base import SQLDatabaseChain
+from langchain_community.utilities import SQLDatabase
+from langchain.chains import create_sql_query_chain
+from langchain_openai import ChatOpenAI
+from langchain_community.tools import QuerySQLDatabaseTool
 from database.db_connection import get_db_connection
 from utils.config_loader import load_config
 
-def build_sql_chain(step_config: dict) -> SQLDatabaseChain:
+def build_sql_chain(step_config: dict):
     """
-    Build a SQLDatabaseChain for a 'sql' step.
+    Build a chain that converts a question to a SQL query and executes it.
     
     Args:
-        step_config (dict): Dictionary containing the step configuration from YAML.
+        step_config (dict): The configuration for this SQL step.
     
     Returns:
-        SQLDatabaseChain: A configured SQL database chain.
+        A SQL query chain that generates and executes SQL queries.
     """
-    # Load SQL query from file if specified
-    if "query" in step_config:
-        with open(step_config["query"], "r") as file:
-            sql_query = file.read()
-    else:
-        sql_query = ""
+    db = SQLDatabase.from_uri(step_config["db_uri"])  # Example: "sqlite:///Chinook.db"
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+
+    # Create the SQL query generator chain
+    query_chain = create_sql_query_chain(llm, db)
     
-    # Load the database configuration
-    db_config_path = step_config.get("db_config", "configs/db_config.yaml")
-    db_settings = load_config(db_config_path)
-    
-    # Get a SQLAlchemy engine based on the database settings
-    db = get_db_connection(db_settings)
-    
-    # Build and return the SQLDatabaseChain
-    sql_chain = SQLDatabaseChain.from_llm(
-        llm=None,  # Optionally, provide an LLM if query interpretation is required
-        database=db,
-        query=sql_query
-    )
-    return sql_chain
+    return query_chain
