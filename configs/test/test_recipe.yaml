@@ -1,0 +1,24 @@
+steps:
+  - name: "Initial Prompt"
+    type: "prompt"
+    template: "prompts/initial_prompt.txt"
+    parameters:
+      user_input: "Enter your query here"
+    output_format: "text"
+    token_limit: 100
+
+  - name: "Database Query"
+    type: "sql"
+    query: "prompts/sample_query.sql"
+    parameters:
+      record_id: "12345"
+    output_format: "json"
+    db_config: "configs/db_config.yaml"
+
+  - name: "Agent Function Call"
+    type: "agent"
+    function: "agents/custom_function.py"
+    parameters:
+      data: "sample data"
+    output_format: "text"
+    token_limit: 50

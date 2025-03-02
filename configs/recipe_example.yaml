@@ -1,0 +1,63 @@
+﻿# Functional Requirements:
+# 1. The recipe template must define a series of steps for prompt chaining.
+# 2. Each step should include a name, type, and specific configuration parameters.
+# 3. Supported step types include:
+#    - "prompt": Sends a prompt to an LLM.
+#    - "sql": Executes a SQL query to retrieve structured data.
+#    - "agent": Invokes an external function or agent-based decision.
+# 4. Steps can reference external files (e.g., prompt templates, SQL queries, function definitions).
+# 5. Steps must allow parameter injection from previous steps using placeholders.
+# 6. Each step defines its expected output format (e.g., "text", "json") and optional token size limits.
+# 7. The recipe should be extensible to support additional functionalities in the future.
+# 8. The configuration must be human-readable and maintainable.
+
+steps:
+  - name: "Step 1: Initialization"
+    # Type: 'prompt' indicates sending a prompt to an LLM.
+    type: "prompt"
+    # Template file path for the prompt content.
+    template: "prompts/initial_prompt.txt"
+    # Parameters to inject into the prompt (e.g., user inputs).
+    parameters:
+      user_input: "{{user_input}}"
+    # Expected output format from the LLM.
+    output_format: "text"
+    # Optional token limit for the LLM's response.
+    token_limit: 150
+
+  - name: "Step 2: Data Retrieval"
+    # Type: 'sql' indicates that this step performs a SQL query.
+    type: "sql"
+    # Path to the SQL query file or an inline SQL query.
+    query: "prompts/data_query.sql"
+    # Parameters, potentially derived from a previous step's output.
+    parameters:
+      category: "{{Step1_output.category}}"
+    # Expected output format from the SQL query.
+    output_format: "json"
+    # Reference to the database configuration file.
+    db_config: "configs/db_config.yaml"
+
+  - name: "Step 3: Function Execution"
+    # Type: 'agent' for executing an external function or agent-based call.
+    type: "agent"
+    # Path to the function definition file or configuration.
+    function: "agents/custom_function.py"
+    # Parameters to be passed to the function, derived from previous steps.
+    parameters:
+      data: "{{Step2_output.data}}"
+    # Expected output format from the function execution.
+    output_format: "text"
+    token_limit: 100
+
+  - name: "Step 4: Summary Generation"
+    # Type: 'prompt' for generating a summary using an LLM.
+    type: "prompt"
+    # Template file path for the summary prompt.
+    template: "prompts/summary_template.txt"
+    # Parameters include outputs from earlier steps.
+    parameters:
+      summary_input: "{{Step3_output}}"
+    # Expected output format; here, a JSON structure is expected.
+    output_format: "json"
+    token_limit: 200

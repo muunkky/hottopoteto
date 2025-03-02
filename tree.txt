@@ -1,0 +1,49 @@
+.
+├── README.md
+├── __init__.py
+├── __pycache__
+│   └── __init__.cpython-312.pyc
+├── agents
+│   ├── __init__.py
+│   ├── agent_executor.py
+│   └── function_calls.py
+├── chains
+│   ├── __init__.py
+│   ├── agent_chain.py
+│   ├── prompt_chain.py
+│   ├── sequential_chain.py
+│   └── sql_chain.py
+├── configs
+│   ├── recipe_example.yaml
+│   └── test
+│       └── test_recipe.yaml
+├── database
+│   ├── __init__.py
+│   ├── db_connection.py
+│   └── query_handler.py
+├── main.py
+├── prompts
+│   ├── step1_prompt.txt
+│   ├── step2_sql_query.txt
+│   └── step3_summary_template.txt
+├── requirements.txt
+├── setup.ps1
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── test_config_loader.cpython-312-pytest-7.4.4.pyc
+│   │   └── test_integration.cpython-312-pytest-7.4.4.pyc
+│   ├── test_config_loader.py
+│   └── test_integration.py
+├── tree.txt
+└── utils
+    ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-312.pyc
+    │   └── config_loader.cpython-312.pyc
+    ├── config_loader.py
+    ├── models.py
+    └── output_parser.py
+
+11 directories, 35 files
