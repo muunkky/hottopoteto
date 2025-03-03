@@ -1,24 +1,33 @@
 steps:
-  - name: "Initial Prompt"
+  - name: "Step 1: Initialization"
     type: "prompt"
     template: "prompts/initial_prompt.txt"
     parameters:
-      user_input: "Enter your query here"
+      user_input: "{{user_input}}"
     output_format: "text"
-    token_limit: 100
+    token_limit: 150
 
-  - name: "Database Query"
+  - name: "Step 2: Data Retrieval"
     type: "sql"
-    query: "prompts/sample_query.sql"
+    query: "prompts/data_query.sql"
     parameters:
-      record_id: "12345"
+      record_id: "{{Step1_output.category}}"  # Updated to match SQL query
     output_format: "json"
     db_config: "configs/db_config.yaml"
 
-  - name: "Agent Function Call"
+  - name: "Step 3: Function Execution"
     type: "agent"
-    function: "agents/custom_function.py"
+    function: "agents/function_calls.py"
+    function_name: "custom_function"
     parameters:
-      data: "sample data"
+      data: "{{Step2_output.data}}"
     output_format: "text"
-    token_limit: 50
+    token_limit: 100
+
+  - name: "Step 4: Summary Generation"
+    type: "prompt"
+    template: "prompts/summary_template.txt"
+    parameters:
+      summary_input: "{{Step3_output}}"
+    output_format: "json"
+    token_limit: 200

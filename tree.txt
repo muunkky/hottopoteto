@@ -1,39 +1,88 @@
 .
+├── Chinook.db
 ├── README.md
 ├── __init__.py
 ├── __pycache__
-│   └── __init__.cpython-312.pyc
+│   ├── __init__.cpython-312.pyc
+│   ├── __init__.cpython-313.pyc
+│   ├── __init__.cpython-39.pyc
+│   ├── config.cpython-312.pyc
+│   ├── models.cpython-312.pyc
+│   └── models.cpython-39.pyc
 ├── agents
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   └── function_calls.cpython-312.pyc
 │   ├── agent_executor.py
 │   └── function_calls.py
 ├── chains
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── agent_chain.cpython-312.pyc
+│   │   ├── prompt_chain.cpython-312.pyc
+│   │   ├── sequential_chain.cpython-312.pyc
+│   │   └── sql_chain.cpython-312.pyc
 │   ├── agent_chain.py
+│   ├── llm_chain.py
 │   ├── prompt_chain.py
 │   ├── sequential_chain.py
 │   └── sql_chain.py
+├── config.py
 ├── configs
 │   ├── recipe_example.yaml
 │   └── test
 │       └── test_recipe.yaml
 ├── database
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   └── db_connection.cpython-312.pyc
+│   ├── data.db
 │   ├── db_connection.py
-│   └── query_handler.py
+│   ├── init_db.py
+│   ├── query_handler.py
+│   └── schema.sql
+├── init_db.py
+├── integration_tests
+│   ├── __pycache__
+│   │   ├── test_integration.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_integration.cpython-39-pytest-7.1.1.pyc
+│   │   ├── test_sql_chain.cpython-312-pytest-7.4.4.pyc
+│   │   └── test_sql_chain.cpython-39-pytest-7.1.1.pyc
+│   ├── test_integration.py
+│   └── test_sql_chain.py
+├── llms
+│   └── openai_llm.py
 ├── main.py
+├── models.py
 ├── prompts
+│   ├── data_query.sql
+│   ├── initial_prompt.txt
+│   ├── prompt_template.py
 │   ├── step1_prompt.txt
 │   ├── step2_sql_query.txt
-│   └── step3_summary_template.txt
+│   ├── step3_summary_template.txt
+│   └── summary_template.txt
 ├── requirements.txt
 ├── setup.ps1
 ├── tests
 │   ├── __init__.py
 │   ├── __pycache__
 │   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── conftest.cpython-312-pytest-7.4.4.pyc
+│   │   ├── conftest.cpython-313-pytest-8.3.5.pyc
+│   │   ├── conftest.cpython-39-pytest-7.1.1.pyc
 │   │   ├── test_config_loader.cpython-312-pytest-7.4.4.pyc
-│   │   └── test_integration.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_config_loader.cpython-313-pytest-8.3.5.pyc
+│   │   ├── test_config_loader.cpython-39-pytest-7.1.1.pyc
+│   │   ├── test_integration.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_integration.cpython-313-pytest-8.3.5.pyc
+│   │   └── test_integration.cpython-39-pytest-7.1.1.pyc
+│   ├── conftest.py
 │   ├── test_config_loader.py
 │   └── test_integration.py
 ├── tree.txt
@@ -41,9 +90,14 @@
     ├── __init__.py
     ├── __pycache__
     │   ├── __init__.cpython-312.pyc
-    │   └── config_loader.cpython-312.pyc
+    │   ├── __init__.cpython-313.pyc
+    │   ├── __init__.cpython-39.pyc
+    │   ├── config_loader.cpython-312.pyc
+    │   ├── config_loader.cpython-313.pyc
+    │   ├── config_loader.cpython-39.pyc
+    │   └── parameter_resolver.cpython-312.pyc
     ├── config_loader.py
-    ├── models.py
-    └── output_parser.py
+    ├── output_parser.py
+    └── parameter_resolver.py
 
-11 directories, 35 files
+17 directories, 83 files

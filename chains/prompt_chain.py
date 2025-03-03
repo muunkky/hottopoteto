@@ -1,29 +1,23 @@
-﻿# chains/prompt_chain.py
-from langchain_community.llms import OpenAI
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+﻿import os
+from openai import OpenAI
+from langchain_core.prompts import PromptTemplate
 
-def build_prompt_chain(step_config: dict) -> LLMChain:
-    """
-    Build an LLMChain for a 'prompt' step based on the given configuration.
-    
-    Args:
-        step_config (dict): Dictionary containing the step configuration from YAML.
-    
-    Returns:
-        LLMChain: A configured chain instance for LLM prompting.
-    """
-    # Load the prompt template from an external file
+from config import OPENAI_API_KEY  # Import centralized config
+
+def execute_prompt_step(step_config, context):
+    # Load template and inject dynamic values
     with open(step_config["template"], "r") as file:
         template_text = file.read()
-
-    # Create a PromptTemplate using the keys from 'parameters'
-    input_vars = list(step_config.get("parameters", {}).keys())
-    prompt = PromptTemplate(input_variables=input_vars, template=template_text)
-
-    # Initialize the LLM (using environment variables for API key, etc.)
-    llm = OpenAI(temperature=0.7)
+    # Prepare inputs: resolve parameters based on provided keys
+    input_vars = {key: context.get(val.strip("{}"), val) for key, val in step_config.get("parameters", {}).items()}
+    prompt = PromptTemplate(template=template_text, input_variables=list(input_vars.keys()))
     
-    # Create and return the LLMChain
-    chain = LLMChain(llm=llm, prompt=prompt)
-    return chain
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    # Use the OpenAI ChatCompletion API
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": prompt.format(**input_vars)}]
+    )
+    return response.choices[0].message.content

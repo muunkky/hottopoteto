@@ -4,11 +4,22 @@ import re
 import yaml
 import logging
 from models import Recipe  # Assuming models.py is in the root directory
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 # Set up basic logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+class StepConfig(BaseModel):
+    name: str
+    type: str
+    template: str = None
+    query: str = None
+    function: str = None
+    parameters: dict = {}
+    output_format: str
+    token_limit: int = None
+    db_config: str = None
 
 def substitute_env_vars(obj):
     """
@@ -70,3 +81,11 @@ def load_config(filepath: str) -> Recipe:
         raise ValueError(f"Configuration validation error: {e}")
     
     return recipe
+
+def load_recipe(path):
+    with open(path, "r") as file:
+        data = yaml.safe_load(file)
+    try:
+        return [StepConfig(**step) for step in data["steps"]]
+    except ValidationError as e:
+        raise ValueError(f"Invalid Recipe: {e}")

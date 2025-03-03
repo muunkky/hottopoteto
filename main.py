@@ -1,44 +1,43 @@
-﻿# main.py
-import os
-from utils.config_loader import load_config
-from chains.prompt_chain import build_prompt_chain
-from chains.agent_chain import build_agent_chain
-from chains.sql_chain import build_sql_chain
-from chains.sequential_chain import build_sequential_chain
+﻿import logging
+from utils.config_loader import load_recipe
+from chains.sequential_chain import execute_recipe
+import argparse
 
-def main():
-    # Load the recipe configuration from the YAML file
-    recipe_config = load_config("configs/recipe_example.yaml")
-    steps = recipe_config.get("steps", [])
+# Configure more detailed logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+def run_recipe(recipe_path: str):
+    """
+    Runs a recipe from a YAML configuration file.
     
-    # List to hold individual chain objects for each step
-    chains_list = []
+    Args:
+        recipe_path (str): Path to the recipe YAML file.
+    """
+    logging.info(f"Loading recipe from: {recipe_path}")
+
+    # Load recipe
+    recipe = load_recipe(recipe_path)
+    logging.debug(f"Recipe loaded: {recipe}")
     
-    # Example initial input variables (could be dynamically set)
-    input_variables = {"user_input": "example word"}
+    # Execute recipe
+    results = execute_recipe(recipe)
     
-    # Build the chain for each step based on its type
-    for step in steps:
-        step_type = step.get("type")
-        if step_type == "prompt":
-            chain = build_prompt_chain(step)
-        elif step_type == "sql":
-            chain = build_sql_chain(step)
-        elif step_type == "agent":
-            chain = build_agent_chain(step)
-        else:
-            raise ValueError(f"Unsupported step type: {step_type}")
-        
-        chains_list.append(chain)
-    
-    # Build a SequentialChain to execute all steps in order
-    sequential_chain = build_sequential_chain(chains_list, list(input_variables.keys()))
-    
-    # Run the sequential chain with the initial input variables
-    result = sequential_chain.run(input_variables)
-    
-    print("Final Result:")
-    print(result)
+    # Log results
+    logging.info("Final Output:")
+    for key, value in results.items():
+        logging.info(f"{key}: {value}")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run a recipe from a YAML configuration file.")
+    parser.add_argument(
+        "-r", "--recipe_file",
+        type=str,
+        help="The name of the recipe file located in the configs/ folder."
+    )
+    args = parser.parse_args()
+
+    recipe_path = f"configs/{args.recipe_file}"
+    run_recipe(recipe_path)
