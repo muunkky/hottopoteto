@@ -1,1 +1,0 @@
-﻿Summarize the following information in less than 100 words:\n{{info}}

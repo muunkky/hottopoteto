@@ -1,1 +1,0 @@
-﻿You are a helpful AI. Answer the following customer query:\n{{user_input}}

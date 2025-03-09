@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS records;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS logs;
+DROP TABLE IF EXISTS flavors;
 
 -- Create a records table to match data_query.sql
 CREATE TABLE records (
@@ -22,6 +23,12 @@ CREATE TABLE logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event TEXT NOT NULL,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create a flavors table
+CREATE TABLE flavors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    flavor_name TEXT NOT NULL
 );
 
 -- Insert test data into records table

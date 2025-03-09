@@ -1,5 +1,0 @@
-Based on the data provided:
-
-Data: {{ data }}
-
-Generate a well-structured summary explaining the key points.

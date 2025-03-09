@@ -1,7 +1,0 @@
-You are an AI assistant responding to a user query. 
-Based on the user's request, you should identify the most appropriate category from: rec1, rec2, rec3.
-
-User query: {{ user_input }}
-
-Please respond with a helpful message to the user, and include a line in your response with the format:
-"Category: rec1" (or rec2, or rec3 based on the query).

@@ -1,0 +1,289 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LangChain Recipe Schema",
+  "description": "Schema for LangChain recipe YAML files",
+  "type": "object",
+  "required": ["name", "version", "links"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the recipe"
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of what this recipe does"
+    },
+    "version": {
+      "type": "string",
+      "description": "The version of the recipe",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the step"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the step (e.g., llm, sql, user_input)",
+            "enum": ["llm", "sql", "user_input", "agent", "sqlite"]
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of what the step does"
+          },
+          "inputs": {
+            "type": "object",
+            "description": "A dictionary of inputs for the step"
+          },
+          "parameters": {
+            "type": "object",
+            "description": "A dictionary of parameters for the step"
+          },
+          "template": {
+            "type": "string",
+            "description": "The template to use for the step"
+          },
+          "model": {
+            "type": "string",
+            "description": "The LLM model to use for the step"
+          },
+          "temperature": {
+            "type": "number",
+            "description": "The temperature to use for the LLM model"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "The format of the output (e.g., json, text)"
+          },
+          "output_schema": {
+            "type": "object",
+            "description": "A JSON schema describing the output data"
+          },
+          "table": {
+            "type": "string",
+            "description": "The table to use for the sqlite step"
+          },
+          "data": {
+            "type": "object",
+            "description": "The data to insert for the sqlite step"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "link": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The unique name for this link"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of link to use for this link",
+          "enum": ["llm", "sql", "agent", "user_input", "sqlite"]
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of what this link does"
+        },
+        "output_format": {
+          "type": "string",
+          "description": "The expected format of the output",
+          "enum": ["text", "json", "xml", "markdown"]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Schema defining the expected structure of the output"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Parameters to pass to the link",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "llm" } }
+          },
+          "then": {
+            "$ref": "#/definitions/llm_link"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "user_input" } }
+          },
+          "then": {
+            "$ref": "#/definitions/user_input_link"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "sql" } }
+          },
+          "then": {
+            "$ref": "#/definitions/sql_link"
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "agent" } }
+          },
+          "then": {
+            "$ref": "#/definitions/agent_link"
+          }
+        }
+      ]
+    },
+    "llm_link": {
+      "properties": {
+        "template": {
+          "type": "string",
+          "description": "The filename or path of the prompt template"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Direct prompt text to send to the LLM"
+        },
+        "model": {
+          "type": "string",
+          "description": "The LLM model to use (e.g., gpt-4o, gpt-3.5-turbo)"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "The temperature setting for the LLM (0.0-1.0)",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "token_limit": {
+          "type": "integer",
+          "description": "The maximum number of tokens in the response"
+        },
+        "execution_method": {
+          "type": "string",
+          "description": "Method to use for execution (direct or chain)",
+          "enum": ["direct", "chain"]
+        }
+      },
+      "oneOf": [
+        { "required": ["template"] },
+        { "required": ["prompt"] }
+      ]
+    },
+    "user_input_link": {
+      "properties": {
+        "inputs": {
+          "type": "object",
+          "description": "Input fields to collect from the user",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Description of what to enter"
+              },
+              "required": {
+                "type": "boolean",
+                "description": "Whether this input is required"
+              },
+              "default": {
+                "description": "Default value if user doesn't provide input"
+              },
+              "type": {
+                "type": "string",
+                "description": "Type of input (string, number, etc.)",
+                "enum": ["string", "number", "boolean"]
+              }
+            }
+          }
+        },
+        "default_values": {
+          "type": "object",
+          "description": "Default values to use if no input is provided"
+        },
+        "template": {
+          "type": "string",
+          "description": "Optional template to display before collecting inputs"
+        },
+        "template_file": {
+          "type": "string",
+          "description": "Optional template file to display before collecting inputs"
+        }
+      }
+    },
+    "sql_link": {
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "SQL query to execute or path to a .sql file"
+        },
+        "database_url": {
+          "type": "string",
+          "description": "Database connection URL (overrides the default)"
+        }
+      },
+      "required": ["query"]
+    },
+    "agent_link": {
+      "properties": {
+        "task": {
+          "type": "string",
+          "description": "The task for the agent to perform"
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "The type of agent to use",
+          "enum": [
+            "ZERO_SHOT_REACT_DESCRIPTION",
+            "REACT_DOCSTORE",
+            "SELF_ASK_WITH_SEARCH",
+            "CONVERSATIONAL_REACT_DESCRIPTION",
+            "CHAT_ZERO_SHOT_REACT_DESCRIPTION",
+            "STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION"
+          ]
+        },
+        "tools": {
+          "type": "array",
+          "description": "Tools available to the agent",
+          "items": {
+            "type": "object",
+            "required": ["name", "type"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the tool"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of what the tool does"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["function", "search", "web"],
+                "description": "Type of tool"
+              },
+              "code": {
+                "type": "string",
+                "description": "Code for function-based tools"
+              }
+            }
+          }
+        }
+      },
+      "required": ["task"]
+    }
+  }
+}
