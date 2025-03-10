@@ -252,11 +252,12 @@ class Chain:
         Returns:
             Final context after executing all links
         """
-        logging.info("Starting chain execution.")
+        logger.trace("Starting chain execution.")
         context = initial_context or {}
         
         for i, link_config in enumerate(self.links):
             try:
+                logger.trace(f"🔗 Executing link {i + 1}: {link_config.name}")
                 resolved_link_config = self._resolve_parameters_in_config(link_config, context)
                 link_name = resolved_link_config.name.replace(' ', '_')
                 link_type = resolved_link_config.type

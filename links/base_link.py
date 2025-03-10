@@ -207,9 +207,33 @@ class BaseLink:
             logger.trace("Raw result from _execute_impl: %s", result)
             
             # Process output schema if provided
-            if config.output_schema and isinstance(result, str):
-                logger.trace(f"Processing output schema for step: {step_name}")
-                processed_result = self._process_output_schema(result, config.output_schema, config, context)
+            if config.output_schema:
+                if isinstance(result, str):
+                    logger.trace(f"Processing string output with schema for step: {step_name}")
+                    processed_result = self._process_output_schema(result, config.output_schema, config, context)
+                elif isinstance(result, dict):
+                    logger.trace(f"Processing dictionary output with schema for step: {step_name}")
+                    # For dictionaries, use the result directly as structured data if it matches the schema
+                    # or transform it if needed
+                    if "inputs" in result and isinstance(result["inputs"], dict):
+                        # Special case for UserInputLink which returns {"inputs": {...}}
+                        inputs = result["inputs"]
+                        # Create case-insensitive maps
+                        input_keys_map = {k.lower(): k for k in inputs.keys()}
+                        schema_props = config.output_schema.get("properties", {})
+                        
+                        processed_result = {}
+                        for schema_key in schema_props:
+                            # Look for a case-insensitive match
+                            if schema_key.lower() in input_keys_map:
+                                # Use the actual case from the input
+                                input_key = input_keys_map[schema_key.lower()]
+                                processed_result[schema_key] = inputs[input_key]
+                    else:
+                        # No special handling needed
+                        processed_result = {}
+                else:
+                    processed_result = {}
             else:
                 processed_result = {}
             logger.trace("Processed result from _process_output_schema: %s", processed_result)
@@ -569,13 +593,20 @@ class BaseLink:
         def replacer(match):
             placeholder = match.group(1)
             parts = placeholder.split(".")
+            
+            # Start with the first part from context
             value = context.get(parts[0], "")
-            if isinstance(value, dict) and "data" in value:
-                value = value["data"]
+            
+            # Traverse the nested structure properly
             for part in parts[1:]:
-                if isinstance(value, dict):
-                    value = value.get(part, "")
+                if isinstance(value, dict) and part in value:
+                    value = value[part]
+                elif hasattr(value, part):
+                    value = getattr(value, part)
                 else:
+                    logger.trace(f"Could not resolve path part '{part}' in placeholder '{placeholder}'")
                     value = ""
+                    break
+                    
             return str(value)
         return re.sub(r"{{([^{}]+)}}", replacer, text)

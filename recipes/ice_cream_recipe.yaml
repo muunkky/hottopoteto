@@ -16,9 +16,17 @@ links:
         description: "Describe who you expect to be interested in this flavor."
         required: true
         default: "teenagers"
+    output_schema:
+      properties:
+        inspiration:
+          type: "string"
+          description: "The inspiration for the ice cream flavor"
+        demographic:
+          type: "string"
+          description: "The target demographic for the ice cream flavor"
   - name: "Generate flavor name"
     type: "llm"
-    prompt: "Generate a unique name and marketing description for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.raw.inputs.Inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
+    prompt: "Generate a unique name and very short marketing description for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.json.inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
     model: "gpt-4o"
     temperature: 0.5
     token_limit: 50
@@ -31,3 +39,12 @@ links:
         description:
           type: "string"
           description: "A description of the flavor and its characteristics"
+  - name: "Store Flavor Information"
+    type: "sql"
+    description: "Store the generated flavor information in the database"
+    query: "INSERT INTO ice_cream_flavors (flavor_name, description, inspiration, demographic) VALUES ('{{Generate_flavor_name_output.data.json.flavor_name}}', '{{Generate_flavor_name_output.data.json.description}}', '{{Initial_User_Inputs_output.data.raw.inputs.Inspiration}}', '{{Initial_User_Inputs_output.data.raw.inputs.Demographic}}');"
+    database_url: "sqlite:///database/data.db"
+  - name: "Retrieve Flavor"
+    type: "sql"
+    description: "Retrieve the flavor we just saved"
+    query: "SELECT * FROM ice_cream_flavors ORDER BY created_at DESC LIMIT 1;"
