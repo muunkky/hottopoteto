@@ -1,6 +1,5 @@
-import logging
 import os
-from typing import Dict, Any, Optional, List, Union, ClassVar
+from typing import Dict, Any, Optional, List, Union, ClassVar, Callable
 from pydantic import BaseModel, Field, field_validator, model_validator
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain as LangchainLLMChain
@@ -8,6 +7,7 @@ from langchain_openai import ChatOpenAI, OpenAI
 from langchain_core.language_models import BaseLLM
 from config import DEFAULT_LLM_MODEL, DEFAULT_TEMPERATURE, DEFAULT_TOKEN_LIMIT
 from links.base_link import BaseLink, LinkConfig  # Import LinkConfig from base_link
+import json
 
 class LLMLinkConfig(LinkConfig):
     """Extended configuration for LLM link with specific fields"""
@@ -50,9 +50,7 @@ class LLMLinkConfig(LinkConfig):
     # Validate that either prompt or template is provided - using model validator
     @model_validator(mode='after')
     def check_prompt_or_template(self):
-        logging.debug(f"MODEL VALIDATOR - Template: '{self.template}', Prompt: '{self.prompt}'")
         if self.template is None and self.prompt is None:
-            logging.debug("MODEL VALIDATOR - Both template and prompt are None")
             raise ValueError("Either 'prompt' or 'template' must be provided")
         return self
 
@@ -80,22 +78,12 @@ class LLMLink(BaseLink):
         template_path = config.template if has_template else None
         parameters = config.parameters or {}
         
-        logging.debug(f"Config: {config}")
-        logging.debug(f"Direct prompt: {has_direct_prompt}, Template: {has_template}")
-        logging.debug(f"Template path: {template_path}")
-        logging.debug(f"Parameters: {parameters}")
-        logging.debug(f"Config type: {type(config).__name__}")
-        logging.debug(f"Config fields: {dir(config)}")
-        logging.debug(f"Has prompt: {hasattr(config, 'prompt')}, value: {getattr(config, 'prompt', None)}")
-        logging.debug(f"Has template: {hasattr(config, 'template')}, value: {getattr(config, 'template', None)}")
-
-        
         # Check that either prompt or template exists
         if not (has_direct_prompt or has_template):
             raise ValueError("LLM step requires either 'prompt' or 'template' field")
             
         if has_direct_prompt and has_template:
-            logging.warning(f"Both 'prompt' and 'template' provided; 'template' will be used")
+            pass
             
         # If template is provided, validate the template file exists
         if has_template and template_path:
@@ -106,7 +94,6 @@ class LLMLink(BaseLink):
         
         # Check parameters that will be used in prompt formatting
         if has_template and template_path:
-            logging.debug("Validating template parameters")
             try:
                 # Try to resolve template path
                 template_path = self.get_prompt_path(template_path)
@@ -121,11 +108,9 @@ class LLMLink(BaseLink):
                 if missing_params:
                     raise ValueError(f"Missing parameters required by template: {', '.join(missing_params)}")
             except ValueError as e:
-                logging.error(f"Template validation error: {str(e)}")
                 raise ValueError(f"Template validation error: {str(e)}")
         
         elif has_direct_prompt:
-            logging.debug("Validating direct prompt parameters")
             prompt = config.prompt
             
             # Validate parameters for direct prompt
@@ -133,31 +118,12 @@ class LLMLink(BaseLink):
                 required_params = self.extract_parameters_from_template(prompt)
                 # Skip parameters with a dot (expected to be resolved from context)
                 missing_params = [p for p in required_params if p not in parameters and '.' not in p]
-                logging.debug(f"Required parameters for prompt: {required_params}")
-                logging.debug(f"Missing parameters: {missing_params}")
                 
                 if missing_params:
                     raise ValueError(f"Missing parameters required by prompt: {', '.join(missing_params)}")
     
     def _validate_template_path(self, template_path: str) -> None:
         """Validate that the template path exists and is accessible."""
-        # Additional debug info about the template path
-        abs_path = os.path.abspath(template_path) if template_path else "None"
-        prompt_dir_path = self.get_prompt_path(template_path) if template_path else "None"
-        
-        logging.debug(f"Template path validation:")
-        logging.debug(f"  Original path: {template_path}")
-        logging.debug(f"  Absolute path: {abs_path}")
-        logging.debug(f"  Prompt directory path: {prompt_dir_path}")
-        
-        # List all files in the prompt directory for debugging
-        prompt_dir = self.prompt_directory
-        try:
-            files = os.listdir(prompt_dir)
-            logging.debug(f"Files in prompt directory ({prompt_dir}): {files}")
-        except Exception as e:
-            logging.debug(f"Could not list prompt directory: {e}")
-        
         # This will raise ValueError if file doesn't exist
         resolved_path = self.get_prompt_path(template_path)
         self._validate_file_path(resolved_path)
@@ -181,7 +147,6 @@ class LLMLink(BaseLink):
             The LLM response
         """
         step_name = config.name
-        logging.info(f"🤖 Executing LLM step: {step_name}")
         
         # Extract configuration
         using_template = config.template is not None
@@ -195,27 +160,14 @@ class LLMLink(BaseLink):
         # Load template if needed
         if using_template and prompt_text.endswith((".txt", ".md", ".prompt")):
             template_path = self.get_prompt_path(prompt_text)
-            logging.debug(f"Loading template from: {template_path}")
             prompt_text = self.read_template_file(template_path)
-            logging.debug(f"Loaded template with {len(prompt_text)} characters")
         
         # --- Changed block: resolve placeholders directly from context ---
         try:
             formatted_prompt = self.resolve_placeholders_in_text(prompt_text, context)
-            prompt_preview = formatted_prompt[:100] + ("..." if len(formatted_prompt) > 100 else "")
-            logging.debug(f"Formatted prompt after placeholder replacement: {prompt_preview}")
         except Exception as e:
-            logging.error(f"❌ Error replacing placeholders in prompt: {str(e)}")
             raise ValueError(f"Error replacing placeholders in prompt: {str(e)}")
         # --- End changed block ---
-        
-        # Apply output formatting if schema is provided
-        output_format = config.output_format or "text"
-        output_schema = config.output_schema
-        
-        if output_schema and output_format == "json":
-            logging.debug(f"Appending JSON schema to prompt ({len(output_schema)} fields)")
-            formatted_prompt = self.append_json_schema_to_prompt(formatted_prompt, output_schema)
         
         # Execute using appropriate method based on configuration
         if execution_method == "chain":
@@ -224,7 +176,7 @@ class LLMLink(BaseLink):
                 model_name=model_name,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                output_key=output_key
+                output_key=output_key,
             )
         else:
             result = self._execute_directly(
@@ -236,16 +188,6 @@ class LLMLink(BaseLink):
                 context=context
             )
         
-        # Parse output according to expected format
-        if output_format == "json" and isinstance(result, str):
-            logging.debug("Parsing output as JSON")
-            try:
-                result = self.parse_output_to_json(result)
-                logging.debug(f"Successfully parsed JSON with {len(result) if isinstance(result, dict) else 0} keys")
-            except ValueError as e:
-                logging.error(f"❌ JSON parsing error: {str(e)}")
-                raise ValueError(f"Error parsing JSON output: {str(e)}. Output was: {result}")
-        
         # Add metadata
         metadata = {
             "model": model_name,
@@ -253,18 +195,10 @@ class LLMLink(BaseLink):
             "max_tokens": max_tokens,
             "execution_method": execution_method,
             "prompt_tokens": len(formatted_prompt) // 4,  # Rough estimate
-            "completion_tokens": len(result) // 4 if isinstance(result, str) else 0  # Rough estimate
+            "completion_tokens": len(str(result)) // 4 if isinstance(result, str) else 0  # Rough estimate
         }
-        
-        # Create output with standardized format
-        if isinstance(result, dict) and output_key in result:
-            # Result is already a dictionary with the expected key
-            output = result
-        else:
-            # Wrap the raw result
-            output = {output_key: result}
-        
-        return {"output": output, "metadata": metadata}
+
+        return result
     
     def _execute_with_chain(self, formatted_prompt: str, model_name: str, 
                            temperature: float, max_tokens: int, output_key: str) -> Dict[str, Any]:
@@ -275,11 +209,7 @@ class LLMLink(BaseLink):
         # Create and run the LangChain LLMChain
         prompt_template = PromptTemplate.from_template(formatted_prompt)
         chain = LangchainLLMChain(llm=llm, prompt=prompt_template, output_key=output_key)
-        
-        logging.info(f"Running LLMChain with model: {model_name}, temp={temperature}")
         result = chain.invoke({})  # No need to pass parameters as they're already in the formatted prompt
-        logging.debug(f"LLMChain result: {result}")
-        
         return result
     
     def _execute_directly(self, formatted_prompt: str, model_name: str,
@@ -300,12 +230,10 @@ class LLMLink(BaseLink):
             # Append user message as the new turn
             conv_logs.append({"role": "user", "content": formatted_prompt})
             try:
-                logging.info(f"Sending conversation messages to {model_name} (conv_id: {conv_id})")
                 result_message = llm.invoke(conv_logs)
                 # Assume result_message is an object with a 'content' attribute
                 assistant_response = result_message.content.strip()
             except Exception as e:
-                logging.error(f"❌ Direct LLM call failed: {str(e)}")
                 raise ValueError(f"LLM call failed: {str(e)}")
             # Append assistant response to the conversation log
             conv_logs.append({"role": "assistant", "content": assistant_response})
@@ -313,12 +241,82 @@ class LLMLink(BaseLink):
         else:
             # No conversation handling, use direct prompt syntax
             try:
-                logging.info(f"Sending prompt directly to {model_name} (no conversation)")
                 result = llm.invoke(formatted_prompt)
                 output = result.content.strip()
-                output_preview = output[:100] + ("..." if len(output) > 100 else "")
-                logging.info(f"✅ Received LLM response: {output_preview}")
                 return output
             except Exception as e:
-                logging.error(f"❌ Direct LLM call failed: {str(e)}")
                 raise ValueError(f"LLM call failed: {str(e)}")
+    
+    def _create_schema_instruction(self, schema: Dict[str, Any]) -> str:
+        """Create clear instructions for the LLM based on the schema."""
+        properties = schema.get("properties", {}) if isinstance(schema, dict) else schema
+        
+        # Build a human-readable description of the expected format
+        field_descriptions = []
+        for field_name, field_def in properties.items():
+            desc = field_def.get("description", f"The {field_name}")
+            field_type = field_def.get("type", "string")
+            field_descriptions.append(f"- '{field_name}' ({field_type}): {desc}")
+        
+        instructions = [
+            "Please format your response as a JSON object with the following fields:",
+            *field_descriptions,
+            "",
+            "IMPORTANT: Your response should be valid JSON that can be parsed directly."
+        ]
+        
+        return "\n".join(instructions)
+    
+    def _validate_against_schema(self, data: Any, schema: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate output against schema and reformat if needed."""
+        if not isinstance(data, dict):
+            raise ValueError(f"Expected dictionary output, got {type(data).__name__}")
+        
+        properties = schema.get("properties", {}) if isinstance(schema, dict) else schema
+        result = {}
+        
+        # Process each field in the schema
+        for field_name, field_def in properties.items():
+            field_type = field_def.get("type", "string")
+            
+            # Check if the field exists in the output
+            if field_name in data:
+                value = data[field_name]
+                # Basic type validation and conversion
+                if field_type == "string" and not isinstance(value, str):
+                    value = str(value)
+                elif field_type == "number" and isinstance(value, str):
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        pass
+                result[field_name] = value
+            else:
+                # Field missing - try to find it with case-insensitive matching
+                for key in data:
+                    if key.lower() == field_name.lower():
+                        result[field_name] = data[key]
+                        break
+        
+        return result
+
+    def _reformat_with_llm(self, raw_output: str, output_schema: Dict[str, Any], model_name: str, temperature: float, max_tokens: int, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Reformat the raw output using an LLM based on the schema."""
+        # Create a prompt to reformat the output
+        prompt = (f"You are a formatting assistant. Reformat the following text to be valid JSON according to the schema:\n\n"
+                  f"TEXT: {raw_output}\n\n"
+                  f"SCHEMA: {json.dumps(output_schema, indent=2)}\n\n"
+                  f"Your response should contain ONLY the JSON object.")
+        
+        # Get the LLM
+        llm = self._get_llm(model=model_name, temperature=temperature, max_tokens=max_tokens)
+        
+        # Call the LLM
+        reformatted_output = llm.invoke(prompt).content.strip()
+        
+        # Parse the JSON
+        try:
+            parsed_output = self.parse_output_to_json(reformatted_output)
+            return parsed_output
+        except Exception as e:
+            raise ValueError(f"Error parsing reformatted JSON: {str(e)}")

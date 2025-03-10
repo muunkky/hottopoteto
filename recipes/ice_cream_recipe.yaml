@@ -18,23 +18,16 @@ links:
         default: "teenagers"
   - name: "Generate flavor name"
     type: "llm"
-    prompt: "Generate a unique name for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.inputs.Inspiration}} made for {{Initial_User_Inputs_output.inputs.Demographic}}."
+    prompt: "Generate a unique name for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.raw.inputs.Inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
     model: "gpt-4o"
     temperature: 0.5
     token_limit: 50
     execution_method: "direct"
-  - name: "Parse flavor name"
-    type: "llm"
-    template: "flavor_json_template.txt"
-    model: "gpt-4o"
-    temperature: 0.5
-    token_limit: 50
-    execution_method: "direct"
-  - name: "Save new flavor"
-    type: "sql"
-    query: "INSERT INTO flavors (flavor_name) VALUES ('{{Parse_flavor_name_output.output.result}}')"
-    database_url: "sqlite:///database/data.db"
-  - name: "List all flavors that contain this title"
-    type: "sql"
-    query: "SELECT flavor_name FROM flavors WHERE flavor_name LIKE '%{{Generate_flavor_name_output.output.result}}%'"
-    database_url: "sqlite:///database/data.db"
+    output_schema:
+      properties:
+        flavor_name:
+          type: "string"
+          description: "The generated flavor name"
+        description:
+          type: "string"
+          description: "A description of the flavor and its characteristics"

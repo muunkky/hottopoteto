@@ -1,7 +1,7 @@
-import logging
 import os
 import json
 import re
+import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, Union, List, ClassVar
 from pydantic import BaseModel, Field, ValidationError
@@ -9,12 +9,12 @@ from pydantic import BaseModel, Field, ValidationError
 # Default prompt directory - can be overridden by config
 DEFAULT_PROMPT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
 
+logger = logging.getLogger(__name__)
 class LinkConfig(BaseModel):
     """Base model for step configuration."""
     name: str
     type: str
     description: Optional[str] = None
-    output_format: Optional[str] = None
     output_schema: Optional[Dict[str, Any]] = None
     parameters: Optional[Dict[str, Any]] = Field(default_factory=dict)
     conversation: str = "default"  # added conversation field with default "default"
@@ -31,10 +31,14 @@ class LinkConfig(BaseModel):
         # Return the JSON schema for this config
         return self.schema()
 
+class OutputData(BaseModel):
+    raw: Any = Field(default=None, description="Raw, unprocessed output")
+    json: Optional[Dict[str, Any]] = Field(default=None, description="Schema-driven JSON formatted output")
+
 class LinkOutput(BaseModel):
     """Standardized output format for all links."""
     success: bool = True
-    data: Dict[str, Any] = Field(default_factory=dict)
+    data: OutputData = Field(default_factory=OutputData, description="Container for raw and JSON output")
     error: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -52,13 +56,11 @@ class BaseLink:
         Args:
             directory_path: Path to the prompt templates directory
         """
+        logging.info(f"Setting prompt directory to: {directory_path}")
         if not os.path.exists(directory_path):
-            logging.warning(f"⚠️ Prompt directory does not exist: {directory_path}")
             os.makedirs(directory_path, exist_ok=True)
-            logging.info(f"Created prompt directory: {directory_path}")
         
         cls.prompt_directory = directory_path
-        logging.info(f"Set prompt directory to: {directory_path}")
     
     @classmethod
     def get_prompt_path(cls, prompt_name: str) -> str:
@@ -92,20 +94,15 @@ class BaseLink:
         Raises:
             ValueError: If required fields are missing or invalid
         """
-        logging.debug(f"Validating configuration for {config.name}: {config}")
         required_fields = config.get_required_fields()
-        logging.debug(f"Validating required fields for {config.name}: {required_fields}")
         
         # Check that required fields exist in the config object
         for field in required_fields:
             if not hasattr(config, field) or getattr(config, field) is None:
-                logging.error(f"Missing required field '{field}' in config for {config.name}")
                 # Special case for parameters that might be in the config.parameters dict
                 if field not in ['name', 'type'] and hasattr(config, 'parameters') and config.parameters and field in config.parameters:
-                    logging.warning(f"Field '{field}' found in parameters, but should be a top-level field of config.parameters")
                     continue
                 
-                logging.error(f"Missing required field '{field}' in config for {config.name}")
                 raise ValueError(f"Required field '{field}' missing from step configuration '{config.name}'")
             
         # Validate type-specific requirements in subclasses
@@ -169,14 +166,13 @@ class BaseLink:
         try:
             output = LinkOutput(
                 success=success,
-                data=data,
+                data=result,
                 error=error,
                 metadata=metadata
             )
-            return output.dict()
+            return output.model_dump()
         except ValidationError as e:
             # If validation fails, return a simpler format
-            logging.error(f"Error creating standard output: {e}")
             return {
                 "success": False,
                 "data": {},
@@ -196,40 +192,50 @@ class BaseLink:
         Returns:
             Dict[str, Any]: Standardized output dictionary
         """
+        logging.info(f"Executing link: {self.__class__.__name__} with config: {config}")
+        logging.debug("Link execution started with context: %s", context)
         start_time = datetime.now()
         link_type = self.__class__.__name__
         step_name = config.name
         
-        logging.info(f"🔄 Starting execution of {link_type} for step '{step_name}'")
-        
         try:
             # Validate inputs
-            logging.debug(f"Validating inputs for {link_type} step '{step_name}'")
             self.validate_config(config)
             
             # Execute implementation
-            logging.debug(f"Executing implementation for {link_type} step '{step_name}'")
             result = self._execute_impl(config, context)
+            logger.trace("Raw result from _execute_impl: %s", result)
             
-            # Calculate execution time
+            # Process output schema if provided
+            if config.output_schema and isinstance(result, str):
+                processed_result = self._process_output_schema(result, config.output_schema, config, context)
+            else:
+                processed_result = {}
+            logger.trace("Processed result from _process_output_schema: %s", processed_result)
+            
+            # Create output data using raw and processed results
+            output_data = OutputData(raw=result, json=processed_result)
+            logger.trace("Constructed OutputData (data.json): %s", output_data.model_dump())
+            
+            # Calculate execution time and format output
             execution_time = (datetime.now() - start_time).total_seconds()
-            logging.info(f"✅ Completed {link_type} for step '{step_name}' in {execution_time:.2f}s")
-            
-            # Format and return output
-            return self.format_output(
-                result=result,
+            formatted_output = self.format_output(
+                result=output_data,
                 metadata={"execution_time": execution_time}
             )
+            logging.debug("Execution result: %s", formatted_output)
+            return formatted_output
             
         except Exception as e:
             execution_time = (datetime.now() - start_time).total_seconds()
-            logging.error(f"❌ Error in {link_type} for step '{step_name}': {str(e)}")
-            return self.format_output(
+            error_output = self.format_output(
                 result=None,
                 success=False,
                 error=str(e),
                 metadata={"execution_time": execution_time}
             )
+            logging.debug("Execution error: %s", error_output)
+            return error_output
     
     def _execute_impl(self, config: LinkConfig, context: Dict[str, Any]) -> Any:
         """
@@ -246,6 +252,37 @@ class BaseLink:
             NotImplementedError: If subclass doesn't implement this method
         """
         raise NotImplementedError("Subclasses must implement _execute_impl")
+    
+    def _process_output_schema(self, raw_output: str, schema: Dict[str, Any], config: LinkConfig, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Convert the raw output into a structured format based on the inline schema.
+        This conversion is done by sending a prompt to an LLM which is instructed as follows:
+        
+        "Please do your best to populate this JSON schema with the text below:
+        
+        {json schema}
+        
+        {text}"
+        
+        The method returns a standardized structure that always includes the raw output under 'result'
+        as well as the converted data.
+        """
+        import json
+        from langchain_openai import ChatOpenAI
+
+        conversion_prompt = (
+            "Please do your best to populate this JSON schema with the text below:\n\n"
+            f"{json.dumps(schema, indent=2)}\n\n===BEGIN TEXT FOR CONVERSION===\n\n"
+            f"{raw_output}"
+        )
+        try:
+            llm = ChatOpenAI(model=config.model, temperature=config.temperature, max_tokens=config.max_tokens)
+            response = llm.invoke(conversion_prompt)
+            conversion_result = response.content.strip()
+            converted_data = self.parse_output_to_json(conversion_result)
+        except Exception as e:
+            converted_data = {}
+        return converted_data
     
     # Shared file handling methods
     
@@ -267,17 +304,13 @@ class BaseLink:
             file_path = self.get_prompt_path(file_path)
             
         try:
-            logging.debug(f"Reading template file: {file_path}")
             self._validate_file_path(file_path)
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read()
-                logging.debug(f"Successfully read {len(content)} chars from {file_path}")
                 return content
         except FileNotFoundError:
-            logging.error(f"🚫 Template file not found: {file_path}")
             raise ValueError(f"Template file not found: {file_path}")
         except Exception as e:
-            logging.error(f"🚫 Error reading template file '{file_path}': {str(e)}")
             raise ValueError(f"Error reading template file '{file_path}': {str(e)}")
     
     def _validate_file_path(self, file_path: str) -> None:
@@ -301,10 +334,10 @@ class BaseLink:
                 file_path = prompt_path
             
         if not os.path.exists(file_path):
-            raise ValueValueError(f"File not found: {file_path}")
+            raise ValueError(f"File not found: {file_path}")
             
         if not os.path.isfile(file_path):
-            raise ValueValueError(f"Path is not a file: {file_path}")
+            raise ValueError(f"Path is not a file: {file_path}")
     
     def extract_parameters_from_template(self, template: str) -> List[str]:
         """
@@ -322,9 +355,8 @@ class BaseLink:
 
         unique_params = []
         for param in brace_params:
-            if param not in unique_params:
+            if (param not in unique_params):
                 unique_params.append(param)
-        logging.debug(f"Extracted parameters from template: {unique_params}")
         return unique_params
 
     def format_template_with_params(self, template: str, params: Dict[str, Any]) -> str:
@@ -337,7 +369,7 @@ class BaseLink:
         placeholder_pattern = re.compile(r'\{([^{}]+)\}')
         placeholders = placeholder_pattern.findall(template)
         missing = [p for p in placeholders if p not in params]
-        if missing:
+        if (missing):
             raise ValueError(f"Missing required parameters: {', '.join(missing)}")
 
         # Callback function to replace each placeholder with its value.
@@ -366,47 +398,40 @@ class BaseLink:
         Returns:
             Dictionary with parameters resolved from context
         """
-        logging.debug(f"Resolving context references for {param_key}")
-        
         if (param_key not in step_config):
-            logging.debug(f"No {param_key} found in step config")
             return {}
             
         resolved_params = {}
         param_count = len(step_config[param_key])
-        logging.debug(f"Resolving {param_count} parameters from context")
         
         for key, value in step_config[param_key].items():
-            if isinstance(value, str) and value.startswith('{{') and value.endswith('}}'):
+            if (isinstance(value, str) and value.startswith('{{') and value.endswith('}}')):
                 # Extract the reference path
                 ref_path = value[2:-2].strip()
                 # Split by dots to navigate nested objects
                 path_parts = ref_path.split('.')
                 
                 # Find the base object in context
-                if path_parts[0] in context:
+                if (path_parts[0] in context):
                     obj = context[path_parts[0]]
                     # Navigate through the nested path
                     for part in path_parts[1:]:
-                        if isinstance(obj, dict) and part in obj:
+                        if (isinstance(obj, dict) and part in obj):
                             obj = obj[part]
-                        elif hasattr(obj, part):
+                        elif (hasattr(obj, part)):
                             obj = getattr(obj, part)
                         else:
-                            logging.warning(f"Cannot find '{part}' in context path '{ref_path}'")
                             obj = None
                             break
                             
                     # Use the found value
                     resolved_params[key] = obj
                 else:
-                    logging.warning(f"Context reference '{path_parts[0]}' not found")
                     resolved_params[key] = value  # Keep original as fallback
             else:
                 # Not a reference, use as is
                 resolved_params[key] = value
                 
-        logging.debug(f"Successfully resolved {len(resolved_params)} parameters")
         return resolved_params
     
     def parse_output_to_json(self, output_text: str) -> Dict[str, Any]:
@@ -430,7 +455,7 @@ class BaseLink:
             
         # Try to extract JSON from markdown code blocks
         code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", output_text)
-        if (code_block_match):
+        if code_block_match:
             try:
                 return json.loads(code_block_match.group(1))
             except json.JSONDecodeError:
@@ -438,35 +463,26 @@ class BaseLink:
                 
         # Try to extract just a JSON object with regex
         json_obj_match = re.search(r"\{[\s\S]*\}", output_text)
-        if (json_obj_match):
+        if json_obj_match:
             try:
                 return json.loads(json_obj_match.group(0))
             except json.JSONDecodeError:
                 pass
         
-        # Try more lenient parsing - look for JSON array
         json_array_match = re.search(r"\[[\s\S]*\]", output_text)
-        if (json_array_match):
+        if json_array_match:
             try:
                 return json.loads(json_array_match.group(0))
             except json.JSONDecodeError:
                 pass
         
-        # Try fixing common JSON errors and retry parsing
         fixed_text = output_text
-        
-        # Replace single quotes with double quotes
-        fixed_text = re.sub(r"(?<![\\])\'", "\"", fixed_text)
-        
         # Fix trailing commas in objects
         fixed_text = re.sub(r",\s*}", "}", fixed_text)
-        
         # Fix trailing commas in arrays
         fixed_text = re.sub(r",\s*\]", "]", fixed_text)
-        
         # Add quotes around unquoted keys
         fixed_text = re.sub(r'([{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', fixed_text)
-        
         try:
             return json.loads(fixed_text)
         except json.JSONDecodeError:
@@ -480,9 +496,9 @@ class BaseLink:
                     return json.loads(match)
                 except json.JSONDecodeError:
                     continue
-        
+                    
         # If all parsing attempts fail, raise an error
-        raise ValueValueError(f"Failed to parse JSON from output: {output_text[:100]}...")
+        raise ValueError(f"Failed to parse JSON from output: {output_text[:100]}...")
     
     def append_json_schema_to_prompt(self, prompt_text: str, schema: Dict[str, Any]) -> str:
         """
@@ -496,17 +512,16 @@ class BaseLink:
             Prompt with schema instructions appended
         """
         schema_str = json.dumps(schema, indent=2)
-        
         return (f"{prompt_text}\n\n"
                 f"IMPORTANT: Your response MUST be formatted as valid JSON with this structure:\n"
                 f"```json\n{schema_str}\n```\n\n"
                 f"Ensure your response can be parsed as valid JSON.")
-
+    
     @classmethod
     def get_config_schema(cls, config: LinkConfig) -> Dict[str, Any]:
         # Convenience method to access the schema from the config instance
         return config.get_schema()
-
+    
     def resolve_placeholders_in_text(self, text: str, context: Dict[str, Any]) -> str:
         import re
         def replacer(match):
