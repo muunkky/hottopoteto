@@ -18,7 +18,7 @@ links:
         default: "teenagers"
   - name: "Generate flavor name"
     type: "llm"
-    prompt: "Generate a unique name for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.raw.inputs.Inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
+    prompt: "Generate a unique name and marketing description for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.raw.inputs.Inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
     model: "gpt-4o"
     temperature: 0.5
     token_limit: 50

@@ -162,12 +162,10 @@ class LLMLink(BaseLink):
             template_path = self.get_prompt_path(prompt_text)
             prompt_text = self.read_template_file(template_path)
         
-        # --- Changed block: resolve placeholders directly from context ---
         try:
             formatted_prompt = self.resolve_placeholders_in_text(prompt_text, context)
         except Exception as e:
             raise ValueError(f"Error replacing placeholders in prompt: {str(e)}")
-        # --- End changed block ---
         
         # Execute using appropriate method based on configuration
         if execution_method == "chain":
@@ -299,24 +297,3 @@ class LLMLink(BaseLink):
                         break
         
         return result
-
-    def _reformat_with_llm(self, raw_output: str, output_schema: Dict[str, Any], model_name: str, temperature: float, max_tokens: int, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Reformat the raw output using an LLM based on the schema."""
-        # Create a prompt to reformat the output
-        prompt = (f"You are a formatting assistant. Reformat the following text to be valid JSON according to the schema:\n\n"
-                  f"TEXT: {raw_output}\n\n"
-                  f"SCHEMA: {json.dumps(output_schema, indent=2)}\n\n"
-                  f"Your response should contain ONLY the JSON object.")
-        
-        # Get the LLM
-        llm = self._get_llm(model=model_name, temperature=temperature, max_tokens=max_tokens)
-        
-        # Call the LLM
-        reformatted_output = llm.invoke(prompt).content.strip()
-        
-        # Parse the JSON
-        try:
-            parsed_output = self.parse_output_to_json(reformatted_output)
-            return parsed_output
-        except Exception as e:
-            raise ValueError(f"Error parsing reformatted JSON: {str(e)}")

@@ -208,6 +208,7 @@ class BaseLink:
             
             # Process output schema if provided
             if config.output_schema and isinstance(result, str):
+                logger.trace(f"Processing output schema for step: {step_name}")
                 processed_result = self._process_output_schema(result, config.output_schema, config, context)
             else:
                 processed_result = {}
@@ -269,20 +270,47 @@ class BaseLink:
         """
         import json
         from langchain_openai import ChatOpenAI
+        
+        print("DEBUG CHECK: Entering _process_output_schema")  # Basic print for debugging
 
-        conversion_prompt = (
-            "Please do your best to populate this JSON schema with the text below:\n\n"
-            f"{json.dumps(schema, indent=2)}\n\n===BEGIN TEXT FOR CONVERSION===\n\n"
-            f"{raw_output}"
-        )
         try:
-            llm = ChatOpenAI(model=config.model, temperature=config.temperature, max_tokens=config.max_tokens)
-            response = llm.invoke(conversion_prompt)
-            conversion_result = response.content.strip()
-            converted_data = self.parse_output_to_json(conversion_result)
+            logger.trace(f"Processing output schema for step: {config.name}")
+            logger.trace(f"- Schema: {schema}")
+            logger.trace(f"- Raw output: {raw_output}")
+            json_schema = {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "title": f"Schema for {config.name}",
+                "description": "Structured data extracted from the raw output",
+                "properties": schema.get("properties", {}),
+                "required": schema.get("required", [])
+            }
+            
+            conversion_prompt = (
+                "Use the following schema to generate a json object that captures the information in the text below:\n\n"
+                "===BEGIN SCHEMA===\n"
+                f"{json.dumps(json_schema, indent=2)}\n"
+                "===END SCHEMA===\n\n"
+                f"Extract the information from this text:\n\n"
+                "===BEGIN TEXT===\n"
+                f"{raw_output}\n\n"
+                "===END TEXT===\n\n"
+                f"Return ONLY the JSON object with no additional text, explanation, or code blocks."
+            )
+            logger.trace(f"- Conversion prompt: {conversion_prompt}")
+
+            try:
+                llm = ChatOpenAI(model=config.model, temperature=config.temperature, max_tokens=config.max_tokens)
+                response = llm.invoke(conversion_prompt)
+                conversion_result = response.content.strip()
+                logger.trace(f"- Conversion result: {conversion_result}")
+                converted_data = self.parse_output_to_json(conversion_result)
+            except Exception as e:
+                converted_data = {}
+            return converted_data
         except Exception as e:
-            converted_data = {}
-        return converted_data
+            logger.error(f"Error processing output schema: {str(e)}")
+            raise
     
     # Shared file handling methods
     
@@ -448,53 +476,67 @@ class BaseLink:
             ValueError: If JSON parsing fails
         """
         # Try direct parsing first
+        logger.trace(f"🔍 Attempting to parse JSON from output: {output_text}")
         try:
             return json.loads(output_text)
         except json.JSONDecodeError:
+            logger.trace("Direct JSON parsing failed")
             pass
             
         # Try to extract JSON from markdown code blocks
+        logger.trace("Trying to extract JSON from code blocks")
         code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", output_text)
         if code_block_match:
             try:
                 return json.loads(code_block_match.group(1))
             except json.JSONDecodeError:
+                logger.trace("JSON parsing from code block failed")
                 pass
                 
         # Try to extract just a JSON object with regex
+        logger.trace("Trying to extract JSON object with regex")
         json_obj_match = re.search(r"\{[\s\S]*\}", output_text)
         if json_obj_match:
             try:
                 return json.loads(json_obj_match.group(0))
             except json.JSONDecodeError:
+                logger.trace("JSON parsing from object failed")
                 pass
         
+        logger.trace("Trying to extract JSON array with regex")
         json_array_match = re.search(r"\[[\s\S]*\]", output_text)
         if json_array_match:
             try:
                 return json.loads(json_array_match.group(0))
             except json.JSONDecodeError:
+                logger.trace("JSON parsing from array failed")
                 pass
-        
+        logger.trace(f"Trying to extract JSON from text: {output_text}")
         fixed_text = output_text
         # Fix trailing commas in objects
+        logger.trace(f"Fixing trailing commas in objects: {fixed_text}")
         fixed_text = re.sub(r",\s*}", "}", fixed_text)
         # Fix trailing commas in arrays
+        logger.trace(f"Fixing trailing commas in arrays: {fixed_text}")
         fixed_text = re.sub(r",\s*\]", "]", fixed_text)
         # Add quotes around unquoted keys
+        logger.trace(f"Adding quotes around unquoted keys: {fixed_text}")
         fixed_text = re.sub(r'([{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', fixed_text)
         try:
             return json.loads(fixed_text)
         except json.JSONDecodeError:
+            logger.trace("JSON parsing from fixed text failed")
             pass
             
         # As a last resort, try to search for any JSON-like structure
+        logger.trace("Trying to extract JSON from any structure")
         for pattern in [r"\{[^{]*\}", r"\[[^[]*\]"]:
             matches = re.findall(pattern, output_text)
             for match in matches:
                 try:
                     return json.loads(match)
                 except json.JSONDecodeError:
+                    logger.trace("JSON parsing from structure failed")
                     continue
                     
         # If all parsing attempts fail, raise an error
