@@ -77,7 +77,6 @@ def run_recipe(recipe_path: str):
     Args:
         recipe_path (str): Path to the recipe YAML file.
     """
-    logger.trace("Running recipe...")
     # Set up prompt directory
     project_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_dir = os.path.join(project_dir, "prompts")
@@ -88,7 +87,6 @@ def run_recipe(recipe_path: str):
     # Create and execute chain from recipe file
     logger.info(f"Starting chain execution from recipe: {recipe_path}")
     chain = Chain.from_recipe_file(recipe_path)
-    logger.trace(f"Chain created: {chain}")
     results = chain.execute()
     logger.info("Chain execution completed.")
 
@@ -112,6 +110,7 @@ def run_recipe(recipe_path: str):
         else:
             print(f"{key}: {formatted_value}")
     print("==================================")
+    logger.trace("Recipe execution finished.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a recipe from a YAML configuration file.")
@@ -135,5 +134,4 @@ if __name__ == "__main__":
     if not recipe_file.endswith(".yaml"):
         recipe_file += ".yaml"
     recipe_path = f"recipes/{recipe_file}"
-    logger.trace(f"Recipe path: {recipe_path}")
     run_recipe(recipe_path)

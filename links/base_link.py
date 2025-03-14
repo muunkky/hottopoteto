@@ -63,22 +63,32 @@ class BaseLink:
         cls.prompt_directory = directory_path
     
     @classmethod
-    def get_prompt_path(cls, prompt_name: str) -> str:
+    def get_prompt_path(cls, prompt_name: Union[str, Any]) -> str:
         """
         Get the full path for a prompt template file.
         
         Args:
-            prompt_name: Relative path or name of the prompt file
+            prompt_name: Relative path, name of the prompt file, or TemplateConfig object
             
         Returns:
             Full path to the prompt file
         """
+        # Handle TemplateConfig objects
+        if hasattr(prompt_name, 'file'):
+            prompt_name = prompt_name.file
+        elif isinstance(prompt_name, dict) and 'file' in prompt_name:
+            prompt_name = prompt_name['file']
+            
+        # If it's not a string at this point, we can't process it
+        if not isinstance(prompt_name, str):
+            raise ValueError(f"Cannot resolve path from object of type: {type(prompt_name).__name__}")
+            
         # If it's already an absolute path, return as is
         if os.path.isabs(prompt_name):
             return prompt_name
             
         # If it already contains the prompt directory, return as is
-        if (prompt_name.startswith(cls.prompt_directory)):
+        if prompt_name.startswith(cls.prompt_directory):
             return prompt_name
             
         # Otherwise, join with the prompt directory
@@ -149,30 +159,34 @@ class BaseLink:
             "link_type": self.__class__.__name__
         })
         
-        # Handle different result types
-        if result is None and success:
-            data = {}
-        elif isinstance(result, dict) and not isinstance(result, LinkOutput):
-            data = result
-        elif isinstance(result, (str, int, float, bool, list)):
-            data = {"result": result}
-        else:
-            # For complex objects, try to convert to dict if possible
-            try:
-                data = dict(result)
-            except (TypeError, ValueError):
-                data = {"result": str(result)}
-        
         try:
+            # Handle different result types for the data field
+            if isinstance(result, OutputData):
+                # Already an OutputData object, use it directly
+                output_data = result
+            else:
+                # Create a new OutputData object
+                if result is None:
+                    output_data = OutputData(raw=None, json=None)
+                elif isinstance(result, dict):
+                    output_data = OutputData(raw=result, json=result)
+                elif isinstance(result, (str, int, float, bool, list)):
+                    output_data = OutputData(raw=result, json={"result": result})
+                else:
+                    # For complex objects, use as raw and empty json
+                    output_data = OutputData(raw=result, json={})
+            
+            # Create the full output object
             output = LinkOutput(
                 success=success,
-                data=result,
+                data=output_data,
                 error=error,
                 metadata=metadata
             )
             return output.model_dump()
         except ValidationError as e:
             # If validation fails, return a simpler format
+            logger.error(f"Output formatting error: {e}")
             return {
                 "success": False,
                 "data": {},
@@ -213,28 +227,46 @@ class BaseLink:
                     processed_result = self._process_output_schema(result, config.output_schema, config, context)
                 elif isinstance(result, dict):
                     logger.trace(f"Processing dictionary output with schema for step: {step_name}")
-                    # For dictionaries, use the result directly as structured data if it matches the schema
-                    # or transform it if needed
-                    if "inputs" in result and isinstance(result["inputs"], dict):
-                        # Special case for UserInputLink which returns {"inputs": {...}}
-                        inputs = result["inputs"]
-                        # Create case-insensitive maps
-                        input_keys_map = {k.lower(): k for k in inputs.keys()}
-                        schema_props = config.output_schema.get("properties", {})
+                    logger.trace(f"Schema properties: {config.output_schema.get('properties', {})}")
+                    logger.trace(f"Result keys: {list(result.keys())}")
+                    
+                    # For dictionaries, use the result directly as structured data
+                    input_keys_map = {k.lower(): k for k in result.keys()}
+                    logger.trace(f"Case-insensitive key map: {input_keys_map}")
+                    
+                    schema_props = config.output_schema.get("properties", {})
+                    processed_result = {}
+                    
+                    for schema_key in schema_props:
+                        logger.trace(f"Processing schema key: '{schema_key}'")
+                        schema_key_lower = schema_key.lower()
+                        logger.trace(f"Lowercased schema key: '{schema_key_lower}'")
                         
-                        processed_result = {}
-                        for schema_key in schema_props:
-                            # Look for a case-insensitive match
-                            if schema_key.lower() in input_keys_map:
-                                # Use the actual case from the input
-                                input_key = input_keys_map[schema_key.lower()]
-                                processed_result[schema_key] = inputs[input_key]
-                    else:
-                        # No special handling needed
-                        processed_result = {}
+                        # Look for a case-insensitive match
+                        if schema_key_lower in input_keys_map:
+                            # Use the actual case from the input
+                            input_key = input_keys_map[schema_key_lower]
+                            logger.trace(f"Found match: schema key '{schema_key}' -> input key '{input_key}'")
+                            processed_result[schema_key] = result[input_key]
+                        else:
+                            logger.trace(f"No match found for schema key '{schema_key}'")
+                            
+                            # Try nested under 'inputs' if it exists
+                            if "inputs" in result and isinstance(result["inputs"], dict):
+                                inputs_keys_map = {k.lower(): k for k in result["inputs"].keys()}
+                                logger.trace(f"Checking in nested 'inputs'. Keys: {list(result['inputs'].keys())}")
+                                
+                                if schema_key_lower in inputs_keys_map:
+                                    nested_key = inputs_keys_map[schema_key_lower]
+                                    logger.trace(f"Found match in nested 'inputs': schema key '{schema_key}' -> input key '{nested_key}'")
+                                    processed_result[schema_key] = result["inputs"][nested_key]
+                                else:
+                                    logger.trace(f"No match found in nested 'inputs' for schema key '{schema_key}'")
                 else:
+                    logger.trace(f"Unhandled result type: {type(result).__name__}")
                     processed_result = {}
             else:
+                logger.trace("No output schema defined, skipping schema processing")
                 processed_result = {}
             logger.trace("Processed result from _process_output_schema: %s", processed_result)
             
@@ -412,30 +444,40 @@ class BaseLink:
         return unique_params
 
     def format_template_with_params(self, template: str, params: Dict[str, Any]) -> str:
-        """
-        Format a template string with provided parameters.
-        Supports both {param} and {{param}} formats.
-        Raises ValueError if a required parameter is missing.
-        """
-        # First check all required placeholders are present in our parameters.
-        placeholder_pattern = re.compile(r'\{([^{}]+)\}')
-        placeholders = placeholder_pattern.findall(template)
+        logger.trace(f"Formatting template with params: {params}")
+        result = template
+        # Handle double-brace format {{param}}
+        double_brace_pattern = re.compile(r'\{\{([^{}]+)\}\}')
+        placeholders = double_brace_pattern.findall(template)
+        
+        # Check that all required parameters are present
         missing = [p for p in placeholders if p not in params]
-        if (missing):
-            raise ValueError(f"Missing required parameters: {', '.join(missing)}")
-
-        # Callback function to replace each placeholder with its value.
-        def replacer(match):
-            key = match.group(1)
-            return str(params.get(key, match.group(0)))  # fallback returns original text
-
-        # Replace placeholders using our custom substitution.
-        formatted = placeholder_pattern.sub(replacer, template)
-
-        # Handle double-brace placeholders (if any) as literal braces.
-        # Replace occurrences of '{{' and '}}' with '{' and '}' respectively.
-        formatted = formatted.replace('{{', '{').replace('}}', '}')
-        return formatted
+        if missing:
+            logger.warning(f"Missing required template parameters: {missing}")
+            # Continue with empty values rather than failing
+        
+        # Replace each placeholder
+        for placeholder in placeholders:
+            if placeholder in params:
+                value = str(params.get(placeholder, ""))
+                logger.trace(f"format_template_with_params - Replacing placeholder {{'{placeholder}'}} with: {value}")
+                result = result.replace("{{" + placeholder + "}}", value)
+            else:
+                logger.trace(f"format_template_with_params - Placeholder {{'{placeholder}'}} not found in params, leaving as is")
+        logger.trace(f"format_template_with_params - Intermediate template after double-brace replacements: {result}")
+        
+        # Also handle single-brace format {param} for compatibility
+        single_brace_pattern = re.compile(r'\{([^{}]+)\}')
+        single_placeholders = single_brace_pattern.findall(result)
+        
+        for placeholder in single_placeholders:
+            if placeholder in params:
+                value = str(params.get(placeholder, ""))
+                logger.trace(f"format_template_with_params - Replacing single-brace placeholder {{{placeholder}}} with: {value}")
+                result = result.replace("{" + placeholder + "}", value)
+        
+        logger.trace(f"format_template_with_params - Final formatted template: {result}")
+        return result
     
     def resolve_context_references(self, step_config: Dict[str, Any], context: Dict[str, Any], 
                                  param_key: str = "parameters") -> Dict[str, Any]:
@@ -467,7 +509,7 @@ class BaseLink:
                 if (path_parts[0] in context):
                     obj = context[path_parts[0]]
                     # Navigate through the nested path
-                    for part in path_parts[1:]:
+                    for part in parts[1:]:
                         if (isinstance(obj, dict) and part in obj):
                             obj = obj[part]
                         elif (hasattr(obj, part)):
@@ -588,25 +630,69 @@ class BaseLink:
         # Convenience method to access the schema from the config instance
         return config.get_schema()
     
+    def _get_value_from_path(self, obj: Any, path: str) -> Any:
+        """
+        Navigate through an object using a dot-separated path.
+        
+        Args:
+            obj: The object to navigate (usually the context dictionary)
+            path: Dot-separated path like "step_name.output.data.field"
+            
+        Returns:
+            The value at the specified path
+        """
+        logger.trace(f"Getting value from path: {path} in object: {type(obj)}")
+        parts = path.split('.')
+        current = obj
+        
+        for part in parts:
+            logger.trace(f"Navigating path part: {part} in object: {type(current)}")  # ADDED
+            if current is None:
+                logger.trace(f"Path resolution failed at part: {part}")  # ADDED
+                return None
+
+            if isinstance(current, dict):
+                logger.trace(f"Current object is a dict. Getting key: {part}")
+                current = current.get(part)
+            else:
+                logger.trace(f"Current object is not a dict. Getting attribute: {part}")
+                try:
+                    current = getattr(current, part, None)
+                except AttributeError as e:
+                    logger.warning(f"AttributeError: {e}")
+                    return None
+                
+            if current is None:
+                logger.trace(f"Path resolution failed at part: {part}")  # ADDED
+                return None
+                
+            logger.trace(f"Current value after navigating part '{part}': {current}")
+                
+        return current
+
     def resolve_placeholders_in_text(self, text: str, context: Dict[str, Any]) -> str:
-        import re
-        def replacer(match):
-            placeholder = match.group(1)
-            parts = placeholder.split(".")
+        logger.trace(f"Resolving placeholders in text: {text}")
+        # If text is None, return empty string
+        if text is None:
+            return ""
             
-            # Start with the first part from context
-            value = context.get(parts[0], "")
-            
-            # Traverse the nested structure properly
-            for part in parts[1:]:
-                if isinstance(value, dict) and part in value:
-                    value = value[part]
-                elif hasattr(value, part):
-                    value = getattr(value, part)
-                else:
-                    logger.trace(f"Could not resolve path part '{part}' in placeholder '{placeholder}'")
-                    value = ""
-                    break
-                    
-            return str(value)
-        return re.sub(r"{{([^{}]+)}}", replacer, text)
+        # Regular expression to find placeholders like {{step_name.output.data.field}}
+        placeholder_pattern = r'\{\{([^}]+)\}\}'
+        
+        # Replace all placeholders in the text
+        def replace_placeholder(match):
+            path = match.group(1).strip()
+            try:
+                logger.trace(f"Attempting to resolve path: {path}")
+                # Navigate through the context to find the value
+                value = self._get_value_from_path(context, path)
+                logger.trace(f"Resolved value for path '{path}': {value}")
+                # Convert value to string if it exists, or return empty string
+                return str(value) if value is not None else ""
+            except (KeyError, AttributeError) as e:
+                logger.warning(f"Failed to resolve placeholder {path}: {str(e)}")
+                return ""
+                
+        result = re.sub(placeholder_pattern, replace_placeholder, text)
+        logger.trace(f"Resolved text: {result}")
+        return result

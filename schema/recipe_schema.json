@@ -3,7 +3,7 @@
   "title": "LangChain Recipe Schema",
   "description": "Schema for LangChain recipe YAML files",
   "type": "object",
-  "required": ["name", "version", "links"],
+  "required": ["name", "links"],
   "properties": {
     "name": {
       "type": "string",
@@ -15,13 +15,13 @@
     },
     "version": {
       "type": "string",
-      "description": "The version of the recipe",
-      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+      "description": "Recipe version"
     },
     "links": {
       "type": "array",
       "items": {
         "type": "object",
+        "required": ["name", "type"],
         "properties": {
           "name": {
             "type": "string",
@@ -45,8 +45,26 @@
             "description": "A dictionary of parameters for the step"
           },
           "template": {
-            "type": "string",
-            "description": "The template to use for the step"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "inputs": {
+                    "type": "object"
+                  }
+                },
+                "required": ["file"]
+              }
+            ]
+          },
+          "prompt": {
+            "type": "string"
           },
           "model": {
             "type": "string",
@@ -55,6 +73,15 @@
           "temperature": {
             "type": "number",
             "description": "The temperature to use for the LLM model"
+          },
+          "token_limit": {
+            "type": "number"
+          },
+          "max_tokens": {
+            "type": "number"
+          },
+          "execution_method": {
+            "type": "string"
           },
           "output_format": {
             "type": "string",
@@ -71,12 +98,14 @@
           "data": {
             "type": "object",
             "description": "The data to insert for the sqlite step"
+          },
+          "query": {
+            "type": "string"
+          },
+          "database_url": {
+            "type": "string"
           }
-        },
-        "required": [
-          "name",
-          "type"
-        ]
+        }
       }
     }
   },

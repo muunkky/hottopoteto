@@ -1,67 +1,61 @@
--- Drop old tables (use with caution)
-DROP TABLE IF EXISTS ice_cream_flavors;
-DROP TABLE IF EXISTS records;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS logs;
-DROP TABLE IF EXISTS flavors;
-
--- Create the ice cream flavors table
-CREATE TABLE ice_cream_flavors (
+CREATE TABLE Lexicon (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    flavor_name TEXT NOT NULL,
-    description TEXT,
-    inspiration TEXT,
-    demographic TEXT,
+    
+    -- Basic information
+    canonical_form TEXT NOT NULL,          -- The definitive form of the word
+    language TEXT NOT NULL,                -- E.g. "English", "Spanish", ISO code, etc.
+    part_of_speech TEXT NOT NULL,          -- Verb, Noun, Adjective, etc.
+    connotation TEXT,                      -- Extra nuance or implied meaning
+    declension TEXT,                       -- Declension classification (or "N/A")
+    
+    -- Morphological details
+    base_word TEXT,                        -- The single base word (if applicable)
+    compound_base_word TEXT,               -- For compound words as generated from base words
+    inflected_forms TEXT,                  -- Comma-separated list (or JSON) of inflected forms
+    
+    -- Verb-specific properties
+    verb_regularity TEXT,                  -- "Regular", "Irregular", etc.
+    tense_forms TEXT,                      -- Structured string (or JSON) for Present, Past, Gerund, etc.
+    
+    -- Noun, Adjective properties
+    noun_type TEXT,                        -- E.g. "Gerund", "Collective", etc.
+    adjective_type TEXT,                   -- E.g. "Descriptive", "Reflexive", etc.
+    
+    -- Other parts of speech
+    adverb_type TEXT,                      -- E.g. "Manner", "Frequency", etc.
+    preposition_type TEXT,                 -- E.g. "Spatial", "Temporal", "Metaphorical", etc.
+    conjunction_type TEXT,                 -- E.g. "Coordinating", "Subordinating"
+    
+    -- Usage, semantic and syntactic info
+    common_usage TEXT,                     -- Sample usage sentence(s) or notes
+    function TEXT,                         -- Describes the syntactic/functional role in sentences
+    synonyms TEXT,                         -- Comma-separated or JSON list
+    antonyms TEXT,                         -- Comma-separated or JSON list
+    additional_features TEXT,              -- Any extra flags or notes (e.g. "can also be X")
+    position_in_sentence TEXT,             -- Typical positional information
+    common_collocations TEXT,              -- Collocations or common phrases
+    multi_word_forms TEXT,                 -- Multi-word or idiomatic expressions
+    idiomatic_usage TEXT,                  -- Notes on idiomatic or figurative operations
+    
+    -- Phonetic and etymological data
+    etymology TEXT,                        -- Historical origins and derivations
+    ipa_pronunciation TEXT,                -- IPA transcription
+    phonetic_syllables TEXT,               -- Syllable breakdown
+    common_mistakes TEXT,                  -- Common errors/traps in usage
+    
+    -- Morphology & final processing
+    morphology TEXT,                       -- Summary of morphology adjustments applied
+    updated_word TEXT,                     -- The final form after all processing
+    revised_connotation TEXT,              -- Revised or expanded connotation, if applicable
+    
+    -- Extra miscellaneous data (if needed)
+    extra_info TEXT,                       -- JSON or free text for additional metadata
+    
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create a records table to match data_query.sql
-CREATE TABLE records (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    record_id TEXT NOT NULL,
-    data TEXT
-);
-
--- Create a users table
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL
-);
-
--- Create a logs table
-CREATE TABLE logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event TEXT NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create a flavors table
-CREATE TABLE flavors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    flavor_name TEXT NOT NULL
-);
-
--- Insert sample ice cream flavors
-INSERT INTO ice_cream_flavors (flavor_name, description, inspiration, demographic) VALUES 
-    ('Vanilla Dream', 'A classic vanilla with a dreamy, creamy texture', 'vanilla', 'everyone'),
-    ('Chocolate Thunder', 'Rich chocolate ice cream with fudge swirls', 'chocolate', 'chocolate lovers'),
-    ('Berry Blast', 'Mixed berry explosion with real fruit chunks', 'berries', 'fruit enthusiasts');
-
--- Insert test data into records table
-INSERT INTO records (record_id, data) VALUES 
-    ('rec1', 'Test data 1'),
-    ('rec2', 'Test data 2'),
-    ('rec3', 'Test data 3');
-
--- Insert test data into users table
-INSERT INTO users (name, email) VALUES 
-    ('Alice', 'alice@example.com'),
-    ('Bob', 'bob@example.com'),
-    ('Charlie', 'charlie@example.com');
-
--- Insert test data into logs table
-INSERT INTO logs (event) VALUES 
-    ('Event 1'),
-    ('Event 2'),
-    ('Event 3');
+-- Useful indexes for fast lookups:
+CREATE INDEX idx_lexicon_canonical_form ON Lexicon(canonical_form);
+CREATE INDEX idx_lexicon_language ON Lexicon(language);
+CREATE INDEX idx_lexicon_part_of_speech ON Lexicon(part_of_speech);
+CREATE INDEX idx_lexicon_created_at ON Lexicon(created_at);

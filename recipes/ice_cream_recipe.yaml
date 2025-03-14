@@ -26,7 +26,11 @@ links:
           description: "The target demographic for the ice cream flavor"
   - name: "Generate flavor name"
     type: "llm"
-    prompt: "Generate a unique name and very short marketing description for the ice cream flavor based on this inspiration: {{Initial_User_Inputs_output.data.json.inspiration}} made for {{Initial_User_Inputs_output.data.raw.inputs.Demographic}}."
+    template: 
+      file: "generate_flavor.txt"
+      inputs:
+        inspiration: "{{Initial_User_Inputs_output.data.raw.Inspiration}}"
+        demographic: "{{Initial_User_Inputs_output.data.raw.Demographic}}"
     model: "gpt-4o"
     temperature: 0.5
     token_limit: 50
@@ -42,7 +46,7 @@ links:
   - name: "Store Flavor Information"
     type: "sql"
     description: "Store the generated flavor information in the database"
-    query: "INSERT INTO ice_cream_flavors (flavor_name, description, inspiration, demographic) VALUES ('{{Generate_flavor_name_output.data.json.flavor_name}}', '{{Generate_flavor_name_output.data.json.description}}', '{{Initial_User_Inputs_output.data.raw.inputs.Inspiration}}', '{{Initial_User_Inputs_output.data.raw.inputs.Demographic}}');"
+    query: "INSERT INTO ice_cream_flavors (flavor_name, description, inspiration, demographic) VALUES ('{{Generate_flavor_name_output.data.json.flavor_name}}', '{{Generate_flavor_name_output.data.json.description}}', '{{Initial_User_Inputs_output.data.json.inspiration}}', '{{Initial_User_Inputs_output.data.json.demographic}}');"
     database_url: "sqlite:///database/data.db"
   - name: "Retrieve Flavor"
     type: "sql"

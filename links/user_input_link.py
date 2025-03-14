@@ -6,6 +6,9 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 from links.base_link import BaseLink, LinkConfig  # Import LinkConfig from base_link
 
+# Configure logger
+logger = logging.getLogger(__name__)
+
 # Constants for default values
 DEFAULT_INPUT_TYPE = "string"
 DEFAULT_FALLBACK_VALUES = {
@@ -68,7 +71,7 @@ class UserInputLink(BaseLink):
             template_file = config.template_file
         else:
             logging.debug("Trying to extract from parameters or top-level fields of LinkConfig")
-            config_dict = config.dict()
+            config_dict = config.model_dump()
             inputs = config_dict.get("inputs")
             template = config_dict.get("template")
             template_file = config_dict.get("template_file")
@@ -99,8 +102,8 @@ class UserInputLink(BaseLink):
         link_name = config.name
         logging.info(f"👤 Starting user input link: {link_name}")
         
-        # Use model_dump/dict with exclude_none=False to preserve subclass fields like "inputs"
-        link_config = config.dict(exclude_none=False)
+        # Use model_dump/dict with exclude_none=False to preserve subclass fields
+        link_config = config.model_dump(exclude_none=False)
         logging.debug(f"UserInputLink config: {link_config}")
         
         # Try to load template if specified
@@ -172,7 +175,7 @@ class UserInputLink(BaseLink):
                 result = self.DEFAULT_FALLBACK_VALUES.copy()
                 logging.info(f"Using class default values: {result}")
             
-            return {"inputs": result}
+            return result
         
         # Process each input field
         logging.info(f"Collecting {len(inputs)} inputs from user")
@@ -256,4 +259,4 @@ class UserInputLink(BaseLink):
         logging.info(f"✅ User input collection completed with {len(result)} fields")
         logging.debug(f"Collected inputs: {result}")
         
-        return {"inputs": result}
+        return result

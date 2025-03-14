@@ -95,10 +95,8 @@ class Chain:
         Returns:
             Chain instance configured with the recipe
         """
-        logging.info(f"Loading recipe file: {filepath}")
         recipe_data = cls.load_recipe_file(filepath)
         chain = cls(recipe_data)
-        logging.debug("Chain instance created from recipe file.")
         return chain
     
     @staticmethod
@@ -243,36 +241,41 @@ class Chain:
         return config_obj
     
     def execute(self, initial_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Execute the chain with all its linked links.
-        
-        Args:
-            initial_context: Optional initial context to use
-            
-        Returns:
-            Final context after executing all links
-        """
-        logger.trace("Starting chain execution.")
         context = initial_context or {}
         
         for i, link_config in enumerate(self.links):
             try:
-                logger.trace(f"🔗 Executing link {i + 1}: {link_config.name}")
                 resolved_link_config = self._resolve_parameters_in_config(link_config, context)
                 link_name = resolved_link_config.name.replace(' ', '_')
                 link_type = resolved_link_config.type
                 link_handler = self.get_link_handler(link_type)
-                output = link_handler.execute(resolved_link_config, context)
-                output_key = f"{link_name}_output"
-                context[output_key] = output
                 
-                if resolved_link_config.output_schema and output.get('success', False):
-                    self._validate_output_against_schema(output.get('data', {}), 
-                                                       resolved_link_config.output_schema,
-                                                       link_name)
+                try:
+                    output = link_handler.execute(resolved_link_config, context)
+                    output_key = f"{link_name}_output"
+                    context[output_key] = output
+                    
+                    # Log output for debugging
+                    logger.debug(f"Link {link_name} output: {output}")
+                    
+                    if resolved_link_config.output_schema and output.get('success', False):
+                        self._validate_output_against_schema(output.get('data', {}), 
+                                                           resolved_link_config.output_schema,
+                                                           link_name)
+                except Exception as e:
+                    logger.error(f"Error executing link {link_name}: {str(e)}", exc_info=True)
+                    output = {
+                        "success": False,
+                        "data": {},
+                        "error": f"Link execution error: {str(e)}",
+                        "metadata": {"timestamp": datetime.now().isoformat()}
+                    }
+                    output_key = f"{link_name}_output"
+                    context[output_key] = output
+                    # Continue with next link instead of stopping
                     
             except Exception as e:
-                pass
+                logger.error(f"Error preparing link {i + 1}: {str(e)}", exc_info=True)
         
         context['__chain_metadata__'] = {
             "name": self.name,

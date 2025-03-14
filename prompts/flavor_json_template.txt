@@ -1,1 +1,0 @@
-{name: "flavor_name", description: "A brief description of the new ice cream flavor"}
