@@ -1,0 +1,10 @@
+﻿Select one single origin language that we will use to construct our new word for "{{english_word}}". Pick one suitable for the word's meaning and cultural context. 
+
+The new word for will be derived from this one origin language
+
+- Old Elven: Use Old Elven for most common words with deep origins
+- Modern Elven: Use Modern elven for common words that are more subject to morphological influences and more modern nouns.
+- Old Dwarven: Use old dwarven for words that can be interpreted from basic physical actions and elements.
+- Sylvan: Sylvan  is the people’s language, by far the most commonly spoken tongue in Xurthana, this is the “fill in the blanks” origin language.
+- Celestial: Use it for words that are haughty, light, related to positive virtues or the sky.
+- Draconic: Use it for words related to old arcane stuff or things you want to sound really cool and stand out.

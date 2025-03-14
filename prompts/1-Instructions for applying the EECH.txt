@@ -1,0 +1,18 @@
+﻿# Instructions for applying the Eldorian Etymological Construction Heuristic (EECH)
+
+We are going to be creating a new word and lexicon entry in the conlang "Eldorian". 
+
+The word we will be creating an entry for will be "{{english_word}}". 
+More specifically with the connotation of "{{connotation}}"
+
+As we progress through this process, I'd like you to keep these rules in mind.
+
+Rules:
+- Don’t tell me what to do, just execute the steps.
+- Always read the entire instructions and follow all directions. Do not skip steps or simplify.
+- Only execute the directions in one prompt at a time.
+- Await my confirmation before proceeding to the next file.
+- Do not use any english words
+- Do not use any real words from any natural languages
+
+Confirm that you understand the instructions and which word we are creating an entry for so that I can proceed with Step 1.

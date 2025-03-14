@@ -1,0 +1,344 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Eldorian Word Entry",
+  "type": "object",
+  "required": ["word_id", "eldorian", "english", "core", "metadata"],
+  "properties": {
+    "word_id": {
+      "type": "string",
+      "description": "Unique identifier for the word"
+    },
+    "eldorian": {
+      "type": "string",
+      "description": "The Eldorian word"
+    },
+    "english": {
+      "type": "string",
+      "description": "English translation"
+    },
+    "core": {
+      "type": "object",
+      "required": ["part_of_speech", "pronunciation", "syllables"],
+      "properties": {
+        "part_of_speech": {
+          "type": "string",
+          "enum": ["noun", "verb", "adjective", "adverb", "preposition", "conjunction", "interjection", "pronoun"]
+        },
+        "pronunciation": {
+          "type": "object",
+          "properties": {
+            "ipa": {
+              "type": "string",
+              "description": "International Phonetic Alphabet pronunciation"
+            },
+            "stress_pattern": {
+              "type": "string",
+              "description": "Stress pattern marked as 0 (unstressed) and 1 (stressed)"
+            }
+          }
+        },
+        "syllables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Word broken into syllables"
+        },
+        "connotation": {
+          "type": "string",
+          "description": "Emotional or cultural connotation of the word"
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meaning": { "type": "string" },
+              "domain": { "type": "string" },
+              "register": { "type": "string" },
+              "examples": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "grammatical_properties": {
+      "oneOf": [
+        { "$ref": "#/definitions/NounProperties" },
+        { "$ref": "#/definitions/VerbProperties" },
+        { "$ref": "#/definitions/AdjectiveProperties" },
+        { "$ref": "#/definitions/OtherProperties" }
+      ]
+    },
+    "etymology": {
+      "type": "object",
+      "properties": {
+        "origin_words": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "word": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "meaning": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "historical_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "era": {"type": "string"},
+              "change_type": {"type": "string"},
+              "description": {"type": "string"},
+              "previous_form": {"type": "string"},
+              "new_form": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "derivatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "word": {"type": "string"},
+              "type": {"type": "string"},
+              "meaning": {"type": "string"},
+              "part_of_speech": {"type": "string"}
+            }
+          }
+        },
+        "synonyms": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "antonyms": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "morphological": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "target_id": {"type": "string"},
+              "properties": {"type": "object"}
+            }
+          }
+        },
+        "semantic": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "target_id": {"type": "string"},
+              "strength": {"type": "number"}
+            }
+          }
+        },
+        "etymological": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "target_id": {"type": "string"},
+              "language": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "homonyms": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "IDs of other words that sound the same"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["schema_version", "created_at"],
+      "properties": {
+        "schema_version": {"type": "string"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"},
+        "recipe_id": {"type": "string"},
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "generation_data": {
+      "type": "object",
+      "description": "Data from the generation process, preserved for reference"
+    }
+  },
+  "definitions": {
+    "NounProperties": {
+      "type": "object",
+      "properties": {
+        "$type": {"type": "string", "const": "NounProperties"},
+        "gender": {"type": "string"},
+        "countability": {"type": "string"},
+        "declension_class": {"type": "string"},
+        "case_forms": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "singular": {"type": "string"},
+                "plural": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "VerbProperties": {
+      "type": "object",
+      "properties": {
+        "$type": {"type": "string", "const": "VerbProperties"},
+        "transitivity": {"type": "string"},
+        "conjugation_class": {"type": "string"},
+        "tense_forms": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "first_singular": {"type": "string"},
+                "second_singular": {"type": "string"},
+                "third_singular": {"type": "string"},
+                "first_plural": {"type": "string"},
+                "second_plural": {"type": "string"},
+                "third_plural": {"type": "string"}
+              }
+            }
+          }
+        },
+        "aspect_forms": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "prefix": {"type": "string"},
+                "suffix": {"type": "string"},
+                "infix": {"type": "string"},
+                "position": {"type": "string"},
+                "example": {"type": "string"}
+              }
+            }
+          }
+        },
+        "mood_forms": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "prefix": {"type": "string"},
+                "suffix": {"type": "string"},
+                "singular": {"type": "string"},
+                "plural": {"type": "string"},
+                "example": {"type": "string"}
+              }
+            }
+          }
+        },
+        "participles": {
+          "type": "object",
+          "properties": {
+            "present": {"type": "string"},
+            "past": {"type": "string"},
+            "future": {"type": "string"}
+          }
+        },
+        "infinitive": {"type": "string"},
+        "verbal_noun": {"type": "string"}
+      }
+    },
+    "AdjectiveProperties": {
+      "type": "object",
+      "properties": {
+        "$type": {"type": "string", "const": "AdjectiveProperties"},
+        "comparison": {
+          "type": "object",
+          "properties": {
+            "comparative": {"type": "string"},
+            "superlative": {"type": "string"}
+          }
+        },
+        "agreement_forms": {
+          "type": "object",
+          "properties": {
+            "masculine": {"type": "string"},
+            "feminine": {"type": "string"},
+            "neuter": {"type": "string"},
+            "plural": {"type": "string"}
+          }
+        }
+      }
+    },
+    "OtherProperties": {
+      "type": "object",
+      "properties": {
+        "$type": {"type": "string", "const": "OtherProperties"},
+        "variations": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "word_id": "valar-a12c",
+      "eldorian": "valar",
+      "pronunciation": {
+        "ipa": "/valaɾ/"
+      },
+      "definitions": [
+        {
+          "meaning": "river bank",
+          "part_of_speech": "noun",
+          "domain": "geography"
+        }
+      ],
+      "homonyms": ["valar-b34d"]
+    },
+    {
+      "word_id": "valar-b34d",
+      "eldorian": "valar",
+      "pronunciation": {
+        "ipa": "/valaɾ/"
+      },
+      "definitions": [
+        {
+          "meaning": "financial institution",
+          "part_of_speech": "noun",
+          "domain": "commerce"
+        }
+      ],
+      "homonyms": ["valar-a12c"]
+    }
+  ]
+}

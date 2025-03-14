@@ -1,0 +1,36 @@
+﻿Confirmed, please proceed.
+
+Step 2 - Apply Morphology to {{compound_word}}, {{part_of_speech}} meaning {{english_word}}, {{connotation}}
+
+How to apply morphological changes in the eldorian lexicon
+- Choose {{num_events}} linguistic events should apply to this word and evolve the word naturaly through each.
+- select which letters, sounds, phonemes, or syllables to remove or change during each step.
+- Apply the changes in sequence and output the result
+
+then apply them. **Do not wait for confirmation**.
+
+Apply phonetic changes reflecting the language’s sound evolution by referencing the historical linguistic events and note any shifts in the word's meaning due to cultural, technological, or historical changes. the output of each should be the input for the next. Don't apply each step to the base word, but to the previous iteration. If the end result is the same as the base word, then you have failed.
+Don't be boring. Don't just change the same part of the word at each step.
+It’s totally fine to skip steps if they don’t make sense, you should only do 1-2 shifts normally, sometimes more. So don’t go applying all of them just because you think you have to do all of them.
+
+## 1. The Great Isolation and Linguistic Conservatism 
+Don't use if: an origin word is Sylvan
+Type of change: lengthening and beautification of words with no regard to efficiency
+Target Word Types: less frequently used words, esoteric words, heavily descriptive terms, nouns of uncommon things
+How to change: Expand on words to be very complicated and specific. Rather than "bird", it could be "bird soaring at night". Use phonetic changes that make the words sound more ancient or formal with no regard to the length or complexity.
+
+## 2. The Cataclysm and Linguistic Diversification
+Don't use if: it is an uncommon word or a word unlikely to be used in a practical setting.
+Type of change: streamlining communication for a sudden mix of races needing to communicate for trade.
+Target Word Types: Terms that may be used in important conversations, trade, and military use. Complex, but common, words that need to be shortened to ensure clarity amongst different races.
+How to Adapt: New words: mash up origin words from unrelated languages for new words. Existing words: Integrate or drop grammatical features that pose barriers to fluent communication. Truncate words with unnecessarily flowery spellings. Blend difficult sound pairings. Dramatically shorten unnecessarily long words and simplify their meaning.
+
+## 3. The Sylvan Confluence
+Type of change: dropping of accents and cyrillic letters. Streamlining of day-to-day language.
+Target word types: the most common words related to daily life. Anything mundane or ordinary. Words that don't to be especially thematic.
+How to Adapt: Make words sound a little more elven or sylvan without making them longer. Softening of hard consonants and a shift in sounds towards the front of the mouth.
+
+## 4. The Demonic Intrusions and the Evolution of Arcane Terminology
+Don’t use this one very often. Only go for the words that should be made to stand out a little thematically
+Type of change: change consonants to make words sound draconic.
+Target Word Types: military terms, arcane warfare, evil things, legendary stuff.

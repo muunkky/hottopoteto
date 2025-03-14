@@ -1,0 +1,19 @@
+﻿Confirmed, please proceed.
+
+Step 3 - Apply Phonology to {{eldorian_word}}
+
+Assess how complex this word is in meaning. Should it be long or short? Pick a number of syllables that fits the word before progressing. In general, it should have the same number of syllables as english, or one more, or one less.
+
+Adjust the word's usage context if it has broadened or narrowed over time.
+Use softening and simplification to simulate natural linguistic evolution, without losing the thematic feeling of the word.
+Pause for a minute and summarize the etymology, phonology, and morphology of the word and appreciate the word it has come to be. If there are more than one potential versions at this point, make a decision to select one. Then, do a gut check to see if the word is the kind of word that should be cool and then make sure it is as cool as it should be, but no more
+
+Target number of syllables: {{num_syllables}}
+
+Final check:
+- Does the word still relate to all origin words? Remove any origin words from this lexicon entry that don't apply after etymology, phonology, and morphology
+- Does the word end in “an,al,el,en”? (if so, remove the last two letters)
+- Remove all accents. Eldorian doesn’t use accents. Convert all letters to standard non-cyrillic characters.
+- Is the word more than 50% longer than its english counterpart? (if so, truncate it).
+
+Don’t make a lexicon entry yet

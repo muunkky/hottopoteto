@@ -1,0 +1,46 @@
+﻿### Step 4 - Derivatives of {{eldorian_word}} ({{english_word}}) - {{connotation}}
+
+#### Brainstorm Possible Meanings and Uses
+Explore the conceptual space surrounding the base word. Consider its various connotations, related actions, qualities, or states of being. Let your creativity flow and generate a list of potential meanings that could be expressed through derivatives.
+
+#### Apply Morphological Alterations
+Make any necessary morphological alterations to fit Eldorian grammatical or syntactical rules. Create derivatives such as adjectives, verbs, or other nouns that naturally stem from the original word.
+
+Make sure not to accidentally use real world words.
+
+- **Noun Formation from Verbs:** Use the suffix "-esse" to form nouns from verbs, indicating the action or concept derived from the verb. For example: "theleendresse" (greatness) from "theleend" (great), or "sirithesse" (the art or act of weaving) from "sirith" (to weave).
+- **Adjective Formation from Nouns:** Use the suffix "-an" or "-ain" to create adjectives from nouns. For example: "moran" (darkened, having the quality of darkness) from "mor" (dark), or "firain" (fiery, pertaining to or like fire) from "fira" (fire).
+- **Adverb Formation from Adjectives:** Attach "-lyr" or "-lar" to adjectives to create adverbs. For example: "velenlyr" (quickly) from "velen" (quick).
+- **Pluralization of Nouns:** Use "-ai" for regular pluralization. For example: "elenorai" (stars) from "elenor" (star).
+- **Gerund Formation from Verbs:** No change required. Just use the indicative version of the verb.
+- **Possessive Forms:** No changes required. Use "endin", "en'va", and the "'na" suffix appropriately.
+
+#### List Important Derivatives
+Generate a comprehensive list of important derivatives that have different meanings. Consider the following categories:
+
+- **Verbs derived from {{eldorian_word}}:**
+  - From Nouns: Action verbs, state verbs, causative verbs
+  - From Adjectives: Inchoative verbs, causative verbs, stative verbs
+  - From Adverbs: Action verbs, stative verbs
+- **Nouns derived from {{eldorian_word}}:**
+  - From Verbs: Action/process nouns, agent nouns, result/product nouns
+  - From Adverbs: Abstract nouns, nouns of time/place
+  - From Adjectives: Abstract nouns, collective nouns
+- **Adjectives derived from {{eldorian_word}}:**
+  - From Verbs: Participial adjectives (present, past), agent adjectives
+  - From Adverbs: Adverbial adjectives, adjectives of manner/degree
+  - From Nouns: Relational adjectives, qualitative adjectives, material adjectives
+- **Adverbs derived from {{eldorian_word}}:**
+  - From Verbs: Manner adverbs, frequency adverbs, temporal adverbs
+  - From Nouns: Adverbs of place, adverbs of time, adverbs of degree/extent
+  - From Adjectives: Adverbs of manner, adverbs of degree/extent
+
+#### Merge Redundant Derivatives
+Merge any redundant derivatives, preferring later evolutions. Ensure that each derivative has a distinct meaning and usage.
+Do a final review for general verbosity and cut superfluous words.
+
+#### Example Output
+Provide a structured list of derivatives with their meanings, part of speech, and any relevant notes or usage examples.
+
+
+Note: We are finding derivatives of the updated word "{{eldorian_word}}" after the morphological process. NOT the original compound word.

@@ -1,0 +1,17 @@
+﻿=== SELECTING {{origin_language}} WORDS ===
+
+The words below are just EXAMPLES. Don't actually use them. They are just made up words to show you how they sound.
+
+- Old Elven Sounds like elven from Lord of the Rings. Use Old Elven for most common words with deep origins, such as core language elements like conjunctions, basic prepositions, and universal nouns. Example words: Thælgoráthilíon, Sýlleth'oȅinór, Dríel'thë'enthiliót,Galá'thíon'núerith, Éärel'éla'lvânow, Fëá'rioth'endórib, Saurdk’xloar, Ára'nilásthálionëp, Él'vó'rënduil, Ele'dhrúin'weníliorëth
+- Modern Elven Sounds like a less guttural form of french with a tiny bit of swiss german. Use Modern elven for common words that are more subject to morphological influences and more modern nouns. Example words: Lúvïenash, Fálíthraeg, Sévoux, Fléurchárfränck, Lûneruïstre, Lendièrèmaî, Bôurgvalèncîre, Freïntroïmont, Lîshjâque
+- Old Dwarven Sounds like scandinavian and Olde English. Use old dwarven for words that can be interpreted from basic physical actions and elements. Example words: Thrang, Dromun, Nvár, Éalddrím, Grímánwýne, Hróthmòth, Hállvànthór, Díthmár, Brénnvár, Dráugskáìlgár, Björnfríth
+- Sylvan sounds like slavic languages with a bit of welsh. Sylvan  is the people’s language, by far the most commonly spoken tongue in Xurthana, this is the “fill in the blanks” origin language. Example words: Krovek, Glywra, Víchrèn, Grýnwýnmîr, Drûdòrthár, Bránprŷn, Zvêlzálskŷ, Váshgrýd, Máztažrík, Lléďvló
+- Celestial sounds like a choir singing Italian. Use it for words that are haughty, light, related to positive virtues or the sky. Example words: Rálìs, Èsáìna, Ónthùsthéñum, Ràvëù, Lïárä, Áìnós, Dòthávî, Thíriá, Théárálù, Nèlyáràthíïli
+- Draconic sounds like german with a bit of greek. Use it for words related to old arcane stuff or things you want to sound really cool and stand out. Example words: Zalt, Grummikklati, Krox, Machtril, Dorfdenthur, Sturio, Schiomnixma, Narzklugblitz, Sprellhel, Kothpyltherlos, Grytharchzy, Driwurz
+
+Create {{num_words}} origin words in {{origin_language}} to represent a translation of the english word {{english_word}} with the connotation: {{connotation}}, ensuring they are unique and not based on real-world languages. For example Avys might be an appropriate selection for something non-avian, but since it means "bird" in latin, it shouldn't be used for anything related to birds. Does that make sense?
+
+The origin words should not be the same as the final word. For example, the origin word of principle in Eldorian should not be “principle” in Old Elven. Perhaps the origins could mean “built on stone” or something. Be creative.
+Verify that new origin words do not mimic or resemble related words from any existing natural languages, particularly English, French, or Latin. This involves a careful review of the origin's phonetics and semantics. Common mistakes are to use a part of the word from a natural language.
+
+Once you have these words, design a compound word that pieces together a single word. This word can be pretty long as it will be shortened later.
