@@ -14,6 +14,7 @@ import hashlib
 import random
 from datetime import datetime
 import execjs
+from functools import lru_cache
 
 MAX_CONVERSATION_LENGTH = 15
 

@@ -2,7 +2,9 @@ import os
 import json
 import uuid
 import re
+import logging
 from typing import Dict, Any, Optional, List
+from datetime import datetime
 
 def generate_word_id(eldorian_word: str) -> str:
     """Generate a unique word ID based on the Eldorian word."""
@@ -69,3 +71,59 @@ def safe_load_json(file_path: str, default=None) -> Any:
     except Exception as e:
         print(f"Error loading JSON file {file_path}: {e}")
         return default
+
+def repair_word_entry(word_data: Dict, schema: Dict) -> Dict:
+    """
+    Automatically repair a word entry to match the schema.
+    
+    Args:
+        word_data: The word data to repair
+        schema: The schema to validate against
+        
+    Returns:
+        Dict: The repaired word data
+    """
+    repaired = word_data.copy()
+    
+    required_fields = schema.get("required", [])
+    schema_props = schema.get("properties", {})
+    for field in required_fields:
+        if field not in repaired:
+            # Use custom defaults for known fields
+            if field == "word_id" and "eldorian" in repaired and repaired.get("eldorian"):
+                repaired["word_id"] = generate_word_id(repaired["eldorian"])
+            elif field == "core":
+                repaired["core"] = {
+                    "part_of_speech": "noun",
+                    "pronunciation": {"ipa": ""},
+                    "syllables": [],
+                    "definitions": []
+                }
+            elif field == "metadata":
+                repaired["metadata"] = {
+                    "schema_version": "1.0",
+                    "created_at": datetime.now().isoformat()
+                }
+            else:
+                # Use expected type from schema if available
+                expected = schema_props.get(field, {}).get("type", "string")
+                if expected == "object":
+                    repaired[field] = {}
+                elif expected == "array":
+                    repaired[field] = []
+                else:
+                    repaired[field] = ""
+    
+    # Convert any datetime values in metadata
+    if "metadata" in repaired:
+        for time_field in ["created_at", "updated_at"]:
+            if time_field in repaired["metadata"] and isinstance(repaired["metadata"][time_field], datetime):
+                repaired["metadata"][time_field] = repaired["metadata"][time_field].isoformat()
+    
+    # Handle generation_data timestamps if present
+    if "generation_data" in repaired and "timestamp" in repaired["generation_data"]:
+        if isinstance(repaired["generation_data"]["timestamp"], datetime):
+            repaired["generation_data"]["timestamp"] = repaired["generation_data"]["timestamp"].isoformat()
+    
+    logging.info("Repaired word entry to conform to schema")
+    return repaired

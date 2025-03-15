@@ -4,20 +4,11 @@ import json
 from typing import Dict, Any
 
 def get_word_schema() -> Dict[str, Any]:
-    """
-    Load the word schema from the schema directory.
-    
-    Returns:
-        Dict[str, Any]: The word schema as a dictionary
-    """
+    """Load and return the word schema"""
     schema_path = os.path.join(os.path.dirname(__file__), "word_schema.json")
-    try:
-        with open(schema_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Word schema file not found at {schema_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Invalid JSON in schema file {schema_path}")
+    
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def get_schema(domain: str, schema_name: str) -> Dict[str, Any]:
     """

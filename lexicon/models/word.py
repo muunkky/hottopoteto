@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union, Literal, Any
 from pydantic import BaseModel, Field
 
-from ...core.models import GenericEntryModel
-from ..utils import generate_word_id
+from core.models import GenericEntryModel
+from lexicon.utils import generate_word_id
 
 class PronunciationModel(BaseModel):
     ipa: str = ""
@@ -28,6 +28,7 @@ class RelationshipModel(BaseModel):
 
 class NounPropertiesModel(BaseModel):
     type: Literal["NounProperties"] = "NounProperties"
+    type_field: str = Field("NounProperties", alias="$type")  # Changed from __type to type_field
     gender: str = "neutral"
     countability: str = "countable"
     declension_class: str = "regular"
@@ -35,6 +36,7 @@ class NounPropertiesModel(BaseModel):
 
 class VerbPropertiesModel(BaseModel):
     type: Literal["VerbProperties"] = "VerbProperties"
+    type_field: str = Field("VerbProperties", alias="$type")  # Changed from __type to type_field
     transitivity: str = "intransitive"
     conjugation_class: str = "regular"
     tense_forms: Dict = Field(default_factory=dict)
@@ -42,6 +44,7 @@ class VerbPropertiesModel(BaseModel):
 
 class AdjectivePropertiesModel(BaseModel):
     type: Literal["AdjectiveProperties"] = "AdjectiveProperties"
+    type_field: str = Field("AdjectiveProperties", alias="$type")  # Changed from __type to type_field
     comparison: Dict = Field(default_factory=dict)
     agreement_forms: Dict = Field(default_factory=dict)
 
@@ -69,6 +72,26 @@ class WordEntryModel(GenericEntryModel):
     # Override GenericEntryModel's fields to customize them for words
     id: str = Field(alias="word_id")
     
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert model to dictionary with proper field mapping."""
+        data = self.model_dump(by_alias=True)
+        # Ensure id is properly mapped to word_id
+        if "id" in data and "word_id" not in data:
+            data["word_id"] = data.pop("id")
+            
+        # Convert datetime objects to ISO format strings
+        if "metadata" in data:
+            for field in ["created_at", "updated_at"]:
+                if field in data["metadata"] and isinstance(data["metadata"][field], datetime):
+                    data["metadata"][field] = data["metadata"][field].isoformat()
+                    
+        # Handle any timestamps in generation_data
+        if "generation_data" in data and "timestamp" in data["generation_data"]:
+            if isinstance(data["generation_data"]["timestamp"], datetime):
+                data["generation_data"]["timestamp"] = data["generation_data"]["timestamp"].isoformat()
+                
+        return data
+        
     # Keep the from_recipe_output method
     @classmethod
     def from_recipe_output(cls, recipe_output: Dict) -> 'WordEntryModel':
@@ -76,6 +99,10 @@ class WordEntryModel(GenericEntryModel):
         # Extract base information from recipe output
         apply_phonology = recipe_output.get("Apply_Phonology", {})
         initial_inputs = recipe_output.get("Initial_User_Inputs", {})
+        
+        # Raise error if Initial_User_Inputs is not a dict-like object
+        if not hasattr(initial_inputs, 'get'):
+            raise AttributeError("Invalid type for Initial_User_Inputs: expected an object with a get() method.")
         
         # Safely extract data with proper fallbacks
         phonology_data = apply_phonology.get("data", {}) if hasattr(apply_phonology, 'get') else {}
@@ -93,8 +120,8 @@ class WordEntryModel(GenericEntryModel):
         origin_data = {}
         if "Generate_the_Origin_Words" in recipe_output:
             origin_link = recipe_output["Generate_the_Origin_Words"]
-            if hasattr(origin_link, 'get_data'):
-                origin_data = origin_link.get_data(fallback_to_raw=True)
+            if hasattr(origin_link, 'data'):
+                origin_data = origin_link.data.get("data", {})
             elif hasattr(origin_link, 'get'):
                 origin_data = origin_link.get("data", {})
         
@@ -105,7 +132,7 @@ class WordEntryModel(GenericEntryModel):
         if "Pronunciation" in recipe_output:
             pron_link = recipe_output["Pronunciation"]
             if hasattr(pron_link, 'get_data'):
-                pron_data = pron_link.get_data(fallback_to_raw=True)
+                pron_data = pron_link.data.get("data", {})
             elif hasattr(pron_link, 'get'):
                 pron_data = pron_link.get("data", {})
             pronunciation = {
@@ -129,6 +156,7 @@ class WordEntryModel(GenericEntryModel):
         grammar_props = {}
         if part_of_speech == "noun":
             grammar_props = {
+                "$type": "NounProperties",
                 "gender": "neutral",
                 "countability": "countable",
                 "declension_class": "regular",
@@ -141,6 +169,7 @@ class WordEntryModel(GenericEntryModel):
             }
         elif part_of_speech == "verb":
             grammar_props = {
+                "$type": "VerbProperties",
                 "transitivity": "intransitive",
                 "conjugation_class": "regular",
                 "tense_forms": {
@@ -152,6 +181,7 @@ class WordEntryModel(GenericEntryModel):
             }
         elif part_of_speech == "adjective":
             grammar_props = {
+                "$type": "AdjectiveProperties",
                 "comparison": {
                     "comparative": "",
                     "superlative": ""
@@ -167,6 +197,18 @@ class WordEntryModel(GenericEntryModel):
         # Create the grammatical properties instance
         grammatical_properties = grammar_model_class(**grammar_props)
         
+        # Create metadata model but don't convert to dict
+        metadata_obj = MetadataModel(
+            schema_version="1.0",
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            recipe_id="eldorian_word_v1",
+            tags=[]
+        )
+        
+        # Convert the MetadataModel to a dictionary
+        metadata_dict = metadata_obj.model_dump()
+
         # Build all the required data for the WordEntryModel
         return cls(
             word_id=word_id,
@@ -206,13 +248,7 @@ class WordEntryModel(GenericEntryModel):
                 "etymological": []
             },
             homonyms=[],
-            metadata=MetadataModel(
-                schema_version="1.0",
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-                recipe_id="eldorian_word_v1",
-                tags=[]
-            ),
+            metadata=metadata_dict,  # Pass the dictionary to the model
             generation_data={
                 "source": "recipe",
                 "timestamp": datetime.now().isoformat()

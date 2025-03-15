@@ -7,11 +7,20 @@ from jsonschema import validate, ValidationError
 import logging
 import jsonschema
 
-from .models.word import WordEntryModel
-from .schema import get_word_schema
-from .indexing import update_indices, load_index, search_by_criteria
-from .migrations import migrate_word
-from .utils import repair_word_entry
+# Change from relative to absolute imports
+from lexicon.models.word import WordEntryModel
+from lexicon.schema import get_word_schema
+from lexicon.indexing import update_indices, load_index, search_by_criteria
+from lexicon.migrations import migrate_word
+from lexicon.utils import repair_word_entry
+
+# Add a custom JSON encoder for datetime objects
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles datetime objects."""
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 class LexiconManager:
     """
@@ -22,6 +31,11 @@ class LexiconManager:
     def __init__(self, lexicon_dir: str = "lexicon"):
         """Initialize the lexicon manager with directory configuration"""
         self.lexicon_dir = lexicon_dir
+        # Check if the parent directory is writable
+        parent = os.path.dirname(os.path.abspath(lexicon_dir))
+        if not os.access(parent, os.W_OK):
+            raise Exception(f"Parent directory {parent} is not writable")
+            
         self.schema = get_word_schema()
         self.words_dir = os.path.join(lexicon_dir, "words")
         self.indices_dir = os.path.join(lexicon_dir, "indices")
@@ -39,7 +53,21 @@ class LexiconManager:
         if isinstance(word_entry, WordEntryModel):
             word_data = word_entry.to_dict()
         else:
-            word_data = word_entry
+            word_data = word_entry.copy()  # Make a copy to avoid modifying the original
+            
+            # Convert datetime objects in metadata to strings before validation
+            if "metadata" in word_data:
+                for field in ["created_at", "updated_at"]:
+                    if field in word_data["metadata"] and isinstance(word_data["metadata"][field], datetime):
+                        word_data["metadata"][field] = word_data["metadata"][field].isoformat()
+
+            # Handle any timestamps in generation_data
+            if "generation_data" in word_data and "timestamp" in word_data["generation_data"]:
+                if isinstance(word_data["generation_data"]["timestamp"], datetime):
+                    word_data["generation_data"]["timestamp"] = word_data["generation_data"]["timestamp"].isoformat()
+        
+        # Always repair the entry first to fix any issues
+        word_data = repair_word_entry(word_data, self.schema)
         
         # Validate against schema if requested
         if validate:
@@ -48,24 +76,33 @@ class LexiconManager:
                 logging.info(f"Word entry validated successfully against schema")
             except jsonschema.exceptions.ValidationError as e:
                 logging.error(f"Word entry failed schema validation: {e}")
-                # Fix the entry automatically
-                word_data = repair_word_entry(word_data, self.schema)
+                raise ValueError(f"Schema validation failed: {e}")  # Raise ValueError
         
         word_id = word_data["word_id"]
         
-        # Save the word file
-        word_file_path = os.path.join(self.words_dir, f"{word_data['eldorian'].lower()}.json")
+        # Save the word file - use the word ID for the filename, not the Eldorian word
+        word_file_path = os.path.join(self.words_dir, f"{word_id}.json")
         with open(word_file_path, 'w') as f:
-            json.dump(word_data, f, indent=2)
+            json.dump(word_data, f, indent=2, cls=DateTimeEncoder)
             
         # Update indices
         update_indices(word_data, self.indices_dir)
         
         return word_id
     
-    def get_word(self, word_id: str) -> Optional[Dict]:
-        """Retrieve a word by its ID"""
-        word_path = os.path.join(self.words_dir, f"{word_id}.json")
+    def get_word(self, word_id_or_name: str) -> Optional[Dict]:
+        """
+        Retrieve a word by its ID or Eldorian name.
+        First tries to find by word_id, then by Eldorian name if not found.
+        """
+        # Try by word_id first
+        word_path = os.path.join(self.words_dir, f"{word_id_or_name}.json")
+        
+        # If not found, try by Eldorian name
+        if not os.path.exists(word_path):
+            # Try as an Eldorian name
+            word_path = os.path.join(self.words_dir, f"{word_id_or_name.lower()}.json")
+            
         if not os.path.exists(word_path):
             return None
             
@@ -73,7 +110,7 @@ class LexiconManager:
             with open(word_path, 'r') as f:
                 return json.load(f)
         except Exception as e:
-            raise IOError(f"Error loading word {word_id}: {e}")
+            raise IOError(f"Error loading word {word_id_or_name}: {e}")
     
     def update_word(self, word_id: str, updates: Dict) -> Optional[Dict]:
         """Update an existing word entry with new data"""
@@ -102,7 +139,7 @@ class LexiconManager:
         # Save the updated word
         word_path = os.path.join(self.words_dir, f"{word_id}.json")
         with open(word_path, 'w') as f:
-            json.dump(current_word, f, indent=2)
+            json.dump(current_word, f, indent=2, cls=DateTimeEncoder)
             
         # Update indices
         update_indices(current_word, self.indices_dir)
@@ -190,7 +227,8 @@ class LexiconManager:
         Returns:
             str: The ID of the added word
         """
-        from ..domains.conlang import ConlangProcessor
+        # Change from relative to absolute import
+        from domains.conlang import ConlangProcessor
         
         # Process recipe output into a word entry
         processor = ConlangProcessor()

@@ -8,7 +8,7 @@ import logging
 import execjs
 from datetime import datetime
 from langchain_openai import ChatOpenAI
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, TemplateError
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, TemplateError, TemplateNotFound
 from jsonschema import validate, ValidationError
 from pydantic import BaseModel, Field
 
@@ -396,8 +396,74 @@ class RecipeExecutor:
         # Execute recipe links in sequence
         result = {}  # Initialize result
         
+        # Process links in order - handle both list and dictionary formats
+        links = self.recipe.get("links", [])
+        
+        # Convert links from list to dictionary if needed
+        links_dict = {}
+        if isinstance(links, list):
+            for link in links:
+                name = link.get("name", f"Link_{len(links_dict)}")
+                links_dict[name] = link
+        else:
+            links_dict = links
+        
+        # Check for circular dependencies in prompts before execution
+        dependency_graph = {}
+        for link_name, link_config in links_dict.items():
+            if link_config.get("type") == "llm":
+                dependencies = []
+                
+                # Check prompt for references
+                if "prompt" in link_config:
+                    prompt = link_config["prompt"]
+                    for other_link in links_dict:
+                        if other_link != link_name and f"{{{{ {other_link}" in prompt:
+                            dependencies.append(other_link)
+                
+                # Check template inputs for references
+                elif "template" in link_config and "inputs" in link_config["template"]:
+                    for input_val in link_config["template"]["inputs"].values():
+                        if isinstance(input_val, str):
+                            for other_link in links_dict:
+                                if other_link != link_name and f"{{{{ {other_link}" in input_val:
+                                    dependencies.append(other_link)
+                
+                dependency_graph[link_name] = dependencies
+        
+        # Check for cycles in the dependency graph
+        visited = set()
+        temp_visited = set()
+        
+        def has_cycle(node, path=None):
+            if path is None:
+                path = []
+            
+            if node in temp_visited:
+                cycle_path = " -> ".join(path + [node])
+                raise Exception(f"Circular dependency detected: {cycle_path}")
+            
+            if node in visited:
+                return False
+            
+            temp_visited.add(node)
+            path.append(node)
+            
+            for neighbor in dependency_graph.get(node, []):
+                if has_cycle(neighbor, path):
+                    return True
+            
+            temp_visited.remove(node)
+            visited.add(node)
+            path.pop()
+            return False
+        
+        # Check each node for cycles
+        for node in dependency_graph:
+            has_cycle(node)
+        
         # Process links in order
-        for link_name, link_config in self.recipe.get("links", {}).items():
+        for link_name, link_config in links_dict.items():
             link_type = link_config.get("type")
             link_config["name"] = link_name  # Ensure name is in config
             
@@ -577,236 +643,259 @@ class RecipeExecutor:
         
         return inputs
 
-def _execute_llm_link(self, link: Dict[str, Any]) -> LLMOutput:
-    """Execute an LLM link in the recipe."""
-    logging.info(f"Executing LLM link: {link['name']}")
-    
-    model_name = link.get('model', "gpt-4o")
-    temperature = link.get('temperature', 0.0)
-    token_limit = link.get('token_limit', 512)
-    output_schema = link.get('output_schema', None)
-    
-    base_context = build_context(self.memory)
-    
-    # Get formatted prompt
-    formatted_prompt = self._get_formatted_prompt(link, base_context)
-    if not formatted_prompt:
-        return LLMOutput(data={"error": "Failed to format prompt"})
-    
-    # Check if conversation management is enabled
-    conversation_mode = link.get('conversation', 'none')
-    
-    # Initialize conversation logs if needed
-    if '__conversations' not in self.memory:
-        self.memory['__conversations'] = {}
+    def _execute_llm_link(self, link: Dict[str, Any]) -> LLMOutput:
+        logging.info(f"Executing LLM link: {link['name']}")
         
-    if conversation_mode != 'none':
-        conversation_id = conversation_mode if conversation_mode != 'default' else 'default'
-        logger.trace(f"Using conversation mode with ID: {conversation_id}")
+        model_name = link.get('model', "gpt-4o")
+        temperature = link.get('temperature', 0.0)
+        token_limit = link.get('token_limit', 512)
+        output_schema = link.get('output_schema', None)
         
-        # Initialize this conversation if it doesn't exist
-        if conversation_id not in self.memory['__conversations']:
-            self.memory['__conversations'][conversation_id] = [
-                {"role": "system", "content": "You are a helpful AI assistant."}
-            ]
-            
-        # Get the conversation history
-        conversation = self.memory['__conversations'][conversation_id]
-        
-        # Add the current prompt as a user message
-        conversation.append({"role": "user", "content": formatted_prompt})
-        
-        # Create ChatOpenAI with conversation history
-        llm = ChatOpenAI(model_name=model_name, temperature=temperature, max_tokens=token_limit)
+        base_context = build_context(self.memory)
         
         try:
-            response = llm.invoke(conversation)
-            raw_result = response.content
-            
-            # Process the result
-            result = {"raw": raw_result}
-            
-            # First, check if we have a simple value response (not JSON)
-            if output_schema and "properties" in output_schema and "required" in output_schema:
-                # Try to handle simple responses (single number, word, etc.)
-                clean_result = raw_result.strip()
-                required_props = output_schema.get("required", [])
-                
-                # Check if this might be a simple value response
-                if len(required_props) == 1 and not (clean_result.startswith('{') or clean_result.startswith('[')):
-                    try:
-                        # Try to detect the type
-                        prop_name = required_props[0]
-                        prop_schema = output_schema["properties"].get(prop_name, {})
-                        prop_type = prop_schema.get("type", "string")
-                        
-                        # Convert to appropriate type
-                        if prop_type == "integer" and clean_result.isdigit():
-                            value = int(clean_result)
-                        elif prop_type == "number" and clean_result.replace('.', '', 1).isdigit():
-                            value = float(clean_result)
-                        elif prop_type == "boolean" and clean_result.lower() in ("true", "false", "yes", "no", "1", "0"):
-                            value = clean_result.lower() in ("true", "yes", "1")
-                        else:
-                            value = clean_result
-                        
-                        # Create a proper dictionary with the schema's required property
-                        result["data"] = {prop_name: value}
-                        return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
-                    except Exception as e:
-                        logger.trace(f"Failed to convert simple response: {e}")
-                        # Continue with normal JSON extraction
-            
-            # Add the response to conversation history
-            conversation.append({"role": "assistant", "content": raw_result})
-            
-            # Add conversation pruning
-            if len(conversation) > MAX_CONVERSATION_LENGTH:
-                # Keep system prompt + most recent messages
-                conversation = conversation[:1] + conversation[-(MAX_CONVERSATION_LENGTH-1):]
-            
-            # Parse with schema if provided
-            if output_schema:
-                try:
-                    extracted = extract_json(raw_result)
-                    parsed = json.loads(extracted)
-                    validate(instance=parsed, schema=output_schema)
-                    result["data"] = parsed
-                except (json.JSONDecodeError, ValidationError) as e:
-                    # Use schema processor
-                    result["data"] = self._process_output_schema(raw_result, output_schema, base_context)
-            else:
-                # No schema, use raw content
-                result["data"] = {"raw_content": raw_result}
-                
-            return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
-            
+            # Get formatted prompt - allow exceptions to propagate upward
+            formatted_prompt = self._get_formatted_prompt(link, base_context)
+            if not formatted_prompt:
+                return LLMOutput(data={"error": "Failed to format prompt"})
         except Exception as e:
-            logging.error(f"Error invoking LLM: {e}")
-            return LLMOutput(raw=f"Error: {str(e)}", data={"error": str(e)})
-    else:
-        # Direct LLM invocation without conversation history
-        try:
+            error_str = str(e)
+            # Re-raise missing template or circular dependency errors
+            if "Template file not found" in error_str or "Circular dependency" in error_str:
+                raise
+            return LLMOutput(data={"error": error_str})
+        
+        # Check if conversation management is enabled
+        conversation_mode = link.get('conversation', 'none')
+        
+        # Initialize conversation logs if needed
+        if '__conversations' not in self.memory:
+            self.memory['__conversations'] = {}
+            
+        if conversation_mode != 'none':
+            conversation_id = conversation_mode if conversation_mode != 'default' else 'default'
+            logger.trace(f"Using conversation mode with ID: {conversation_id}")
+            
+            # Initialize this conversation if it doesn't exist
+            if conversation_id not in self.memory['__conversations']:
+                self.memory['__conversations'][conversation_id] = [
+                    {"role": "system", "content": "You are a helpful AI assistant."}
+                ]
+                
+            # Get the conversation history
+            conversation = self.memory['__conversations'][conversation_id]
+            
+            # Add the current prompt as a user message
+            conversation.append({"role": "user", "content": formatted_prompt})
+            
+            # Create ChatOpenAI with conversation history
             llm = ChatOpenAI(model_name=model_name, temperature=temperature, max_tokens=token_limit)
-            response = llm.invoke(formatted_prompt)
-            raw_result = response.content
             
-            # Process the result
-            result = {"raw": raw_result}
-            
-            # First, check if we have a simple value response (not JSON)
-            if output_schema and "properties" in output_schema and "required" in output_schema:
-                # Try to handle simple responses (single number, word, etc.)
-                clean_result = raw_result.strip()
-                required_props = output_schema.get("required", [])
+            try:
+                response = llm.invoke(conversation)
+                raw_result = response.content
                 
-                # Check if this might be a simple value response
-                if len(required_props) == 1 and not (clean_result.startswith('{') or clean_result.startswith('[')):
-                    try:
-                        # Try to detect the type
-                        prop_name = required_props[0]
-                        prop_schema = output_schema["properties"].get(prop_name, {})
-                        prop_type = prop_schema.get("type", "string")
-                        
-                        # Convert to appropriate type
-                        if prop_type == "integer" and clean_result.isdigit():
-                            value = int(clean_result)
-                        elif prop_type == "number" and clean_result.replace('.', '', 1).isdigit():
-                            value = float(clean_result)
-                        elif prop_type == "boolean" and clean_result.lower() in ("true", "false", "yes", "no", "1", "0"):
-                            value = clean_result.lower() in ("true", "yes", "1")
-                        else:
-                            value = clean_result
-                        
-                        # Create a proper dictionary with the schema's required property
-                        result["data"] = {prop_name: value}
-                        return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
-                    except Exception as e:
-                        logger.trace(f"Failed to convert simple response: {e}")
-                        # Continue with normal JSON extraction
-            
-            # Parse with schema if provided
-            if output_schema:
-                try:
-                    extracted = extract_json(raw_result)
-                    parsed = json.loads(extracted)
-                    validate(instance=parsed, schema=output_schema)
-                    result["data"] = parsed
-                except (json.JSONDecodeError, ValidationError) as e:
-                    # Use schema processor
-                    result["data"] = self._process_output_schema(raw_result, output_schema, base_context)
-            else:
-                # No schema, use raw content
-                result["data"] = {"raw_content": raw_result}
+                # Process the result
+                result = {"raw": raw_result}
                 
-            return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
-            
-        except Exception as e:
-            logging.error(f"Error invoking LLM: {e}")
-            return LLMOutput(raw=f"Error: {str(e)}", data={"error": str(e)})
-
-def _get_formatted_prompt(self, link: Dict[str, Any], context: Dict[str, Any]) -> str:
-    """Get a formatted prompt from either template file or direct prompt."""
-    if "template" in link:
-        try:
-            template_file = link['template']['file']
-            jinja_template = self.env.get_template(template_file)
-            
-            inputs_context = {}
-            if 'inputs' in link['template']:
-                for key, raw_val in link['template']['inputs'].items():
+                # First, check if we have a simple value response (not JSON)
+                if output_schema and "properties" in output_schema and "required" in output_schema:
+                    # Try to handle simple responses (single number, word, etc.)
+                    clean_result = raw_result.strip()
+                    required_props = output_schema.get("required", [])
+                    
+                    # Check if this might be a simple value response
+                    if len(required_props) == 1 and not (clean_result.startswith('{') or clean_result.startswith('[')):
+                        try:
+                            # Try to detect the type
+                            prop_name = required_props[0]
+                            prop_schema = output_schema["properties"].get(prop_name, {})
+                            prop_type = prop_schema.get("type", "string")
+                            
+                            # Convert to appropriate type
+                            if prop_type == "integer" and clean_result.isdigit():
+                                value = int(clean_result)
+                            elif prop_type == "number" and clean_result.replace('.', '', 1).isdigit():
+                                value = float(clean_result)
+                            elif prop_type == "boolean" and clean_result.lower() in ("true", "false", "yes", "no", "1", "0"):
+                                value = clean_result.lower() in ("true", "yes", "1")
+                            else:
+                                value = clean_result
+                            
+                            # Create a proper dictionary with the schema's required property
+                            result["data"] = {prop_name: value}
+                            return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
+                        except Exception as e:
+                            logger.trace(f"Failed to convert simple response: {e}")
+                            # Continue with normal JSON extraction
+                
+                # Add the response to conversation history
+                conversation.append({"role": "assistant", "content": raw_result})
+                
+                # Add conversation pruning
+                if len(conversation) > MAX_CONVERSATION_LENGTH:
+                    # Keep system prompt + most recent messages
+                    conversation = conversation[:1] + conversation[-(MAX_CONVERSATION_LENGTH-1):]
+                
+                # Parse with schema if provided
+                if output_schema:
                     try:
-                        t = self.env.from_string(raw_val)
-                        rendered_val = t.render(**context)
-                        inputs_context[key] = rendered_val
-                    except Exception as e:
-                        logging.error(f"Error rendering input for key '{key}': {e}")
-                        inputs_context[key] = ""
-                        
-            combined_context = {**context, **inputs_context}
-            return jinja_template.render(**combined_context)
-            
-        except Exception as e:
-            logging.error(f"Error loading/rendering template: {e}")
-            return ""
-            
-    elif "prompt" in link:
-        # Process direct prompt as a Jinja template
-        try:
-            prompt_template = self.env.from_string(link["prompt"])
-            return prompt_template.render(**context)
-        except Exception as e:
-            logging.error(f"Error rendering prompt: {e}")
-            return ""
-            
-    logging.error("LLM link has neither a 'template' nor a 'prompt'.")
-    return ""
+                        extracted = extract_json(raw_result)
+                        parsed = json.loads(extracted)
+                        validate(instance=parsed, schema=output_schema)
+                        result["data"] = parsed
+                    except (json.JSONDecodeError, ValidationError) as e:
+                        # Use schema processor
+                        result["data"] = self._process_output_schema(raw_result, output_schema, base_context)
+                else:
+                    # No schema, use raw content
+                    result["data"] = {"raw_content": raw_result}
+                    
+                return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
+                
+            except Exception as e:
+                logging.error(f"Error invoking LLM: {e}")
+                return LLMOutput(raw=f"Error: {str(e)}", data={"error": str(e)})
+        else:
+            # Direct LLM invocation without conversation history
+            try:
+                llm = ChatOpenAI(model_name=model_name, temperature=temperature, max_tokens=token_limit)
+                response = llm.invoke(formatted_prompt)
+                raw_result = response.content
+                
+                # Process the result
+                result = {"raw": raw_result}
+                
+                # First, check if we have a simple value response (not JSON)
+                if output_schema and "properties" in output_schema and "required" in output_schema:
+                    # Try to handle simple responses (single number, word, etc.)
+                    clean_result = raw_result.strip()
+                    required_props = output_schema.get("required", [])
+                    
+                    # Check if this might be a simple value response
+                    if len(required_props) == 1 and not (clean_result.startswith('{') or clean_result.startswith('[')):
+                        try:
+                            # Try to detect the type
+                            prop_name = required_props[0]
+                            prop_schema = output_schema["properties"].get(prop_name, {})
+                            prop_type = prop_schema.get("type", "string")
+                            
+                            # Convert to appropriate type
+                            if prop_type == "integer" and clean_result.isdigit():
+                                value = int(clean_result)
+                            elif prop_type == "number" and clean_result.replace('.', '', 1).isdigit():
+                                value = float(clean_result)
+                            elif prop_type == "boolean" and clean_result.lower() in ("true", "false", "yes", "no", "1", "0"):
+                                value = clean_result.lower() in ("true", "yes", "1")
+                            else:
+                                value = clean_result
+                            
+                            # Create a proper dictionary with the schema's required property
+                            result["data"] = {prop_name: value}
+                            return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
+                        except Exception as e:
+                            logger.trace(f"Failed to convert simple response: {e}")
+                            # Continue with normal JSON extraction
+                
+                # Parse with schema if provided
+                if output_schema:
+                    try:
+                        extracted = extract_json(raw_result)
+                        parsed = json.loads(extracted)
+                        validate(instance=parsed, schema=output_schema)
+                        result["data"] = parsed
+                    except (json.JSONDecodeError, ValidationError) as e:
+                        # Use schema processor
+                        result["data"] = self._process_output_schema(raw_result, output_schema, base_context)
+                else:
+                    # No schema, use raw content
+                    result["data"] = {"raw_content": raw_result}
+                    
+                return LLMOutput(raw=result.get("raw"), data=result.get("data", {}))
+                
+            except Exception as e:
+                logging.error(f"Error invoking LLM: {e}")
+                return LLMOutput(raw=f"Error: {str(e)}", data={"error": str(e)})
 
-def _process_output_schema(self, raw_output: str, schema: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-    """Transform raw LLM output into structured data conforming to schema."""
-    conversion_prompt = (
-        "Use the following schema to generate a JSON object that captures the information in the text below:\n\n"
-        "===BEGIN SCHEMA===\n"
-        f"{json.dumps(schema, indent=2)}\n"
-        "===END SCHEMA===\n\n"
-        f"Extract the information from this text:\n\n"
-        "===BEGIN TEXT===\n"
-        f"{raw_output}\n\n"
-        "===END TEXT===\n\n"
-        f"Return ONLY the JSON object with no additional text, explanation, or code blocks."
-    )
-    
-    try:
-        # Use a more constrained model for structured data extraction
-        llm = ChatOpenAI(model_name="gpt-4o", temperature=0.0)
-        response = llm.invoke(conversion_prompt)
-        structured_text = response.content
+    def _get_formatted_prompt(self, link: Dict[str, Any], context: Dict[str, Any]) -> str:
+        """Get a formatted prompt from either template file or direct prompt."""
+        if "template" in link:
+            try:
+                template_file = link['template']['file']
+                jinja_template = self.env.get_template(template_file)
+                
+                inputs_context = {}
+                if 'inputs' in link['template']:
+                    for key, raw_val in link['template']['inputs'].items():
+                        try:
+                            t = self.env.from_string(raw_val)
+                            rendered_val = t.render(**context)
+                            inputs_context[key] = rendered_val
+                        except Exception as e:
+                            logging.error(f"Error rendering input for key '{key}': {e}")
+                            inputs_context[key] = ""
+                            
+                combined_context = {**context, **inputs_context}
+                return jinja_template.render(**combined_context)
+                
+            except (TemplateNotFound, FileNotFoundError) as e:
+                logging.error(f"Template file not found: {e}")
+                raise Exception(f"Template file not found: {template_file}")
+            except Exception as e:
+                logging.error(f"Error loading/rendering template: {e}")
+                raise Exception(f"Error loading/rendering template: {e}")
+                
+        elif "prompt" in link:
+            # Process direct prompt as a Jinja template
+            try:
+                prompt_template = self.env.from_string(link["prompt"])
+                return prompt_template.render(**context)
+            except Exception as e:
+                logging.error(f"Error rendering prompt: {e}")
+                
+                # Check for potential circular references which could lead to infinite loops
+                error_str = str(e)
+                if "is undefined" in error_str:
+                    # This could be due to circular reference between links
+                    if any(key in error_str for key in self.memory.keys()):
+                        raise Exception(f"Possible circular reference in template: {e}")
+                
+                return ""
+                
+        logging.error("LLM link has neither a 'template' nor a 'prompt'.")
+        return ""
+
+    def _process_output_schema(self, raw_output: str, schema: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform raw LLM output into structured data conforming to schema."""
+        conversion_prompt = (
+            "Use the following schema to generate a JSON object that captures the information in the text below:\n\n"
+            "===BEGIN SCHEMA===\n"
+            f"{json.dumps(schema, indent=2)}\n"
+            "===END SCHEMA===\n\n"
+            f"Extract the information from this text:\n\n"
+            "===BEGIN TEXT===\n"
+            f"{raw_output}\n\n"
+            "===END TEXT===\n\n"
+            f"Return ONLY the JSON object with no additional text, explanation, or code blocks."
+        )
         
-        # Try to extract valid JSON
-        extracted = extract_json(structured_text)
-        structured_data = json.loads(extracted)
-        
-        return structured_data
-    except Exception as e:
-        logging.error(f"Error during schema processing: {e}")
-        return {}
+        try:
+            # Use a more constrained model for structured data extraction
+            llm = ChatOpenAI(model_name="gpt-4o", temperature=0.0)
+            response = llm.invoke(conversion_prompt)
+            structured_text = response.content
+            
+            # Try to extract valid JSON
+            extracted = extract_json(structured_text)
+            structured_data = json.loads(extracted)
+            
+            return structured_data
+        except Exception as e:
+            logging.error(f"Error during schema processing: {e}")
+            return {}
+
+class TerminateProcessException(Exception):
+    """Custom exception to signal termination of the recipe process."""
+    def __init__(self, message="Process terminated by function"):
+        self.message = message
+        super().__init__(self.message)

@@ -58,6 +58,12 @@ def _migrate_1_0_to_1_1(word_entry: Dict) -> Dict:
             }
         ]
     
+    # Ensure metadata exists and has created_at
+    if "metadata" not in migrated:
+        migrated["metadata"] = {}
+    if "created_at" not in migrated["metadata"]:
+        migrated["metadata"]["created_at"] = datetime.now().isoformat()
+    
     return migrated
 
 def _migrate_1_1_to_1_2(word_entry: Dict) -> Dict:

@@ -1,0 +1,133 @@
+.
+├── __init__.py
+├── __pycache__
+│   ├── __init__.cpython-312.pyc
+│   ├── __init__.cpython-313.pyc
+│   ├── __init__.cpython-39.pyc
+│   ├── chain.cpython-312.pyc
+│   ├── chain.cpython-39.pyc
+│   ├── config.cpython-312.pyc
+│   ├── main.cpython-312.pyc
+│   ├── models.cpython-312.pyc
+│   ├── models.cpython-39.pyc
+│   ├── registry.cpython-312.pyc
+│   └── test_langchain.cpython-312-pytest-7.4.4.pyc
+├── agents
+│   ├── __init__.py
+│   └── __pycache__
+│       ├── __init__.cpython-312.pyc
+│       └── function_calls.cpython-312.pyc
+├── core
+│   ├── __pycache__
+│   │   ├── executor.cpython-312.pyc
+│   │   └── models.cpython-312.pyc
+│   ├── executor.py
+│   ├── models.py
+│   └── registry.py
+├── docs
+│   ├── lexicon_example.md
+│   └── trace_logger.md
+├── domains
+│   ├── __init__.py
+│   └── conlang
+│       ├── __init__.py
+│       ├── models.py
+│       └── processors.py
+├── lexicon
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── indexing.cpython-312.pyc
+│   │   ├── manager.cpython-312.pyc
+│   │   ├── migrations.cpython-312.pyc
+│   │   └── utils.cpython-312.pyc
+│   ├── indexing.py
+│   ├── indices
+│   ├── main.py
+│   ├── manager.py
+│   ├── migrations.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── word.py
+│   ├── schema
+│   │   ├── SCHEMA_DESIGN.md
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── word_schema.json
+│   ├── utils.py
+│   └── words
+├── prompts
+│   ├── 1-Instructions for applying the EECH.txt
+│   ├── 2-Select the origin language.txt
+│   ├── 3-Generate the origin words.txt
+│   ├── 4-Apply Morphology.txt
+│   ├── 5-Apply Phonology.txt
+│   └── 6-Derivatives.txt
+├── recipes
+│   ├── conlang
+│   │   └── eldorian_word.yaml
+│   ├── storytelling
+│   ├── test
+│   │   └── test_recipe.yaml
+│   └── worldbuilding
+├── requirements.txt
+├── schema
+│   └── recipe_schema.json
+├── server
+│   └── docs_server.py
+├── test_langchain.py
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── conftest.cpython-312-pytest-7.4.4.pyc
+│   │   ├── conftest.cpython-313-pytest-8.3.5.pyc
+│   │   ├── conftest.cpython-39-pytest-7.1.1.pyc
+│   │   ├── test_config_loader.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_config_loader.cpython-313-pytest-8.3.5.pyc
+│   │   ├── test_config_loader.cpython-39-pytest-7.1.1.pyc
+│   │   ├── test_executor_errors.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_indexing.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_integration.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_integration.cpython-313-pytest-8.3.5.pyc
+│   │   ├── test_integration.cpython-39-pytest-7.1.1.pyc
+│   │   ├── test_lexicon_integration.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_lexicon_manager.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_lexicon_manager_errors.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_link_config.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_link_config_defaults.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_migrations.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_parameter_resolver.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_prompt_chain.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_recipe_loader.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_sequential_chain.cpython-312-pytest-7.4.4.pyc
+│   │   └── test_word_entry_model.cpython-312-pytest-7.4.4.pyc
+│   ├── conftest.py
+│   ├── test_executor_errors.py
+│   ├── test_indexing.py
+│   ├── test_lexicon_integration.py
+│   ├── test_lexicon_manager.py
+│   ├── test_lexicon_manager_errors.py
+│   ├── test_migrations.py
+│   └── test_word_entry_model.py
+├── tree.txt
+└── utils
+    ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-312.pyc
+    │   ├── __init__.cpython-313.pyc
+    │   ├── __init__.cpython-39.pyc
+    │   ├── config_loader.cpython-312.pyc
+    │   ├── config_loader.cpython-313.pyc
+    │   ├── config_loader.cpython-39.pyc
+    │   ├── interactive_input.cpython-312.pyc
+    │   ├── output_formatter.cpython-312.pyc
+    │   ├── parameter_resolver.cpython-312.pyc
+    │   └── recipe_loader.cpython-312.pyc
+    ├── clean_unused_files.py
+    └── cleanup.ps1
+
+28 directories, 102 files
