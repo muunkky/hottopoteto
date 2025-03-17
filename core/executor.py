@@ -370,6 +370,7 @@ class RecipeExecutor:
         self.memory = {}
         
         # Initialize function registry with default functions
+        # TODO: make this configurable/scalable with a broad set of standard functions
         self.function_registry = {
             "random_number": self._function_random_number
         }
@@ -394,7 +395,7 @@ class RecipeExecutor:
         inputs = inputs or {}
         
         # Execute recipe links in sequence
-        result = {}  # Initialize result
+        result = {}
         
         # Process links in order - handle both list and dictionary formats
         links = self.recipe.get("links", [])
@@ -409,6 +410,10 @@ class RecipeExecutor:
             links_dict = links
         
         # Check for circular dependencies in prompts before execution
+
+        # TODO: Check if this code is necessary at all. Circular dependencies
+        # should not be possible. The circular dependencies are caused during
+        # the json parsing logic (repeat attempts to parse and repair the same text)
         dependency_graph = {}
         for link_name, link_config in links_dict.items():
             if link_config.get("type") == "llm":
@@ -465,34 +470,28 @@ class RecipeExecutor:
         # Process links in order
         for link_name, link_config in links_dict.items():
             link_type = link_config.get("type")
-            link_config["name"] = link_name  # Ensure name is in config
+            link_config["name"] = link_name
             
             # Execute link based on type
-            link_output = None
-            if link_type == "llm":
-                link_output = self._execute_llm_link(link_config)
-            elif link_type == "function":
-                link_output = self._execute_function_link(link_config)
-            elif link_type == "user_input":
-                link_output = self._execute_user_input_link(link_config)
-            else:
-                raise ValueError(f"Unknown link type: {link_type}")
+            link_output = self._execute_link(link_config)
                 
             # Store link output in memory
             self.memory[link_name] = link_output
             result[link_name] = link_output
-        
-        # Process result through appropriate domain processor
-        if self.domain != "generic":
-            try:
-                from ..domains import get_domain_processor
-                processor = get_domain_processor(self.domain)
-                return processor.process_recipe_output(result)
-            except (ImportError, ValueError) as e:
-                logging.error(f"Error processing with domain {self.domain}: {e}")
-                return result
                 
         return result
+
+    def _get_domain_processor(self):
+        """Get the appropriate domain processor based on recipe domain."""
+        if not hasattr(self, 'domain') or not self.domain:
+            return None
+            
+        try:
+            # Import here to avoid circular imports
+            from ..domains import get_domain_processor
+            return get_domain_processor(self.domain)
+        except (ImportError, ValueError):
+            return None
 
     def _execute_function_link(self, link: Dict[str, Any]) -> FunctionOutput:
         """Execute a function link in the recipe."""
@@ -520,7 +519,10 @@ class RecipeExecutor:
                             'round': round, 'sorted': sorted, 'str': str, 'sum': sum
                         }
                         local_vars = {**inputs}
+                        
                         # Add ONLY safe random functions
+                        # TODO: see how this relates to the
+                        # function registry. Is it redundant?
                         local_vars['random_int'] = random.randint
                         local_vars['random_choice'] = random.choice
                         local_vars['random_sample'] = random.sample
@@ -893,6 +895,32 @@ class RecipeExecutor:
         except Exception as e:
             logging.error(f"Error during schema processing: {e}")
             return {}
+
+    def _execute_link(self, link_config: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute a link with any registered link handler."""
+        link_type = link_config.get("type")
+        
+        # Check if we have a handler for this link type
+        try:
+            from .links import get_link_handler
+            handler = get_link_handler(link_type)
+            
+            # Build context from memory
+            context = build_context(self.memory)
+            
+            # Execute the link using its handler
+            return handler.execute(link_config, context)
+            
+        except ImportError:
+            # Fall back to built-in link types
+            if link_type == "llm":
+                return self._execute_llm_link(link_config)
+            elif link_type == "function":
+                return self._execute_function_link(link_config)
+            elif link_type == "user_input":
+                return self._execute_user_input_link(link_config)
+            else:
+                raise ValueError(f"Unknown link type: {link_type}")
 
 class TerminateProcessException(Exception):
     """Custom exception to signal termination of the recipe process."""

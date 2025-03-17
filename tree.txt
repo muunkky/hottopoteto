@@ -21,23 +21,35 @@
 │   ├── __pycache__
 │   │   ├── executor.cpython-312.pyc
 │   │   └── models.cpython-312.pyc
+│   ├── domains.py
 │   ├── executor.py
+│   ├── links
+│   │   └── __init__.py
 │   ├── models.py
-│   └── registry.py
+│   ├── registry.py
+│   ├── schemas
+│   │   └── __init__.py
+│   └── utils.py
 ├── docs
-│   ├── lexicon_example.md
+│   ├── recipe_execution.md
+│   ├── sequence_diagram_execute_command.md
 │   └── trace_logger.md
 ├── domains
 │   ├── __init__.py
 │   └── conlang
 │       ├── __init__.py
+│       ├── cli.py
+│       ├── migrations.py
 │       ├── models.py
-│       └── processors.py
+│       ├── processors.py
+│       ├── schema.py
+│       └── schema_interface.py
 ├── lexicon
 │   ├── __init__.py
 │   ├── __pycache__
 │   │   ├── __init__.cpython-312.pyc
 │   │   ├── indexing.cpython-312.pyc
+│   │   ├── main.cpython-312.pyc
 │   │   ├── manager.cpython-312.pyc
 │   │   ├── migrations.cpython-312.pyc
 │   │   └── utils.cpython-312.pyc
@@ -57,6 +69,23 @@
 │   │   └── word_schema.json
 │   ├── utils.py
 │   └── words
+├── main.py
+├── plugins
+│   ├── __init__.py
+│   ├── gemini
+│   │   ├── __init__.py
+│   │   ├── links.py
+│   │   ├── manifest.json
+│   │   ├── requirements.txt
+│   │   └── schemas
+│   ├── mongodb
+│   │   ├── links.py
+│   │   └── schemas
+│   ├── sqlite
+│   │   ├── links.py
+│   │   └── schemas
+│   └── storage
+│       └── links.py
 ├── prompts
 │   ├── 1-Instructions for applying the EECH.txt
 │   ├── 2-Select the origin language.txt
@@ -66,7 +95,12 @@
 │   └── 6-Derivatives.txt
 ├── recipes
 │   ├── conlang
-│   │   └── eldorian_word.yaml
+│   │   ├── eldorian_word.yaml
+│   │   └── schemas
+│   ├── examples
+│   │   ├── gemini_example.yaml
+│   │   ├── mongodb_example.yaml
+│   │   └── sqlite_example.yaml
 │   ├── storytelling
 │   ├── test
 │   │   └── test_recipe.yaml
@@ -74,9 +108,15 @@
 ├── requirements.txt
 ├── schema
 │   └── recipe_schema.json
-├── server
-│   └── docs_server.py
-├── test_langchain.py
+├── storage
+│   ├── __init__.py
+│   ├── adapters
+│   │   ├── __init__.py
+│   │   └── file_adapter.py
+│   ├── indexing.py
+│   ├── repository.py
+│   └── utils.py
+├── test_langchain.bkp.py
 ├── tests
 │   ├── __init__.py
 │   ├── __pycache__
@@ -99,6 +139,7 @@
 │   │   ├── test_lexicon_manager_errors.cpython-312-pytest-7.4.4.pyc
 │   │   ├── test_link_config.cpython-312-pytest-7.4.4.pyc
 │   │   ├── test_link_config_defaults.cpython-312-pytest-7.4.4.pyc
+│   │   ├── test_main.cpython-312-pytest-7.4.4.pyc
 │   │   ├── test_migrations.cpython-312-pytest-7.4.4.pyc
 │   │   ├── test_parameter_resolver.cpython-312-pytest-7.4.4.pyc
 │   │   ├── test_prompt_chain.cpython-312-pytest-7.4.4.pyc
@@ -111,6 +152,7 @@
 │   ├── test_lexicon_integration.py
 │   ├── test_lexicon_manager.py
 │   ├── test_lexicon_manager_errors.py
+│   ├── test_main.py
 │   ├── test_migrations.py
 │   └── test_word_entry_model.py
 ├── tree.txt
@@ -130,4 +172,4 @@
     ├── clean_unused_files.py
     └── cleanup.ps1
 
-28 directories, 102 files
+41 directories, 131 files

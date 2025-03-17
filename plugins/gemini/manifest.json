@@ -1,0 +1,9 @@
+{
+  "name": "gemini",
+  "version": "1.0.0",
+  "description": "Google Gemini API integration",
+  "requirements": ["google-generativeai>=0.3.0"],
+  "entry_points": {
+    "link_handlers": ["links.py"]
+  }
+}

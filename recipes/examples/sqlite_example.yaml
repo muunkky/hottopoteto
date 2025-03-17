@@ -1,0 +1,59 @@
+name: "SQLite Example Recipe"
+description: "Example recipe that stores data in SQLite"
+version: "1.0"
+domain: "generic"
+links:
+  - name: "Create_Users_Table"
+    type: "sqlite"
+    operation: "create_table"
+    database: "data/local.db"
+    inputs:
+      table_name: "users"
+      columns:
+        - name: "id" 
+          type: "INTEGER PRIMARY KEY"
+        - name: "name"
+          type: "TEXT"
+        - name: "age"
+          type: "INTEGER"
+        - name: "created_at"
+          type: "TEXT"
+
+  - name: "User_Input"
+    type: "user_input"
+    description: "Collect user information"
+    inputs:
+      name:
+        type: "string"
+        description: "Your name"
+      age:
+        type: "number"
+        description: "Your age"
+    output_schema:
+      properties:
+        name:
+          type: "string"
+        age:
+          type: "integer"
+      required:
+        - name
+        - age
+
+  - name: "Store_In_SQLite"
+    type: "sqlite"
+    operation: "insert"
+    database: "data/local.db"
+    inputs:
+      table_name: "users"
+      data:
+        name: "{{ User_Input.data.name }}"
+        age: "{{ User_Input.data.age }}"
+        created_at: "{{ 'now' | date }}"
+
+  - name: "Query_Results"
+    type: "sqlite"
+    operation: "query"
+    database: "data/local.db"
+    inputs:
+      sql: "SELECT * FROM users WHERE name = ?"
+      params: ["{{ User_Input.data.name }}"]

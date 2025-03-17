@@ -1,0 +1,37 @@
+name: "MongoDB Example Recipe"
+description: "Example recipe that stores data in MongoDB"
+version: "1.0"
+domain: "generic"
+links:
+  - name: "User_Input"
+    type: "user_input"
+    description: "Collect user information"
+    inputs:
+      name:
+        type: "string"
+        description: "Your name"
+      age:
+        type: "number"
+        description: "Your age"
+    output_schema:
+      properties:
+        name:
+          type: "string"
+          description: "User name"
+        age:
+          type: "integer"
+          description: "User age"
+      required:
+        - name
+        - age
+
+  - name: "Store_In_MongoDB"
+    type: "mongodb"
+    operation: "insert"
+    uri: "mongodb://localhost:27017"
+    database: "recipe_examples"
+    collection: "user_data"
+    inputs:
+      name: "{{ User_Input.data.name }}"
+      age: "{{ User_Input.data.age }}"
+      created_at: "{{ 'now' | date }}"

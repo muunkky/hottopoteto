@@ -1,7 +1,7 @@
 # domains/conlang/processors.py
 def create_grammatical_properties(part_of_speech, recipe_output):
     """Create appropriate grammatical properties based on part of speech."""
-    if part_of_speech == "noun":
+    if (part_of_speech == "noun"):
         return {
             "$type": "NounProperties",
             "gender": "neutral",  # Default value
@@ -14,7 +14,7 @@ def create_grammatical_properties(part_of_speech, recipe_output):
                 }
             }
         }
-    elif part_of_speech == "verb":
+    elif (part_of_speech == "verb"):
         return {
             "$type": "VerbProperties",
             "transitivity": "intransitive",  # Default value
@@ -31,7 +31,7 @@ def create_grammatical_properties(part_of_speech, recipe_output):
             },
             "infinitive": ""  # To be filled later
         }
-    elif part_of_speech == "adjective":
+    elif (part_of_speech == "adjective"):
         return {
             "$type": "AdjectiveProperties",
             "comparison": {
@@ -59,3 +59,8 @@ def apply_phonology_rules(word_base, rules):
 def generate_pronunciation(word, language_profile):
     """Generate pronunciation for a word."""
     # Existing implementation from test_langchain.py
+
+def process_recipe_output(recipe_output):
+    """Process recipe output into a word entry."""
+    from .models import WordEntryModel
+    return WordEntryModel.from_recipe_output(recipe_output)

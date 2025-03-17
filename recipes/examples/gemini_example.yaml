@@ -1,0 +1,85 @@
+name: "Gemini Creative Prompt Generator"
+description: "Example recipe that uses Google's Gemini LLM API"
+version: "1.0"
+domain: "generic"
+links:
+  - name: "User_Input"
+    type: "user_input"
+    description: "Get the writing theme"
+    inputs:
+      theme:
+        type: "string"
+        description: "Theme for your creative writing prompt"
+      genre:
+        type: "select"
+        description: "Genre for the prompt"
+        options:
+          - value: "fantasy"
+            description: "Fantasy setting with magical elements"
+          - value: "sci-fi" 
+            description: "Science fiction with futuristic technology"
+          - value: "mystery"
+            description: "Mystery or detective story"
+          - value: "historical"
+            description: "Historical setting in a specific time period"
+    output_schema:
+      properties:
+        theme:
+          type: "string"
+          description: "User provided theme"
+        genre:
+          type: "string"
+          description: "Selected genre"
+      required:
+        - theme
+        - genre
+
+  - name: "Generate_Writing_Prompt"
+    type: "gemini"
+    model: "gemini-pro"
+    temperature: 0.7
+    max_tokens: 250
+    prompt: |
+      Create an engaging creative writing prompt based on the theme "{{ User_Input.data.theme }}" 
+      in the {{ User_Input.data.genre }} genre.
+      
+      Include:
+      1. A brief setting description
+      2. Character suggestions
+      3. A central conflict or mystery
+      4. A unique twist or constraint
+      
+      Format your response as a JSON object.
+    output_schema:
+      properties:
+        title:
+          type: "string"
+          description: "Catchy title for the writing prompt"
+        setting:
+          type: "string" 
+          description: "Description of the setting"
+        characters:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              name:
+                type: "string"
+              description:
+                type: "string"
+          description: "Character suggestions"
+        conflict:
+          type: "string"
+          description: "Central conflict or mystery"
+        twist:
+          type: "string"
+          description: "Unique twist or constraint"
+        writing_hook:
+          type: "string"
+          description: "Opening line or paragraph to get started"
+      required:
+        - title
+        - setting
+        - characters
+        - conflict
+        - twist
