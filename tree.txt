@@ -1,26 +1,11 @@
 .
+├── ARCHITECTURE.md
+├── CONTRIBUTING.md
+├── README.md
 ├── __init__.py
 ├── __pycache__
-│   ├── __init__.cpython-312.pyc
-│   ├── __init__.cpython-313.pyc
-│   ├── __init__.cpython-39.pyc
-│   ├── chain.cpython-312.pyc
-│   ├── chain.cpython-39.pyc
-│   ├── config.cpython-312.pyc
-│   ├── main.cpython-312.pyc
-│   ├── models.cpython-312.pyc
-│   ├── models.cpython-39.pyc
-│   ├── registry.cpython-312.pyc
-│   └── test_langchain.cpython-312-pytest-7.4.4.pyc
-├── agents
-│   ├── __init__.py
-│   └── __pycache__
-│       ├── __init__.cpython-312.pyc
-│       └── function_calls.cpython-312.pyc
 ├── core
 │   ├── __pycache__
-│   │   ├── executor.cpython-312.pyc
-│   │   └── models.cpython-312.pyc
 │   ├── domains.py
 │   ├── executor.py
 │   ├── links
@@ -31,6 +16,12 @@
 │   │   └── __init__.py
 │   └── utils.py
 ├── docs
+│   ├── core
+│   │   ├── domains.md
+│   │   └── plugins.md
+│   ├── guides
+│   │   ├── creating_plugins.md
+│   │   └── creating_recipes.md
 │   ├── recipe_execution.md
 │   ├── sequence_diagram_execute_command.md
 │   └── trace_logger.md
@@ -44,31 +35,7 @@
 │       ├── processors.py
 │       ├── schema.py
 │       └── schema_interface.py
-├── lexicon
-│   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-312.pyc
-│   │   ├── indexing.cpython-312.pyc
-│   │   ├── main.cpython-312.pyc
-│   │   ├── manager.cpython-312.pyc
-│   │   ├── migrations.cpython-312.pyc
-│   │   └── utils.cpython-312.pyc
-│   ├── indexing.py
-│   ├── indices
-│   ├── main.py
-│   ├── manager.py
-│   ├── migrations.py
-│   ├── models
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   └── word.py
-│   ├── schema
-│   │   ├── SCHEMA_DESIGN.md
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   └── word_schema.json
-│   ├── utils.py
-│   └── words
+├── hottopoteto_mvp.bkp.py
 ├── main.py
 ├── plugins
 │   ├── __init__.py
@@ -106,8 +73,6 @@
 │   │   └── test_recipe.yaml
 │   └── worldbuilding
 ├── requirements.txt
-├── schema
-│   └── recipe_schema.json
 ├── storage
 │   ├── __init__.py
 │   ├── adapters
@@ -116,36 +81,9 @@
 │   ├── indexing.py
 │   ├── repository.py
 │   └── utils.py
-├── test_langchain.bkp.py
 ├── tests
 │   ├── __init__.py
 │   ├── __pycache__
-│   │   ├── __init__.cpython-312.pyc
-│   │   ├── __init__.cpython-313.pyc
-│   │   ├── __init__.cpython-39.pyc
-│   │   ├── conftest.cpython-312-pytest-7.4.4.pyc
-│   │   ├── conftest.cpython-313-pytest-8.3.5.pyc
-│   │   ├── conftest.cpython-39-pytest-7.1.1.pyc
-│   │   ├── test_config_loader.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_config_loader.cpython-313-pytest-8.3.5.pyc
-│   │   ├── test_config_loader.cpython-39-pytest-7.1.1.pyc
-│   │   ├── test_executor_errors.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_indexing.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_integration.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_integration.cpython-313-pytest-8.3.5.pyc
-│   │   ├── test_integration.cpython-39-pytest-7.1.1.pyc
-│   │   ├── test_lexicon_integration.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_lexicon_manager.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_lexicon_manager_errors.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_link_config.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_link_config_defaults.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_main.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_migrations.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_parameter_resolver.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_prompt_chain.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_recipe_loader.cpython-312-pytest-7.4.4.pyc
-│   │   ├── test_sequential_chain.cpython-312-pytest-7.4.4.pyc
-│   │   └── test_word_entry_model.cpython-312-pytest-7.4.4.pyc
 │   ├── conftest.py
 │   ├── test_executor_errors.py
 │   ├── test_indexing.py
@@ -159,17 +97,7 @@
 └── utils
     ├── __init__.py
     ├── __pycache__
-    │   ├── __init__.cpython-312.pyc
-    │   ├── __init__.cpython-313.pyc
-    │   ├── __init__.cpython-39.pyc
-    │   ├── config_loader.cpython-312.pyc
-    │   ├── config_loader.cpython-313.pyc
-    │   ├── config_loader.cpython-39.pyc
-    │   ├── interactive_input.cpython-312.pyc
-    │   ├── output_formatter.cpython-312.pyc
-    │   ├── parameter_resolver.cpython-312.pyc
-    │   └── recipe_loader.cpython-312.pyc
     ├── clean_unused_files.py
     └── cleanup.ps1
 
-41 directories, 131 files
+32 directories, 68 files
