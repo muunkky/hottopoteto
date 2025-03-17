@@ -85,6 +85,24 @@ Plugins extend functionality by adding new link types and other capabilities. Ea
 
 ---
 
+### **Packages**
+Packages extend Hottopoteto with new domains, plugins, and other components:
+
+- **Installable**: Using standard Python packaging
+- **Discoverable**: Via entry points
+- **Self-registering**: Components register with appropriate registries
+- **Modular**: Can include domains, plugins, schemas, and more
+
+```mermaid
+graph TD;
+  Packages --> Domains;
+  Packages --> Plugins;
+  Packages --> Links;
+  Packages --> Schemas;
+```
+
+---
+
 ### **Storage**
 The storage system provides persistence mechanisms through adapters:
 
@@ -120,6 +138,10 @@ hottopoteto/
 │   ├── gemini/            # Google Gemini plugin
 │   ├── mongodb/           # MongoDB plugin
 │   └── sqlite/            # SQLite plugin
+├── utils/                 # Utility functions
+│   └── package_template.py # Package template generator
+├── cli/                   # Command-line interfaces
+│   └── commands/          # CLI command implementations
 ├── recipes/               # Recipe definitions
 │   ├── examples/          # Example recipes
 │   └── conlang/           # Domain-specific recipes
@@ -140,6 +162,7 @@ Hottopoteto is designed to be extended through several mechanisms:
 - **New Storage Adapters**: Create new storage adapters for different backends
 - **Custom Link Types**: Register new link types for specialized tasks
 - **Recipe Templates**: Create reusable recipe templates for common patterns
+- **Packages**: Distribute extensions as installable packages
 
 ---
 

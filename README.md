@@ -6,6 +6,7 @@ Hottopoteto is a flexible framework for building AI-powered applications through
 
 - **Domain-Based Architecture**: Specialized support for different knowledge domains
 - **Plugin System**: Extend functionality with plugins for various services and tools
+- **Package Management**: Add new domains and plugins through installable packages
 - **Recipe-Driven**: Define workflows as recipes with a declarative YAML format
 - **Storage Adapters**: Flexible storage options for persisting data
 - **Schema Validation**: Built-in schema validation for consistent data structures
@@ -86,6 +87,7 @@ For more detailed documentation:
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Creating Plugins](docs/guides/creating_plugins.md)
 - [Creating Domains](docs/guides/creating_domains.md)
+- [Package Management](docs/packages.md)
 - [Recipe Reference](docs/reference/recipes.md)
 - [Link Types Reference](docs/reference/link_types.md)
 

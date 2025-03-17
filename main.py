@@ -11,6 +11,9 @@ from typing import Dict, Any, List
 
 from core.executor import RecipeExecutor
 
+# Import package commands
+from cli.commands.packages import packages_group
+
 def main():
     parser = argparse.ArgumentParser(description="Recipe Execution CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -50,6 +53,26 @@ def main():
     # domains packages command
     domains_packages_parser = domains_subparsers.add_parser("packages", help="List packages supporting a domain")
     domains_packages_parser.add_argument("domain_name", help="Name of the domain")
+
+    # Register package commands
+    # Create a subparser for packages commands
+    packages_parser = subparsers.add_parser("packages", help="Manage packages")
+    packages_subparsers = packages_parser.add_subparsers(dest="packages_command", required=True)
+    
+    # Add package commands to the subparser
+    packages_subparsers.add_parser("list", help="List installed packages")
+    
+    install_parser = packages_subparsers.add_parser("install", help="Install a package")
+    install_parser.add_argument("package_name", help="Name of the package to install")
+    install_parser.add_argument("--dev", action="store_true", help="Install in development mode")
+    
+    uninstall_parser = packages_subparsers.add_parser("uninstall", help="Uninstall a package")
+    uninstall_parser.add_argument("package_name", help="Name of the package to uninstall")
+    
+    create_parser = packages_subparsers.add_parser("create", help="Create a new package template")
+    create_parser.add_argument("name", help="Name of the package")
+    create_parser.add_argument("--domain", help="Include domain template")
+    create_parser.add_argument("--plugin", help="Include plugin template")
 
     # Add domain-specific subcommands
     try:
@@ -195,6 +218,19 @@ def main():
             else:
                 print(f"No packages found for domain '{args.domain_name}'")
     
+    # Add package command handler
+    if args.command == "packages":
+        from cli.commands.packages import list_packages, install_package, uninstall_package, create_package
+        
+        if args.packages_command == "list":
+            list_packages()
+        elif args.packages_command == "install":
+            install_package(args.package_name, args.dev if hasattr(args, 'dev') else False)
+        elif args.packages_command == "uninstall":
+            uninstall_package(args.package_name)
+        elif args.packages_command == "create":
+            create_package(args.name, args.domain, args.plugin)
+
     # Handle domain-specific commands
     else:
         try:

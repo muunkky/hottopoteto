@@ -46,6 +46,8 @@ hottopoteto/
 ├── core/                  # Core system components
 ├── domains/               # Domain implementations
 ├── plugins/               # Plugin implementations
+├── utils/                 # Utility functions and helpers
+├── cli/                   # Command-line interface components
 ├── recipes/               # Recipe definitions
 └── storage/               # Storage system
 ```
@@ -99,7 +101,6 @@ Add word derivation utility for conlang domain
 
 Fixes #123
 ```
-
 
 ## Extending the System
 
@@ -161,6 +162,23 @@ class MyLinkHandler(LinkHandler):
 # Register the link type
 register_link_type("my_link", MyLinkHandler)
 ```
+
+### Creating a Package
+
+Packages allow distributing extensions without modifying the core codebase:
+
+1. Create a package template:
+   ```
+   python main.py packages create my_package --domain my_domain --plugin my_plugin
+   ```
+
+2. Develop your package components
+3. Install for testing:
+   ```
+   pip install -e ./hottopoteto-my_package
+   ```
+
+See [Package Management](docs/packages.md) for more details on package development.
 
 ## Pull Request Process
 

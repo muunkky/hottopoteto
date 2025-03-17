@@ -4,8 +4,11 @@
 ├── README.md
 ├── __init__.py
 ├── __pycache__
+│   └── __init__.cpython-313.pyc
+├── cli
+│   └── commands
+│       └── packages.py
 ├── core
-│   ├── __pycache__
 │   ├── domains.py
 │   ├── executor.py
 │   ├── links
@@ -18,12 +21,15 @@
 ├── docs
 │   ├── core
 │   │   ├── domains.md
+│   │   ├── package_system.md
 │   │   └── plugins.md
 │   ├── guides
+│   │   ├── creating_packages.md
 │   │   ├── creating_plugins.md
 │   │   └── creating_recipes.md
-│   ├── recipe_execution.md
-│   ├── sequence_diagram_execute_command.md
+│   ├── packages.md
+│   ├── reference
+│   │   └── packages.md
 │   └── trace_logger.md
 ├── domains
 │   ├── __init__.py
@@ -35,6 +41,9 @@
 │       ├── processors.py
 │       ├── schema.py
 │       └── schema_interface.py
+├── hottopoteto_linguistics
+│   ├── __init__.py
+│   └── setup.py
 ├── hottopoteto_mvp.bkp.py
 ├── main.py
 ├── plugins
@@ -84,20 +93,29 @@
 ├── tests
 │   ├── __init__.py
 │   ├── __pycache__
+│   │   ├── __init__.cpython-313.pyc
+│   │   └── conftest.cpython-313-pytest-8.3.5.pyc
 │   ├── conftest.py
-│   ├── test_executor_errors.py
-│   ├── test_indexing.py
-│   ├── test_lexicon_integration.py
-│   ├── test_lexicon_manager.py
-│   ├── test_lexicon_manager_errors.py
-│   ├── test_main.py
-│   ├── test_migrations.py
-│   └── test_word_entry_model.py
+│   ├── core
+│   │   ├── test_domains.py
+│   │   ├── test_executor.py
+│   │   ├── test_links.py
+│   │   ├── test_models.py
+│   │   ├── test_registry.py
+│   │   ├── test_schemas.py
+│   │   └── test_utils.py
+│   ├── domains
+│   │   └── conlang
+│   ├── plugins
+│   │   ├── gemini
+│   │   ├── mongodb
+│   │   └── sqlite
+│   └── test_main.py
 ├── tree.txt
 └── utils
     ├── __init__.py
-    ├── __pycache__
     ├── clean_unused_files.py
-    └── cleanup.ps1
+    ├── cleanup.ps1
+    └── package_template.py
 
-32 directories, 68 files
+41 directories, 77 files
