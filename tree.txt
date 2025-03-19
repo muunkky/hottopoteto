@@ -5,22 +5,50 @@
 ├── __init__.py
 ├── __pycache__
 │   └── __init__.cpython-313.pyc
-├── cli
-│   └── commands
-│       └── packages.py
 ├── core
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── domains.cpython-312.pyc
+│   │   ├── executor.cpython-312.pyc
+│   │   ├── models.cpython-312.pyc
+│   │   ├── registry.cpython-312.pyc
+│   │   └── schemas.cpython-312.pyc
+│   ├── backends
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   ├── cli
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── commands
+│   ├── domains
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── llm
+│   │   └── storage
 │   ├── domains.py
 │   ├── executor.py
 │   ├── links
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
 │   ├── models.py
+│   ├── registration
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── domains.py
 │   ├── registry.py
-│   ├── schemas
-│   │   └── __init__.py
-│   └── utils.py
+│   ├── schemas.py
+│   └── utils
+│       ├── __init__.py
+│       └── package_template.py
 ├── docs
+│   ├── DOMAIN_STRUCTURE.md
+│   ├── README.md
+│   ├── architecture
+│   │   └── component_relationships.md
 │   ├── core
 │   │   ├── domains.md
+│   │   ├── logging.md
 │   │   ├── package_system.md
 │   │   └── plugins.md
 │   ├── guides
@@ -28,28 +56,22 @@
 │   │   ├── creating_plugins.md
 │   │   └── creating_recipes.md
 │   ├── packages.md
+│   ├── recipe_execution.md
 │   ├── reference
 │   │   └── packages.md
 │   └── trace_logger.md
-├── domains
-│   ├── __init__.py
-│   └── conlang
-│       ├── __init__.py
-│       ├── cli.py
-│       ├── migrations.py
-│       ├── models.py
-│       ├── processors.py
-│       ├── schema.py
-│       └── schema_interface.py
-├── hottopoteto_linguistics
-│   ├── __init__.py
-│   └── setup.py
 ├── hottopoteto_mvp.bkp.py
 ├── main.py
 ├── plugins
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-312.pyc
+│   ├── conlang
+│   │   ├── __init__.py
+│   │   └── domains
 │   ├── gemini
 │   │   ├── __init__.py
+│   │   ├── __pycache__
 │   │   ├── links.py
 │   │   ├── manifest.json
 │   │   ├── requirements.txt
@@ -75,47 +97,18 @@
 │   │   └── schemas
 │   ├── examples
 │   │   ├── gemini_example.yaml
+│   │   ├── llm_example.yaml
 │   │   ├── mongodb_example.yaml
-│   │   └── sqlite_example.yaml
+│   │   ├── query_greetings.yaml
+│   │   ├── simple_llm_storage_example.yaml
+│   │   ├── sqlite_example.yaml
+│   │   └── storage_example.yaml
 │   ├── storytelling
 │   ├── test
 │   │   └── test_recipe.yaml
 │   └── worldbuilding
 ├── requirements.txt
-├── storage
-│   ├── __init__.py
-│   ├── adapters
-│   │   ├── __init__.py
-│   │   └── file_adapter.py
-│   ├── indexing.py
-│   ├── repository.py
-│   └── utils.py
 ├── tests
-│   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-313.pyc
-│   │   └── conftest.cpython-313-pytest-8.3.5.pyc
-│   ├── conftest.py
-│   ├── core
-│   │   ├── test_domains.py
-│   │   ├── test_executor.py
-│   │   ├── test_links.py
-│   │   ├── test_models.py
-│   │   ├── test_registry.py
-│   │   ├── test_schemas.py
-│   │   └── test_utils.py
-│   ├── domains
-│   │   └── conlang
-│   ├── plugins
-│   │   ├── gemini
-│   │   ├── mongodb
-│   │   └── sqlite
-│   └── test_main.py
-├── tree.txt
-└── utils
-    ├── __init__.py
-    ├── clean_unused_files.py
-    ├── cleanup.ps1
-    └── package_template.py
+└── tree.txt
 
-41 directories, 77 files
+43 directories, 68 files

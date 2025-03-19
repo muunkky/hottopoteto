@@ -1,10 +1,10 @@
-# Plugin System in LangChain V2
+# Plugin System in Hottopoteto
 
-The plugin system in LangChain V2 enables extending the framework with new capabilities. This document explains how the plugin system works and how to use it.
+The plugin system in Hottopoteto enables extending the framework with new capabilities. This document explains how the plugin system works and how to use it.
 
 ## What Are Plugins?
 
-Plugins are components that extend LangChain V2 with new:
+Plugins are components that extend Hottopoteto with new:
 
 - Link types
 - Storage adapters

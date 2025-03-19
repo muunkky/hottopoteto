@@ -1,6 +1,6 @@
-# Domain System in LangChain V2
+# Domain System in Hottopoteto
 
-The domain system in LangChain V2 provides a mechanism for organizing functionality around specific subject areas or knowledge domains. This document explains how domains work and how to use them.
+The domain system in Hottopoteto provides a mechanism for organizing functionality around specific subject areas or knowledge domains. This document explains how domains work and how to use them.
 
 ## What Are Domains?
 
@@ -16,37 +16,31 @@ Examples of domains include:
 - Storytelling
 - Worldbuilding
 - Data analysis
+- LLM interactions
+- Storage operations
 
 ## Domain Architecture
 
 The domain system consists of several components:
 
 1. **Domain Interfaces**: Define the contract for each domain
-2. **Domain Processors**: Implement domain-specific logic
+2. **Domain Functions**: Implement domain-specific logic
 3. **Domain Registry**: Central registry of available domains
-4. **Domain Packages**: Packages that implement domain functionality
+4. **Domain Schemas**: Standard data models for the domain
+5. **Domain Packages**: Packages that implement domain functionality
 
 ### Domain Interface
 
 A domain interface defines the schema and capabilities a domain provides:
 
 ```python
-{
+register_domain_interface("conlang", {
   "name": "conlang",
   "version": "1.0.0",
-  "schemas": [
-    {
-      "name": "word_schema",
-      "schema": { ... }
-    }
-  ],
-  "functions": [
-    {
-      "name": "create_grammatical_properties",
-      "function": <function_reference>
-    }
-  ]
-}
+  "description": "Constructed language creation tools",
+  "schemas": ["word", "phoneme", "morphology"],
+  "functions": ["generate_words", "apply_sound_changes"]
+})
 ```
 
 ### Domain-Package Relationship
@@ -78,110 +72,66 @@ python main.py domains info conlang
 python main.py domains packages conlang
 ```
 
-### Using Domain-Specific Commands
-
-```bash
-python main.py words list --part-of-speech noun
-```
-
 ## Implementing a Domain
 
 To implement a domain:
 
 1. **Create a domain directory**:
    ```
-   domains/my_domain/
-   ├── __init__.py           # Domain initialization
-   ├── cli.py                # CLI commands
-   ├── models.py             # Data models
-   ├── processors.py         # Processing functions
-   ├── schema.py             # Schema definitions
-   └── migrations.py         # Schema migrations
+   hottopoteto_mydomain/domains/mydomain/
    ```
 
-2. **Create a domain processor**:
+2. **Register the domain interface**:
    ```python
-   from .. import DomainProcessor, register_domain
+   from core.domains import register_domain_interface
    
-   class MyDomainProcessor(DomainProcessor):
-       """Processor for my_domain."""
-       
-       def __init__(self):
-           """Initialize the processor."""
-           self.repository = Repository(
-               storage_dir=os.path.join("storage", "my_domain"),
-               schema=get_my_schema(),
-               domain="my_domain"
-           )
-       
-       def get_schemas(self) -> List[str]:
-           """Get the list of schemas supported by the domain."""
-           return ["my_schema"]
-           
-       def get_functions(self) -> Dict[str, Any]:
-           """Get domain-specific functions for the function registry."""
-           return {
-               "create_entry": self.create_entry,
-               "update_entry": self.update_entry,
-               # Domain-specific functions
-               "my_function": self.my_function
-           }
-   
-   # Register the domain
-   register_domain("my_domain", MyDomainProcessor)
+   register_domain_interface("mydomain", {
+       "name": "mydomain",
+       "version": "0.1.0",
+       "description": "My custom domain"
+   })
    ```
 
-3. **Create domain-specific CLI commands**:
+3. **Register domain with package**:
    ```python
-   def register_commands(subparsers) -> None:
-       """Register domain-specific commands."""
-       # Register commands
-       
-   def handle_command(args) -> None:
-       """Handle domain-specific commands."""
-       # Handle command execution
+   from core.registry import PackageRegistry
+   
+   PackageRegistry.register_domain_from_package(
+       "mydomain_package", 
+       "mydomain", 
+       __name__
+   )
    ```
 
-## Domain Standards
+4. **Register domain functions**:
+   ```python
+   from core.domains import register_domain_function
+   
+   def process_data(input_data):
+       # Implementation
+       return processed_data
+   
+   register_domain_function("mydomain", "process_data", process_data)
+   ```
 
-Domains should provide:
-
-1. **Standard Schemas**: Define the data structures
-2. **Migration Paths**: For schema evolution
-3. **CLI Commands**: For interacting with domain objects
-4. **Utility Functions**: For domain-specific operations
+5. **Register domain schemas**:
+   ```python
+   from core.domains import register_domain_schema
+   
+   register_domain_schema("mydomain", "data_model", {
+       "type": "object",
+       "properties": {
+           "name": {"type": "string"},
+           "value": {"type": "number"}
+       },
+       "required": ["name"]
+   })
+   ```
 
 ## Best Practices
 
-1. **Keep Domains Focused**: Each domain should have a clear purpose
-2. **Document Schemas**: Clearly document data structures
-3. **Support Migration**: Provide tools for schema migration
-4. **Consider Compatibility**: Make domains work well with others
-
-## Example: Conlang Domain
-
-The conlang domain provides functionality for constructed languages:
-
-```python
-# Register the domain
-class ConlangProcessor(DomainProcessor):
-    # Implementation
-    
-register_domain("conlang", ConlangProcessor)
-
-# Register schemas
-register_domain_schema("conlang", "word_schema", WORD_SCHEMA)
-
-# Register functions
-register_domain_function("conlang", "create_grammatical_properties", 
-                        create_grammatical_properties)
-```
-
-## Domain vs Package
-
-While domains define a subject area, packages implement functionality. The key difference:
-
-- **Domains**: Define what something is (e.g., "a word in a constructed language")
-- **Packages**: Define what something does (e.g., "generates words using an LLM")
-
-A domain might have multiple implementing packages, and a package might support multiple domains.
+1. **Standard Naming**: Use consistent naming for domain entities
+2. **Schema Versioning**: Include version information in schemas
+3. **Documentation**: Document domain interfaces clearly
+4. **Validation**: Validate data against schemas
+5. **Independence**: Keep domains independent from each other

@@ -1,0 +1,77 @@
+name: "Storage Domain Example Recipe"
+description: "Example recipe using the Storage domain"
+version: "1.0"
+domain: "storage"
+
+links:
+  - name: "Generate_User_Data"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4o"
+    system: "You are a helpful assistant that generates sample user data."
+    prompt: "Generate a user profile with name, email, age, and interests fields. Return as JSON."
+    output_schema:
+      type: "object"
+      required: ["name", "email", "age", "interests"]
+      properties:
+        name: {"type": "string"}
+        email: {"type": "string"}
+        age: {"type": "integer"}
+        interests: {"type": "array", "items": {"type": "string"}}
+  
+  - name: "Save_User"
+    type: "storage.save"
+    collection: "users"
+    data: "{{ Generate_User_Data.data }}"
+    metadata:
+      source: "sample_data"
+      generated_at: "{{ now() }}"
+  
+  - name: "Get_Saved_User"
+    type: "storage.get"
+    collection: "users"
+    id: "{{ Save_User.data.data.id }}"
+  
+  - name: "Generate_More_Users"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4o"
+    system: "You are a helpful assistant that generates sample user data."
+    prompt: |
+      Generate data for 3 more users with name, email, age, and interests fields.
+      Return as JSON array of user objects.
+    output_schema:
+      type: "object"
+      required: ["users"]
+      properties:
+        users:
+          type: "array"
+          items:
+            type: "object"
+            required: ["name", "email", "age", "interests"]
+            properties:
+              name: {"type": "string"}
+              email: {"type": "string"}
+              age: {"type": "integer"}
+              interests: {"type": "array", "items": {"type": "string"}}
+  
+  - name: "Save_Multiple_Users"
+    type: "function"
+    function:
+      name: "save_multiple_users"
+    inputs:
+      collection: "users"
+      users: "{{ Generate_More_Users.data.users }}"
+      metadata:
+        source: "batch_generate"
+  
+  - name: "Query_Users"
+    type: "storage.query"
+    collection: "users"
+    filter:
+      "metadata.source": "sample_data"
+  
+  - name: "Delete_User"
+    type: "storage.delete"
+    collection: "users"
+    id: "{{ Save_User.data.data.id }}"

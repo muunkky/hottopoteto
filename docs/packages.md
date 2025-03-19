@@ -1,101 +1,27 @@
-# Package Management
+# Package System
 
-Hottopoteto supports a flexible package system that allows you to extend the framework with new domains, plugins, and other components.
+This document provides an overview of Hottopoteto's package system.
 
-## Package Types
+## Overview
 
-Hottopoteto uses two types of packages:
+Hottopoteto's package system allows extending the framework with new domains, plugins, and other components through installable Python packages.
 
-1. **Core Package**: The built-in framework functionality that all other packages depend on
-2. **Extension Packages**: Additional packages that add new capabilities
+## Documentation
 
-See [Package System Architecture](docs/core/package_system.md) for more details on this distinction.
+For detailed information about packages, please refer to:
 
-## Package Structure
+- [Package Management Reference](reference/packages.md) - Command-line reference and API
+- [Creating Packages Guide](guides/creating_packages.md) - How to create your own packages
+- [Package System Architecture](core/package_system.md) - Technical details about the package system
+- [Component Relationships](architecture/component_relationships.md) - How packages relate to other components
 
-A standard Hottopoteto extension package follows this structure:
+## Key Concepts
 
-```
-hottopoteto-<name>/                # Distribution package (hyphenated)
-├── README.md                      # Package documentation
-├── LICENSE                        # License file
-├── setup.py                       # Package metadata and entry points
-└── hottopoteto_<name>/            # Python module (underscored)
-    ├── __init__.py                # Package registration
-    ├── components/                # Shared components
-    │   └── __init__.py
-    ├── domains/                   # Domain implementations
-    │   └── example_domain/
-    │       ├── __init__.py
-    │       ├── models.py
-    │       └── schema.py
-    └── plugins/                   # Plugin implementations
-        └── example_plugin/
-            ├── __init__.py
-            ├── links.py
-            └── schemas/
-```
+Package management in Hottopoteto includes:
 
-## Managing Packages
+- **Core vs Extension Packages**: Distinction between built-in and third-party functionality
+- **Package Discovery**: Automatic loading via Python entry points
+- **Component Registration**: How packages register domains, plugins, and other components
+- **Dependency Management**: Managing package dependencies
 
-### Creating a Package
-
-Use the built-in package template generator:
-
-```bash
-python main.py packages create my_package --domain example --plugin demo
-```
-
-This creates a template with the specified domain and plugin.
-
-### Installing Packages
-
-Install from PyPI:
-
-```bash
-python main.py packages install linguistics
-```
-
-Install from GitHub:
-
-```bash
-python main.py packages install git+https://github.com/username/hottopoteto-linguistics.git
-```
-
-Install a local package (for development):
-
-```bash
-python main.py packages install --dev ./hottopoteto-linguistics
-```
-
-### Listing Installed Packages
-
-```bash
-python main.py packages list
-```
-
-### Uninstalling Packages
-
-```bash
-python main.py packages uninstall linguistics
-```
-
-## Developing a Package
-
-See the [Creating Packages](docs/guides/creating_packages.md) guide for detailed instructions on package development.
-
-## Package Discovery
-
-When Hottopoteto starts, it:
-
-1. Registers the core package
-2. Discovers and loads extension packages via entry points
-3. Initializes components from all packages
-
-This happens automatically when the framework is imported.
-
-## For More Information
-
-- [Package System Architecture](docs/core/package_system.md): Details on core vs extension packages
-- [Creating Packages](docs/guides/creating_packages.md): Guide to creating new packages
-- [Package Reference](docs/reference/packages.md): Reference for CLI commands and API
+For more information, see the documentation links above.

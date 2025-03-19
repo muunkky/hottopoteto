@@ -1,0 +1,50 @@
+name: "LLM Example Recipe"
+description: "Example recipe demonstrating the LLM core package capabilities"
+version: "1.0"
+domain: "llm"
+
+links:
+  - name: "System_Instructions"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4o"
+    system: "You are a helpful AI assistant with expertise in Python programming."
+    prompt: "What's the best way to implement a singleton pattern in Python?"
+    temperature: 0.3
+    conversation: "default"
+    
+  - name: "Follow_Up_Question"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4o"
+    prompt: "Can you provide a complete code example of the singleton pattern you described?"
+    temperature: 0.2
+    conversation: "default"
+    
+  - name: "Extract_Code"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4o"
+    prompt: |
+      Extract the Python code from the previous response.
+      Return ONLY the code without any explanation or markdown formatting.
+    output_schema:
+      type: "object"
+      required: ["code"]
+      properties:
+        code:
+          type: "string"
+          description: "The extracted Python code"
+    
+  - name: "List_Available_Models"
+    type: "function"
+    function:
+      name: "llm.list_available_models"
+    
+  - name: "Generate_With_Different_Provider"
+    type: "llm"
+    provider: "anthropic"
+    model: "claude-3-haiku-20240307"
+    system: "You are a Python programming expert."
+    prompt: "Explain how decorators work in Python. Keep it concise."
+    temperature: 0.7

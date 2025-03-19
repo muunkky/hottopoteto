@@ -131,6 +131,80 @@ Or directly with pip:
 pip install hottopoteto-my_package
 ```
 
+## Domain vs Plugin vs Package
+
+Understanding these concepts is crucial:
+
+- **Package**: A distributable Python module with its own installation and configuration
+- **Domain**: A knowledge area with specific data models and functions (e.g., linguistics, storage)
+- **Plugin**: A component that adds new link types or other capabilities (e.g., MongoDB connector)
+
+A package can contain:
+- Zero, one, or multiple domains
+- Zero, one, or multiple plugins
+- Shared utilities and schemas
+
+### Example: Analytics Package
+
+```
+hottopoteto-analytics/
+├── hottopoteto_analytics/
+│   ├── __init__.py               # Package registration
+│   ├── domains/
+│   │   ├── __init__.py
+│   │   └── metrics/              # Metrics domain
+│   │       ├── __init__.py       # Domain registration
+│   │       ├── models.py         # Metrics data models
+│   │       └── functions.py      # Metrics calculation functions
+│   └── plugins/
+│       ├── __init__.py
+│       ├── prometheus/           # Prometheus plugin
+│       │   ├── __init__.py       # Plugin registration
+│       │   └── links.py          # prometheus.export link
+│       └── grafana/              # Grafana plugin
+│           ├── __init__.py       # Plugin registration
+│           └── links.py          # grafana.dashboard link
+├── setup.py                      # Package metadata
+└── README.md                     # Documentation
+```
+
+This example package:
+- Implements the `metrics` domain
+- Provides two plugins: `prometheus` and `grafana`
+- Each plugin registers its own link types
+
+## Registration Process Flow
+
+When your package is loaded, registration typically follows this order:
+
+1. Package registers itself
+```python
+def register():
+    PackageRegistry.register_package("analytics", __name__)
+    # Import submodules to trigger their registration
+    from . import domains, plugins
+    return True
+```
+
+2. Domains register with both domain system and package
+```python
+# domains/metrics/__init__.py
+register_domain_interface("metrics", {...})
+PackageRegistry.register_domain_from_package("analytics", "metrics", __name__)
+```
+
+3. Plugins register with the package
+```python
+# plugins/prometheus/__init__.py
+PackageRegistry.register_plugin_from_package("analytics", "prometheus", __name__)
+```
+
+4. Links register with the link system
+```python
+# plugins/prometheus/links.py
+register_link_type("prometheus.export", PrometheusExportLink)
+```
+
 ## Best Practices
 
 1. **Naming Conventions**:

@@ -1,0 +1,10 @@
+name: "Query Greetings"
+description: "Query the stored greetings"
+version: "1.0"
+domain: "storage"
+
+links:
+  - name: "Query_Greetings"
+    type: "storage.query"
+    collection: "greetings"
+    filter: {}

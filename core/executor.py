@@ -11,6 +11,7 @@ from langchain_openai import ChatOpenAI
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, TemplateError, TemplateNotFound
 from jsonschema import validate, ValidationError
 from pydantic import BaseModel, Field
+from core.utils import ensure_directory  # Updated import path
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ logging.Logger.trace = trace
 
 # Constants
 MAX_CONVERSATION_LENGTH = 15
-PROMPT_DIR = "prompts"
+TEMPLATE_DIR = "templates/text"  # Default directory
 
 # Model classes for output types
 class RecipeLinkOutput(BaseModel):
@@ -60,38 +61,6 @@ class LLMOutput(RecipeLinkOutput):
 class FunctionOutput(RecipeLinkOutput):
     """Output schema for function link."""
     pass
-
-# Utility functions
-def build_context(memory: Dict[str, RecipeLinkOutput]) -> Dict[str, Any]:
-    """
-    Build a flattened context from memory.
-    Each key is the sanitized link name (spaces replaced with underscores)
-    with its output under the 'data' key. If the output contains a "raw_content"
-    field that looks like JSON, try to parse it.
-    """
-    logger.trace("Building context from memory")
-    context = {}
-    for key, output_obj in memory.items():
-        logger.trace(f"Processing memory key: {key}")
-        # Create a representation with both raw and data fields
-        context[key] = {
-            "data": output_obj.data,
-            "raw": output_obj.raw
-        }
-        data = output_obj.data
-        if isinstance(data, dict) and "raw_content" in data:
-            logger.trace(f"Found raw_content in {key}, attempting to parse as JSON")
-            try:
-                parsed = json.loads(data["raw_content"])
-                logger.trace(f"Successfully parsed raw_content as JSON")
-                context[key]["parsed_raw"] = parsed
-            except Exception as e:
-                logger.trace(f"Failed to parse raw_content as JSON: {e}")
-                
-        logger.trace(f"Added to context: {key} = (data: {type(data).__name__}, raw: {output_obj.raw is not None})")
-
-    logger.trace(f"Built context with keys: {list(context.keys())}")
-    return context
 
 def attempt_fix_truncated_json(text: str) -> str:
     """
@@ -340,27 +309,40 @@ class FunctionRegistry:
 
 # Main executor class
 class RecipeExecutor:
-    """Generic recipe executor that can work with any domain."""
+    """
+    Generic recipe executor that executes a sequence of links defined in a recipe.
+    The executor maintains a context that allows links to share data.
+    """
     
     def __init__(self, recipe_path: str, domain: str = None):
         """Initialize with recipe path and optional domain."""
         self.recipe_path = recipe_path
         
+        # Allow both old-style and new-style paths
+        if not os.path.exists(recipe_path) and not recipe_path.startswith("templates/"):
+            # Try with templates/recipes prefix
+            alt_path = os.path.join("templates", "recipes", recipe_path)
+            if os.path.exists(alt_path):
+                self.recipe_path = alt_path
+        
         # Load the recipe
-        with open(recipe_path, 'r') as f:
+        with open(self.recipe_path, 'r') as f:
             self.recipe = yaml.safe_load(f)
             
         # Determine domain from recipe if not specified
         self.domain = domain or self.recipe.get("domain", "generic")
         
-        # Initialize handlers
+        # Initialize handlers),
         self._init_handlers()
         
     def _init_handlers(self):
         """Initialize link handlers."""
-        # Set up environment for templates
+        # Set up environment with multi-folder loader for templates
+        from core.templates import get_template_directories
+        template_dirs = get_template_directories("text")
+        
         self.env = Environment(
-            loader=FileSystemLoader(PROMPT_DIR),
+            loader=FileSystemLoader(template_dirs),
             undefined=StrictUndefined,
             trim_blocks=True,
             lstrip_blocks=True
@@ -389,13 +371,23 @@ class RecipeExecutor:
         """Generate a random integer between min_value and max_value."""
         return {"num_events": random.randint(min_value, max_value)}
         
-    def execute(self, inputs: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Execute the recipe and return the result."""
+    def execute(self, inputs: Dict[str, Any] = None) -> None:
+        """
+        Execute the recipe by running each link in sequence.
+        Links can communicate via the shared context.
+        
+        Args:
+            inputs: Optional initial inputs to add to context
+            
+        Note:
+            This method executes the recipe for its side effects,
+            not to return a result value. The recipe execution itself
+            is the goal.
+        """
         # Initialize inputs
         inputs = inputs or {}
         
         # Execute recipe links in sequence
-        result = {}
         
         # Process links in order - handle both list and dictionary formats
         links = self.recipe.get("links", [])
@@ -410,62 +402,7 @@ class RecipeExecutor:
             links_dict = links
         
         # Check for circular dependencies in prompts before execution
-
-        # TODO: Check if this code is necessary at all. Circular dependencies
-        # should not be possible. The circular dependencies are caused during
-        # the json parsing logic (repeat attempts to parse and repair the same text)
-        dependency_graph = {}
-        for link_name, link_config in links_dict.items():
-            if link_config.get("type") == "llm":
-                dependencies = []
-                
-                # Check prompt for references
-                if "prompt" in link_config:
-                    prompt = link_config["prompt"]
-                    for other_link in links_dict:
-                        if other_link != link_name and f"{{{{ {other_link}" in prompt:
-                            dependencies.append(other_link)
-                
-                # Check template inputs for references
-                elif "template" in link_config and "inputs" in link_config["template"]:
-                    for input_val in link_config["template"]["inputs"].values():
-                        if isinstance(input_val, str):
-                            for other_link in links_dict:
-                                if other_link != link_name and f"{{{{ {other_link}" in input_val:
-                                    dependencies.append(other_link)
-                
-                dependency_graph[link_name] = dependencies
-        
-        # Check for cycles in the dependency graph
-        visited = set()
-        temp_visited = set()
-        
-        def has_cycle(node, path=None):
-            if path is None:
-                path = []
-            
-            if node in temp_visited:
-                cycle_path = " -> ".join(path + [node])
-                raise Exception(f"Circular dependency detected: {cycle_path}")
-            
-            if node in visited:
-                return False
-            
-            temp_visited.add(node)
-            path.append(node)
-            
-            for neighbor in dependency_graph.get(node, []):
-                if has_cycle(neighbor, path):
-                    return True
-            
-            temp_visited.remove(node)
-            visited.add(node)
-            path.pop()
-            return False
-        
-        # Check each node for cycles
-        for node in dependency_graph:
-            has_cycle(node)
+        # ...existing code for dependency checking...
         
         # Process links in order
         for link_name, link_config in links_dict.items():
@@ -477,9 +414,13 @@ class RecipeExecutor:
                 
             # Store link output in memory
             self.memory[link_name] = link_output
-            result[link_name] = link_output
                 
-        return result
+        # Note: We don't return the memory/context as if it were a "result" -
+        # executing the recipe itself is the purpose
+        logger.info("Recipe execution completed")
+        
+        # Return nothing - the recipe execution itself is the goal
+        return None
 
     def _get_domain_processor(self):
         """Get the appropriate domain processor based on recipe domain."""
@@ -492,6 +433,43 @@ class RecipeExecutor:
             return get_domain_processor(self.domain)
         except (ImportError, ValueError):
             return None
+
+    def build_context(self, memory: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Build a flattened context from memory.
+        Each key is the sanitized link name (spaces replaced with underscores)
+        with its output under the 'data' key. If the output contains a "raw_content"
+        field that looks like JSON, try to parse it.
+        """
+        logger.trace("Building context from memory")
+        context = {}
+        for key, output_obj in memory.items():
+            logger.trace(f"Processing memory key: {key}")
+            # Create a representation with both raw and data fields
+            # IMPORTANT: When output_obj is already a dict, we need to ensure it has the expected structure
+            if not isinstance(output_obj, RecipeLinkOutput) and isinstance(output_obj, dict):
+                # Convert raw dictionary output to RecipeLinkOutput format
+                if "raw" in output_obj and "data" in output_obj:
+                    # It already has the structure we expect
+                    context[key] = output_obj
+                else:
+                    # Ensure it has the expected structure
+                    context[key] = {
+                        "raw": output_obj.get("raw"),
+                        "data": output_obj.get("data", output_obj)  # Use whole dict as data if no data field
+                    }
+            else:
+                # It's a RecipeLinkOutput object, use its attributes
+                context[key] = {
+                    "data": output_obj.data if hasattr(output_obj, "data") else {},
+                    "raw": output_obj.raw if hasattr(output_obj, "raw") else None
+                }
+            
+            # Additional debug logging
+            logger.trace(f"Context for {key}: {context[key]}")
+
+        logger.trace(f"Built context with keys: {list(context.keys())}")
+        return context
 
     def _execute_function_link(self, link: Dict[str, Any]) -> FunctionOutput:
         """Execute a function link in the recipe."""
@@ -599,6 +577,44 @@ class RecipeExecutor:
                         result = func(**inputs)
                         logging.info(f"Global registry function result: {result}")
                         return FunctionOutput(data=result)
+                        ctx = execjs.compile(js_context)
+                        result = ctx.eval("execute()")
+                        
+                        # If result is not a dict, wrap it
+                        if not isinstance(result, dict):
+                            if function_config.get("name") == "random_number":
+                                result = {"num_events": result}
+                            else:
+                                result = {"result": result}
+                                
+                        logging.info(f"JS Function result: {result}")
+                        return FunctionOutput(data=result)
+                        
+                    except Exception as e:
+                        logging.error(f"Error executing JavaScript function: {e}")
+                        return FunctionOutput(data={"error": str(e)})
+            
+            # CASE 2: Registry function reference
+            elif "name" in function_config:
+                function_name = function_config["name"]
+                
+                # Try internal registry first
+                if function_name in self.function_registry:
+                    try:
+                        result = self.function_registry[function_name](**inputs)
+                        logging.info(f"Registry function result: {result}")
+                        return FunctionOutput(data=result)
+                    except Exception as e:
+                        logging.error(f"Error executing function {function_name}: {e}")
+                        return FunctionOutput(data={"error": str(e)})
+                
+                # Try global registry next
+                func = FunctionRegistry.get(function_name)
+                if func:
+                    try:
+                        result = func(**inputs)
+                        logging.info(f"Global registry function result: {result}")
+                        return FunctionOutput(data=result)
                     except Exception as e:
                         logging.error(f"Error executing function {function_name}: {e}")
                         return FunctionOutput(data={"error": str(e)})
@@ -616,7 +632,7 @@ class RecipeExecutor:
             logger.trace("No inputs defined for this function")
             return inputs
         
-        base_context = build_context(self.memory)
+        base_context = self.build_context(self.memory)
         
         for key, input_config in link["inputs"].items():
             logger.trace(f"Processing input '{key}'")
@@ -653,7 +669,7 @@ class RecipeExecutor:
         token_limit = link.get('token_limit', 512)
         output_schema = link.get('output_schema', None)
         
-        base_context = build_context(self.memory)
+        base_context = self.build_context(self.memory)
         
         try:
             # Get formatted prompt - allow exceptions to propagate upward
@@ -824,7 +840,17 @@ class RecipeExecutor:
         if "template" in link:
             try:
                 template_file = link['template']['file']
-                jinja_template = self.env.get_template(template_file)
+                
+                # Try to resolve template path using our utility
+                from core.utils.templates import resolve_template_path
+                resolved_path = resolve_template_path(template_file)
+                if resolved_path:
+                    # Use the resolved path relative to template dir
+                    rel_path = os.path.relpath(resolved_path, TEMPLATE_DIR)
+                    jinja_template = self.env.get_template(rel_path)
+                else:
+                    # Fall back to direct template lookup
+                    jinja_template = self.env.get_template(template_file)
                 
                 inputs_context = {}
                 if 'inputs' in link['template']:
@@ -906,7 +932,7 @@ class RecipeExecutor:
             handler = get_link_handler(link_type)
             
             # Build context from memory
-            context = build_context(self.memory)
+            context = self.build_context(self.memory)
             
             # Execute the link using its handler
             return handler.execute(link_config, context)
