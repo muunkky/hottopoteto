@@ -7,16 +7,6 @@
 │   └── __init__.cpython-313.pyc
 ├── core
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-312.pyc
-│   │   ├── domains.cpython-312.pyc
-│   │   ├── executor.cpython-312.pyc
-│   │   ├── models.cpython-312.pyc
-│   │   ├── registry.cpython-312.pyc
-│   │   └── schemas.cpython-312.pyc
-│   ├── backends
-│   │   ├── __init__.py
-│   │   └── __pycache__
 │   ├── cli
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -38,9 +28,12 @@
 │   │   └── domains.py
 │   ├── registry.py
 │   ├── schemas.py
+│   ├── templates.py
 │   └── utils
 │       ├── __init__.py
-│       └── package_template.py
+│       ├── __pycache__
+│       ├── package_template.py
+│       └── templates.py
 ├── docs
 │   ├── DOMAIN_STRUCTURE.md
 │   ├── README.md
@@ -54,18 +47,22 @@
 │   ├── guides
 │   │   ├── creating_packages.md
 │   │   ├── creating_plugins.md
-│   │   └── creating_recipes.md
+│   │   ├── creating_recipes.md
+│   │   └── domain_organization.md
 │   ├── packages.md
 │   ├── recipe_execution.md
 │   ├── reference
 │   │   └── packages.md
+│   ├── templates
+│   │   └── README.md
 │   └── trace_logger.md
 ├── hottopoteto_mvp.bkp.py
 ├── main.py
+├── output
+│   └── data
+│       └── greetings
 ├── plugins
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   └── __init__.cpython-312.pyc
 │   ├── conlang
 │   │   ├── __init__.py
 │   │   └── domains
@@ -79,36 +76,19 @@
 │   ├── mongodb
 │   │   ├── links.py
 │   │   └── schemas
-│   ├── sqlite
-│   │   ├── links.py
-│   │   └── schemas
-│   └── storage
-│       └── links.py
-├── prompts
-│   ├── 1-Instructions for applying the EECH.txt
-│   ├── 2-Select the origin language.txt
-│   ├── 3-Generate the origin words.txt
-│   ├── 4-Apply Morphology.txt
-│   ├── 5-Apply Phonology.txt
-│   └── 6-Derivatives.txt
-├── recipes
-│   ├── conlang
-│   │   ├── eldorian_word.yaml
-│   │   └── schemas
-│   ├── examples
-│   │   ├── gemini_example.yaml
-│   │   ├── llm_example.yaml
-│   │   ├── mongodb_example.yaml
-│   │   ├── query_greetings.yaml
-│   │   ├── simple_llm_storage_example.yaml
-│   │   ├── sqlite_example.yaml
-│   │   └── storage_example.yaml
-│   ├── storytelling
-│   ├── test
-│   │   └── test_recipe.yaml
-│   └── worldbuilding
+│   └── sqlite
+│       ├── links.py
+│       └── schemas
 ├── requirements.txt
-├── tests
+├── templates
+│   ├── recipes
+│   │   ├── conlang
+│   │   ├── examples
+│   │   ├── storytelling
+│   │   ├── test
+│   │   └── worldbuilding
+│   └── text
+│       └── conlang
 └── tree.txt
 
-43 directories, 68 files
+43 directories, 48 files

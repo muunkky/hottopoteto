@@ -4,6 +4,7 @@ Model definitions for LLM domain
 from typing import Dict, List, Any, Optional, ClassVar, Type
 from pydantic import BaseModel, Field, model_validator
 from datetime import datetime
+from core.security.credentials import get_credential
 
 # Data models
 class LLMMessage(BaseModel):
@@ -68,7 +69,11 @@ class OpenAIProvider(LLMProvider):
     
     def generate(self, request: LLMRequest) -> LLMResponse:
         """Generate text using OpenAI"""
-        # Mock implementation - in a real implementation, this would call the API
+        # Get API key from environment variables
+        api_key = get_credential("OPENAI_API_KEY")
+        
+        # In a real implementation, this would call the OpenAI API
+        # For now, we'll just mock a response
         import random
         sample_responses = [
             "Hello! I'm here to help you with your tasks.",

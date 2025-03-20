@@ -3,6 +3,7 @@ LLM domain implementation
 """
 from core.registry import PackageRegistry
 from core.registration import register_domain_interface
+from core.security.credentials import register_domain_credentials
 
 # Register domain with the system
 register_domain_interface("llm", {
@@ -17,6 +18,25 @@ PackageRegistry.register_domain_from_package(
     "llm",  # The domain name
     __name__  # This module
 )
+
+# Register required credentials for this domain
+register_domain_credentials("llm", [
+    {
+        "name": "OPENAI_API_KEY",
+        "description": "OpenAI API key for GPT models",
+        "required": True
+    },
+    {
+        "name": "ANTHROPIC_API_KEY",
+        "description": "Anthropic API key for Claude models",
+        "required": False
+    },
+    {
+        "name": "GEMINI_API_KEY",
+        "description": "Google Gemini API key",
+        "required": False
+    }
+])
 
 # Don't import providers module here - it creates a circular dependency
 # Import individual components instead

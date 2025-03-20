@@ -1,6 +1,6 @@
 # Domain System in Hottopoteto
 
-The domain system in Hottopoteto provides a mechanism for organizing functionality around specific subject areas or knowledge domains. This document explains how domains work and how to use them.
+The domain system in Hottopoteto provides a mechanism for organizing functionality around specific subject areas or knowledge domains.
 
 ## What Are Domains?
 
@@ -72,61 +72,26 @@ python main.py domains info conlang
 python main.py domains packages conlang
 ```
 
-## Implementing a Domain
+## Domain Organization
 
-To implement a domain:
+Each domain follows a standard structure:
 
-1. **Create a domain directory**:
-   ```
-   hottopoteto_mydomain/domains/mydomain/
-   ```
+```
+domains/domain_name/            # Domain root directory
+├── __init__.py                 # Registration code
+├── models.py                   # Data models and schemas
+├── functions.py                # Domain-specific functions
+├── utils.py                    # Utilities specific to this domain
+├── links/                      # Domain-specific link handlers
+│   └── __init__.py
+├── cli/                        # CLI commands for this domain
+│   └── __init__.py
+├── schemas/                    # JSON schemas
+│   └── __init__.py
+└── README.md                   # Domain documentation
+```
 
-2. **Register the domain interface**:
-   ```python
-   from core.domains import register_domain_interface
-   
-   register_domain_interface("mydomain", {
-       "name": "mydomain",
-       "version": "0.1.0",
-       "description": "My custom domain"
-   })
-   ```
-
-3. **Register domain with package**:
-   ```python
-   from core.registry import PackageRegistry
-   
-   PackageRegistry.register_domain_from_package(
-       "mydomain_package", 
-       "mydomain", 
-       __name__
-   )
-   ```
-
-4. **Register domain functions**:
-   ```python
-   from core.domains import register_domain_function
-   
-   def process_data(input_data):
-       # Implementation
-       return processed_data
-   
-   register_domain_function("mydomain", "process_data", process_data)
-   ```
-
-5. **Register domain schemas**:
-   ```python
-   from core.domains import register_domain_schema
-   
-   register_domain_schema("mydomain", "data_model", {
-       "type": "object",
-       "properties": {
-           "name": {"type": "string"},
-           "value": {"type": "number"}
-       },
-       "required": ["name"]
-   })
-   ```
+For complete details on domain organization, see [Creating Domains](../guides/creating-domains.md).
 
 ## Best Practices
 

@@ -40,6 +40,9 @@ if not get_link_handler("storage.query"):
 if not get_link_handler("storage.delete"):
     register_link_type("storage.delete", StorageDeleteLink)
 
+# Import credentials commands
+from core.cli.commands.credentials import add_credentials_command, handle_credentials_command
+
 def main():
     # Enable debug logs to help investigate issues
     logging.basicConfig(level=logging.DEBUG)
@@ -102,6 +105,9 @@ def main():
     create_parser.add_argument("name", help="Name of the package")
     create_parser.add_argument("--domain", help="Include domain template")
     create_parser.add_argument("--plugin", help="Include plugin template")
+
+    # Add credentials command
+    add_credentials_command(subparsers)
 
     # Add domain-specific subcommands
     try:
@@ -281,6 +287,10 @@ def main():
             else:
                 print(f"No packages found for domain '{args.domain_name}'")
     
+    # Handle credentials command
+    if args.command == "credentials":
+        handle_credentials_command(args)
+
     # Add package command handler
     if args.command == "packages":
         from cli.commands.packages import list_packages, install_package, uninstall_package, create_package

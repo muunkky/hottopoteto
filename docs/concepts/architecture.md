@@ -15,8 +15,6 @@ graph TD;
   Plugins --> Storage;
 ```
 
----
-
 ## Core Components
 
 ### **Recipes**
@@ -42,8 +40,6 @@ links:
     # link-specific configuration
 ```
 
----
-
 ### **Executor**
 The **RecipeExecutor** processes recipes by:
 
@@ -53,8 +49,6 @@ The **RecipeExecutor** processes recipes by:
 - **Handling errors and exceptions**
 - **Returning the final output**
 
----
-
 ### **Links**
 Links are the basic units of execution in recipes. Each link:
 
@@ -62,8 +56,6 @@ Links are the basic units of execution in recipes. Each link:
 - Takes **inputs** from previous links or direct configuration
 - Produces **outputs** that can be used by subsequent links
 - Is **registered** by either the core system or plugins
-
----
 
 ### **Domains**
 Domains represent specialized knowledge areas with their own models, schemas, and utilities. They provide:
@@ -73,8 +65,6 @@ Domains represent specialized knowledge areas with their own models, schemas, an
 - **CLI commands** for domain operations
 - **Domain-specific utilities**
 
----
-
 ### **Plugins**
 Plugins extend functionality by adding new link types and other capabilities. Each plugin:
 
@@ -82,8 +72,6 @@ Plugins extend functionality by adding new link types and other capabilities. Ea
 - Provides **schemas** for its link configurations
 - May support **specific domains**
 - Has its own **requirements and dependencies**
-
----
 
 ### **Packages**
 Packages extend Hottopoteto with new domains, plugins, and other components:
@@ -101,8 +89,6 @@ graph TD;
   Packages --> Schemas;
 ```
 
----
-
 ### **Storage**
 The storage system provides persistence mechanisms through adapters:
 
@@ -111,8 +97,6 @@ The storage system provides persistence mechanisms through adapters:
 - **MongoDB**
 - **Custom adapters**
 
----
-
 ## System Interactions
 
 1. A recipe is loaded by the **RecipeExecutor**
@@ -120,8 +104,6 @@ The storage system provides persistence mechanisms through adapters:
 3. Links may use **domain utilities** for specialized operations
 4. Plugins provide additional **link types and capabilities**
 5. Storage adapters persist **data when needed**
-
----
 
 ## Directory Structure
 
@@ -151,8 +133,6 @@ hottopoteto/
 └── main.py                # Command-line interface
 ```
 
----
-
 ## Extension Points
 
 Hottopoteto is designed to be extended through several mechanisms:
@@ -164,16 +144,12 @@ Hottopoteto is designed to be extended through several mechanisms:
 - **Recipe Templates**: Create reusable recipe templates for common patterns
 - **Packages**: Distribute extensions as installable packages
 
----
-
 ## Data Flow
 
 1. **Input**: Recipe definition loaded from YAML/JSON
 2. **Processing**: Links executed in sequence, with data passed through memory context
 3. **Storage**: Results stored using the appropriate adapter
 4. **Output**: Final results returned to the caller
-
----
 
 ## Error Handling
 
@@ -184,13 +160,9 @@ The system includes several levels of error handling:
 - **Storage Operations**: Handles storage errors gracefully
 - **CLI Interface**: Provides clear error messages to users
 
----
-
 ## Security Considerations
 
 - **Code Execution**: Function links use a restricted execution environment
 - **Data Validation**: Schema validation prevents malformed data
 - **Resource Limits**: Controls for API usage and resource consumption
 - **Error Messages**: Careful handling to prevent information leakage
-```
-

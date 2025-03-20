@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional, ClassVar, Type
 from pydantic import BaseModel, Field
 from datetime import datetime
 from core.models import GenericEntryModel
-from .utils import ensure_directory, safe_load_json, safe_save_json  # Import from utils instead of functions
+from .utils import ensure_directory, safe_load_json, safe_save_json 
 
 logger = logging.getLogger(__name__)
 

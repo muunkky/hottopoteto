@@ -1,41 +1,44 @@
 # Hottopoteto Documentation
 
-Welcome to the Hottopoteto documentation. This index will help you navigate the available documentation.
+Welcome to the Hottopoteto documentation. Hottopoteto is a flexible framework for building AI-powered applications through composable recipes.
 
-## Getting Started
+## Documentation Sections
 
-- [Quick Start Guide](../README.md#quick-start)
-- [Installation Guide](installation.md)
-- [Your First Recipe](guides/creating_recipes.md)
+### Concepts
 
-## Architecture
+Learn about the core concepts and architecture:
 
-- [Architecture Overview](../ARCHITECTURE.md)
-- [Component Relationships](architecture/component_relationships.md)
-- [Package System](core/package_system.md)
-- [Domain System](core/domains.md)
-- [Plugin System](core/plugins.md)
-- [Recipe Execution](recipe_execution.md)
-- [Logging System](core/logging.md)
+- [Architecture Overview](concepts/architecture.md)
+- [Core Principles](concepts/principles.md)
+- [Domain System](concepts/domains.md)
+- [Plugin System](concepts/plugins.md)
+- [Package System](concepts/packages.md)
+- [Recipe System](concepts/recipes.md)
+- [Component Relationships](concepts/components.md)
 
-## Guides
+### Guides
 
-- [Creating Packages](guides/creating_packages.md)
-- [Creating Plugins](guides/creating_plugins.md)
-- [Creating Recipes](guides/creating_recipes.md)
+Step-by-step instructions for common tasks:
 
-## Reference
+- [Creating Recipes](guides/creating-recipes.md)
+- [Creating Plugins](guides/creating-plugins.md)
+- [Creating Domains](guides/creating-domains.md)
+- [Creating Packages](guides/creating-packages.md)
+- [Working with Schemas](guides/using-schemae.md)
+- [Using Templates](guides/using-templates.md)
+- [Configuring Logging](guides/configuring-logging.md)
 
-- [Package Management](reference/packages.md)
-- [Link Types](reference/link_types.md)
+### Reference
 
-## Core Domains
+Detailed technical reference:
 
-- [LLM Domain](domains/llm.md)
-- [Storage Domain](domains/storage.md)
+- [Recipe Format](reference/recipe-format.md)
+- [Link Types](reference/link-types.md)
+- [Schema Formats](reference/schema-formats.md)
+- [CLI Commands](reference/cli-commands.md)
 
-## Best Practices
+### Security
 
-- [Code Organization](best_practices/code_organization.md)
-- [Testing](best_practices/testing.md)
-- [Documentation](best_practices/documentation.md)
+Security-related documentation:
+
+- [Credential Management](security/credentials.md)
