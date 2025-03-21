@@ -12,6 +12,7 @@ This document outlines the fundamental design principles that guide Hottopoteto'
 - Each link type belongs to a specific domain
 - Links can only directly use models and functions from their own domain
 - Domain-specific code is organized in domain directories
+- Domain implementations should never depend on plugins. This ensures that domains remain self-contained and can be developed, tested, and deployed independently.
 
 ## 2. Cross-Domain Communication
 
