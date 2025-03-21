@@ -4,6 +4,29 @@ This guide explains how to create plugins for Hottopoteto to extend its function
 
 ## Plugin Structure
 
+Every plugin must follow this standard directory structure:
+
+```
+plugins/plugin_name/ # Plugin root directory 
+├── __init__.py # Registration code 
+├── plugin.yaml # OR plugin.json - Plugin configuration 
+├── links/ # Plugin link handlers 
+│ └── __init__.py 
+└── README.md # Plugin documentation
+```
+
+The `plugin.yaml` or `plugin.json` file is required and must contain:
+
+```yaml
+name: "plugin_name"
+version: "1.0.0"
+description: "Description of what this plugin does"
+entry_points:
+  links:
+    - link_type: "plugin_name.link_type"
+      handler: "plugin_name.links.handler_class"
+```
+
 A plugin consists of the following components:
 
 1. **Manifest**: Metadata about the plugin

@@ -20,6 +20,7 @@ Learn about the core concepts and architecture:
 
 Step-by-step instructions for common tasks:
 
+- [Component Checklist](guides/component-checklist.md)
 - [Creating Recipes](guides/creating-recipes.md)
 - [Creating Plugins](guides/creating-plugins.md)
 - [Creating Domains](guides/creating-domains.md)

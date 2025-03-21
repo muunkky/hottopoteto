@@ -52,7 +52,18 @@ When contributing to Hottopoteto, please keep these principles in mind:
 5. **Template Referencing**: Only recipe templates should reference other templates
 6. **Credential Security**: Never store sensitive information in code or configuration files
 
-See our [Core Principles](docs/core/principles.md) document for detailed explanations.
+See our [Architecture Principles](docs/reference/architecture-principles-summary.md) document and [Component Checklist](docs/guides/component-checklist.md) for detailed guidance.
+
+## Architecture Validation
+
+We use automated architecture tests to ensure contributions maintain the system's architectural integrity:
+
+```bash
+# Run architecture validation tests
+pytest -m architecture
+```
+These tests verify that components follow our domain registration patterns and directory structures.
+
 
 ## Quick Architecture Overview
 
@@ -86,12 +97,18 @@ For more details, see the [Architecture Document](docs/ARCHITECTURE.md).
 ```
 hottopoteto/
 ├── core/                  # Core system components
-├── domains/               # Domain implementations
-├── plugins/               # Plugin implementations
-├── utils/                 # Utility functions and helpers
-├── cli/                   # Command-line interface components
-├── recipes/               # Recipe definitions
-└── storage/               # Storage system
+│   ├── domains/           # Domain implementations
+│   ├── links/             # Link system
+│   ├── registration/      # Registration system
+│   └── schemas/           # Schema definitions
+├── plugins/               # Plugin implementations 
+├── docs/                  # Documentation
+│   ├── concepts/          # Core concepts
+│   ├── guides/            # How-to guides
+│   └── reference/         # Technical reference
+├── tests/                 # Test suite
+│   └── architecture/      # Architecture validation tests
+└── recipes/               # Recipe definitions
 ```
 
 ## Contribution Guidelines

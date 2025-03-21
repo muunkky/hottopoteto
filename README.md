@@ -108,19 +108,20 @@ Hottopoteto follows these key architectural principles:
 4. **Recipe Composition**: Recipes orchestrate functionality across domains
 5. **Plugin Extensibility**: The system can be extended without modifying core code
 
-For more details, see our [Core Principles](docs/core/principles.md) documentation.
+For more details, see our [Architecture Principles](docs/reference/architecture-principles-summary.md) documentation.
 
 ## 📚 Documentation
 
 For more detailed documentation:
 
-- [Architecture Overview](ARCHITECTURE.md)
-- [Core Principles](docs/core/principles.md)
+- [Architecture Overview](docs/concepts/architecture.md)
+- [Architecture Principles](docs/concepts/principles.md)
 - [Creating Plugins](docs/guides/creating_plugins.md)
-- [Creating Domains](docs/DOMAIN_STRUCTURE.md)
-- [Package Management](docs/packages.md)
-- [Recipe Execution](docs/recipe_execution.md)
+- [Creating Domains](docs/guides/creating-domains.md)
+- [Package Management](docs/concepts/packages.md)
+- [Recipe Execution](docs/concepts/recipes.md)
 - [Security & Credentials](docs/security/credentials.md)
+- [Component Checklist](docs/guides/component-checklist.md)
 - [Reference Documentation](docs/reference/)
 
 ## 🤝 Contributing
