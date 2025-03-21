@@ -3,11 +3,25 @@
 ├── README.md
 ├── __init__.py
 ├── __pycache__
-│   └── __init__.cpython-313.pyc
+│   ├── __init__.cpython-312.pyc
+│   ├── __init__.cpython-313.pyc
+│   ├── conftest.cpython-312-pytest-8.3.5.pyc
+│   └── main.cpython-312.pyc
+├── assets
+│   └── style.css
+├── conftest.py
 ├── core
 │   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── executor.cpython-312.pyc
+│   │   ├── registry.cpython-312.pyc
+│   │   ├── registry.cpython-313.pyc
+│   │   └── schemas.cpython-312.pyc
 │   ├── cli
 │   │   ├── __init__.py
+│   │   ├── __pycache__
 │   │   └── commands
 │   ├── domains
 │   │   ├── __init__.py
@@ -40,6 +54,8 @@
 │       └── templates.py
 ├── docs
 │   ├── README.md
+│   ├── architecture
+│   │   └── decisions
 │   ├── concepts
 │   │   ├── architecture.md
 │   │   ├── components.md
@@ -59,6 +75,7 @@
 │   │   └── using-templates.md
 │   ├── reference
 │   │   ├── architecture-map.md
+│   │   ├── architecture-principles-summary.md
 │   │   ├── cli-commands.md
 │   │   ├── link-types.md
 │   │   ├── recipe-format.md
@@ -88,6 +105,8 @@
 │   └── sqlite
 │       ├── links.py
 │       └── schemas
+├── pytest.ini
+├── report.html
 ├── requirements.txt
 ├── templates
 │   ├── recipes
@@ -98,6 +117,13 @@
 │   │   └── worldbuilding
 │   └── text
 │       └── conlang
+├── tests
+│   ├── __pycache__
+│   │   ├── conftest.cpython-312-pytest-8.3.5.pyc
+│   │   └── conftest.cpython-313-pytest-8.3.5.pyc
+│   └── architecture
+│       ├── __pycache__
+│       └── test_domain_registration.py
 └── tree.txt
 
-43 directories, 57 files
+52 directories, 74 files
