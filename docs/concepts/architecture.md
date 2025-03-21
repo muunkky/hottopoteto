@@ -10,9 +10,7 @@ Hottopoteto uses a modular architecture with the following main components:
 graph TD;
   Recipes --> Executor;
   Executor --> Links;
-  Executor --> Domains;
-  Domains --> Plugins;
-  Plugins --> Storage;
+  Links --> Domains;
 ```
 
 ## Core Components
@@ -23,20 +21,19 @@ Recipes are declarative **YAML** files that define a sequence of operations. The
 - **Links to execute**
 - **Configuration** for each link
 - **Input/output schemas**
-- **Domain association** (optional)
+- **Connections between links** from different domains
 
 #### **Example recipe structure:**
 ```yaml
 name: "Example Recipe"
 description: "Description of what this recipe does"
 version: "1.0"
-domain: "example_domain"
 links:
   - name: "Link_1"
-    type: "link_type"
+    type: "domain_a.link_type"
     # link-specific configuration
   - name: "Link_2"
-    type: "another_link_type"
+    type: "domain_b.another_link_type"
     # link-specific configuration
 ```
 
@@ -56,6 +53,8 @@ Links are the basic units of execution in recipes. Each link:
 - Takes **inputs** from previous links or direct configuration
 - Produces **outputs** that can be used by subsequent links
 - Is **registered** by either the core system or plugins
+- Can **handle its own storage needs** when necessary
+- May belong to a specific **domain**
 
 ### **Domains**
 Domains represent specialized knowledge areas with their own models, schemas, and utilities. They provide:
@@ -64,6 +63,7 @@ Domains represent specialized knowledge areas with their own models, schemas, an
 - **Processing functions** for domain objects
 - **CLI commands** for domain operations
 - **Domain-specific utilities**
+- **Links** specific to the domain's functionality
 
 ### **Plugins**
 Plugins extend functionality by adding new link types and other capabilities. Each plugin:
@@ -90,20 +90,24 @@ graph TD;
 ```
 
 ### **Storage**
-The storage system provides persistence mechanisms through adapters:
+Storage in Hottopoteto is handled at the link level:
 
-- **File storage**
-- **SQLite**
-- **MongoDB**
-- **Custom adapters**
+- Each link can perform its own storage operations
+- Links can write to the output folder as needed
+- The `storage` domain provides models and links that act as storage adapters
+- Common storage adapters available include:
+  - **File storage**
+  - **SQLite**
+  - **MongoDB**
+  - **Custom adapters**
 
 ## System Interactions
 
 1. A recipe is loaded by the **RecipeExecutor**
 2. The executor processes **each link** in sequence
 3. Links may use **domain utilities** for specialized operations
-4. Plugins provide additional **link types and capabilities**
-5. Storage adapters persist **data when needed**
+4. Links may perform **storage operations** when needed
+5. Plugins provide additional **link types and capabilities**
 
 ## Directory Structure
 
@@ -115,7 +119,8 @@ hottopoteto/
 │   ├── links/             # Link base classes
 │   └── schemas/           # Schema registry
 ├── domains/               # Domain implementations
-│   └── conlang/           # Example domain: constructed languages
+│   ├── conlang/           # Example domain: constructed languages
+│   └── storage/           # Storage adapters implemented as links
 ├── plugins/               # Plugin implementations
 │   ├── gemini/            # Google Gemini plugin
 │   ├── mongodb/           # MongoDB plugin
@@ -127,9 +132,6 @@ hottopoteto/
 ├── recipes/               # Recipe definitions
 │   ├── examples/          # Example recipes
 │   └── conlang/           # Domain-specific recipes
-├── storage/               # Storage system
-│   ├── adapters/          # Storage adapters
-│   └── repository.py      # Repository interface
 └── main.py                # Command-line interface
 ```
 
@@ -139,7 +141,7 @@ Hottopoteto is designed to be extended through several mechanisms:
 
 - **New Domains**: Create new domains by extending the domain system
 - **New Plugins**: Create new plugins to add link types and capabilities
-- **New Storage Adapters**: Create new storage adapters for different backends
+- **New Storage Links**: Create new links for the storage domain for different backends
 - **Custom Link Types**: Register new link types for specialized tasks
 - **Recipe Templates**: Create reusable recipe templates for common patterns
 - **Packages**: Distribute extensions as installable packages
@@ -148,7 +150,7 @@ Hottopoteto is designed to be extended through several mechanisms:
 
 1. **Input**: Recipe definition loaded from YAML/JSON
 2. **Processing**: Links executed in sequence, with data passed through memory context
-3. **Storage**: Results stored using the appropriate adapter
+3. **Storage**: Individual links perform storage operations as needed
 4. **Output**: Final results returned to the caller
 
 ## Error Handling
@@ -157,7 +159,7 @@ The system includes several levels of error handling:
 
 - **Schema Validation**: Ensures input data conforms to schemas
 - **Link Execution**: Catches and reports errors during link execution
-- **Storage Operations**: Handles storage errors gracefully
+- **Storage Operations**: Links handle their own storage errors
 - **CLI Interface**: Provides clear error messages to users
 
 ## Security Considerations

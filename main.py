@@ -9,38 +9,10 @@ import pkgutil
 import importlib
 from typing import Dict, Any, List
 
-from core.executor import RecipeExecutor
-
-# Import package commands
-from core.cli.commands.packages import packages_group  # Updated import path
-
-# We don't need to define link handlers here anymore
 # Ensure core is imported to trigger registration
 import core
-
-# Import link handlers explicitly to ensure they're registered
-from core.domains.llm.links import LLMHandler
-from core.domains.storage.links import StorageSaveLink, StorageGetLink, StorageQueryLink, StorageDeleteLink
-
-# Register link types if not already registered by auto-discovery
-from core.links import register_link_type, get_link_handler
-
-if not get_link_handler("llm"):
-    register_link_type("llm", LLMHandler)
-    
-if not get_link_handler("storage.save"):
-    register_link_type("storage.save", StorageSaveLink)
-    
-if not get_link_handler("storage.get"):
-    register_link_type("storage.get", StorageGetLink)
-    
-if not get_link_handler("storage.query"):
-    register_link_type("storage.query", StorageQueryLink)
-    
-if not get_link_handler("storage.delete"):
-    register_link_type("storage.delete", StorageDeleteLink)
-
-# Import credentials commands
+from core.executor import RecipeExecutor
+from core.cli.commands.packages import packages_group, list_packages, install_package, uninstall_package, create_package
 from core.cli.commands.credentials import add_credentials_command, handle_credentials_command
 
 def main():
@@ -50,15 +22,13 @@ def main():
     parser = argparse.ArgumentParser(description="Recipe Execution CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # execute command: Execute a recipe files
+    # execute command: Execute a recipe file
     execute_parser = subparsers.add_parser("execute", help="Execute a recipe file")
     execute_parser.add_argument("--recipe_file", type=str, required=True, help="Path to the recipe YAML/JSON file")
     execute_parser.add_argument("--output_dir", type=str, help="Directory to save recipe output")
-    execute_parser.add_argument("--domain", type=str, help="Override the domain specified in the recipe")
 
     # list command: List all available recipes
     list_parser = subparsers.add_parser("list", help="List available recipes")
-    list_parser.add_argument("--domain", type=str, help="Filter recipes by domain")
 
     # plugins command: Manage plugins
     plugins_parser = subparsers.add_parser("plugins", help="Manage plugins")
@@ -79,7 +49,7 @@ def main():
     domains_list_parser = domains_subparsers.add_parser("list", help="List available domains")
     
     # domains info command
-    domains_info_parser = subparsers.add_parser("info", help="Get information about a domain")
+    domains_info_parser = domains_subparsers.add_parser("info", help="Get information about a domain")
     domains_info_parser.add_argument("domain_name", help="Name of the domain")
     
     # domains packages command
@@ -88,7 +58,7 @@ def main():
 
     # Register package commands
     # Create a subparser for packages commands
-    packages_parser = subparsers.add_parser("packages", help="Manage packages")
+    packages_parser = subparsers.add_subparser("packages", help="Manage packages")
     packages_subparsers = packages_parser.add_subparsers(dest="packages_command", required=True)
     
     # Add package commands to the subparser
@@ -138,53 +108,8 @@ def main():
                 print(f"Failed to load recipe: {e}")
                 return
                 
-            # Add debug flag
-            if args.recipe_file.endswith("simple_llm_storage_example.yaml"):
-                print("Debugging simple_llm_storage_example.yaml")
-                
-                # Custom execution with debug
-                executor = RecipeExecutor(args.recipe_file)
-                if args.domain:
-                    executor.domain = args.domain
-                
-                # Execute with explicit debug handling
-                try:
-                    # Execute links individually with debug
-                    recipe = executor.recipe
-                    links = recipe.get("links", [])
-                    
-                    # Execute first link (LLM) and print output
-                    llm_link = links[0]
-                    print(f"Executing: {llm_link['name']}")
-                    llm_output = executor._execute_link(llm_link)
-                    print(f"Output: {llm_output}")
-                    executor.memory[llm_link['name']] = llm_output
-                    
-                    # Execute second link (storage) with debug
-                    storage_link = links[1]
-                    print(f"Executing: {storage_link['name']}")
-                    context = executor.build_context(executor.memory)
-                    print(f"Context: {context}")
-                    storage_output = executor._execute_link(storage_link)
-                    print(f"Storage output: {storage_output}")
-                    
-                    print("Recipe execution completed with debug")
-                    
-                except Exception as e:
-                    print(f"Debug error: {e}")
-                    import traceback
-                    traceback.print_exc()
-                    
-                return
-                
-            # Standard execution for other recipes
+            # Standard execution for recipes
             executor = RecipeExecutor(args.recipe_file)
-            if args.domain:
-                executor.domain = args.domain
-                
-            # Execute the recipe - note we don't capture a returned "result"
-            # because the purpose is to execute the commands in the recipe,
-            # not to return a value
             executor.execute()
             print(f"Recipe execution completed successfully.")
             
@@ -194,9 +119,6 @@ def main():
     elif args.command == "list":
         # List available recipes
         recipe_dir = "templates/recipes"  # Updated path
-        if args.domain:
-            recipe_dir = os.path.join(recipe_dir, args.domain)
-            
         if not os.path.exists(recipe_dir):
             print(f"Recipe directory not found: {recipe_dir}")
             return
@@ -293,8 +215,6 @@ def main():
 
     # Add package command handler
     if args.command == "packages":
-        from cli.commands.packages import list_packages, install_package, uninstall_package, create_package
-        
         if args.packages_command == "list":
             list_packages()
         elif args.packages_command == "install":

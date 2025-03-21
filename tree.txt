@@ -1,5 +1,4 @@
 .
-├── ARCHITECTURE.md
 ├── CONTRIBUTING.md
 ├── README.md
 ├── __init__.py
@@ -9,11 +8,9 @@
 │   ├── __init__.py
 │   ├── cli
 │   │   ├── __init__.py
-│   │   ├── __pycache__
 │   │   └── commands
 │   ├── domains
 │   │   ├── __init__.py
-│   │   ├── __pycache__
 │   │   ├── llm
 │   │   └── storage
 │   ├── domains.py
@@ -27,7 +24,14 @@
 │   │   ├── __pycache__
 │   │   └── domains.py
 │   ├── registry.py
+│   ├── schema
+│   │   ├── extension.py
+│   │   ├── pydantic_integration.py
+│   │   └── translator.py
 │   ├── schemas.py
+│   ├── security
+│   │   ├── __pycache__
+│   │   └── credentials.py
 │   ├── templates.py
 │   └── utils
 │       ├── __init__.py
@@ -35,27 +39,32 @@
 │       ├── package_template.py
 │       └── templates.py
 ├── docs
-│   ├── DOMAIN_STRUCTURE.md
 │   ├── README.md
-│   ├── architecture
-│   │   └── component_relationships.md
-│   ├── core
+│   ├── concepts
+│   │   ├── architecture.md
+│   │   ├── components.md
 │   │   ├── domains.md
-│   │   ├── logging.md
-│   │   ├── package_system.md
-│   │   └── plugins.md
+│   │   ├── packages.md
+│   │   ├── plugins.md
+│   │   ├── principles.md
+│   │   └── recipes.md
 │   ├── guides
+│   │   ├── configuring-logging.md
+│   │   ├── creating-domains.md
+│   │   ├── creating-packages.md
 │   │   ├── creating_packages.md
 │   │   ├── creating_plugins.md
 │   │   ├── creating_recipes.md
-│   │   └── domain_organization.md
-│   ├── packages.md
-│   ├── recipe_execution.md
+│   │   ├── using-schemae.md
+│   │   └── using-templates.md
 │   ├── reference
-│   │   └── packages.md
-│   ├── templates
-│   │   └── README.md
-│   └── trace_logger.md
+│   │   ├── architecture-map.md
+│   │   ├── cli-commands.md
+│   │   ├── link-types.md
+│   │   ├── recipe-format.md
+│   │   └── schema-formats.md
+│   └── security
+│       └── credentials.md
 ├── hottopoteto_mvp.bkp.py
 ├── main.py
 ├── output
@@ -91,4 +100,4 @@
 │       └── conlang
 └── tree.txt
 
-43 directories, 48 files
+43 directories, 57 files
