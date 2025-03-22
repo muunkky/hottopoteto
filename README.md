@@ -6,9 +6,19 @@ Hottopoteto is a flexible framework for building AI-powered applications through
 
 - **Domain-Based Architecture**: Specialized support for different knowledge domains
 - **Plugin System**: Extend functionality with plugins for various services and tools
+- **Package Management**: Add new domains and plugins through installable packages
 - **Recipe-Driven**: Define workflows as recipes with a declarative YAML format
 - **Storage Adapters**: Flexible storage options for persisting data
 - **Schema Validation**: Built-in schema validation for consistent data structures
+
+## 🎯 Who Is Hottopoteto For?
+
+- **AI Developers**: Build complex AI workflows with minimal boilerplate code
+- **Data Scientists**: Create data processing pipelines with LLM integration
+- **Automation Engineers**: Design automated workflows that combine AI services
+- **Content Creators**: Assemble content generation pipelines with fine-tuned control
+- **Domain Experts**: Implement specialized tools in areas like linguistics or storytelling
+- **No-Code Enthusiasts**: Create powerful AI applications through YAML configuration
 
 ## 🚀 Quick Start
 
@@ -16,7 +26,7 @@ Hottopoteto is a flexible framework for building AI-powered applications through
 
 ```bash
 # Clone the repository
-git clone https://github.com/muunkky/Hottopoteto.git
+git clone https://github.com/muunkky/hottopoteto.git
 cd hottopoteto
 
 # Install dependencies
@@ -29,6 +39,15 @@ pip install -r requirements.txt
 # Execute a sample recipe
 python main.py execute --recipe_file recipes/examples/gemini_example.yaml
 ```
+
+## 💼 Example Use Cases
+
+- **Content Generation**: Create multi-stage content generation pipelines with LLM refinement
+- **Knowledge Management**: Build systems that analyze, organize, and query information
+- **Conlang Creation**: Generate constructed languages with rich linguistic features
+- **Interactive Stories**: Create interactive narrative experiences with branching pathways
+- **Custom AI Assistants**: Design specialized assistants with domain-specific knowledge
+- **Data Processing**: Build workflows that collect, process, and analyze diverse data sources
 
 ## 📋 Core Concepts
 
@@ -79,15 +98,31 @@ python main.py plugins list
 python main.py plugins info gemini
 ```
 
+## 🧠 Core Principles
+
+Hottopoteto follows these key architectural principles:
+
+1. **Domain Isolation**: Links operate within a single domain to ensure clean separation
+2. **Cross-Domain Communication**: Only core infrastructure enables cross-domain interaction
+3. **Secure Credential Management**: API keys and credentials are never stored in code
+4. **Recipe Composition**: Recipes orchestrate functionality across domains
+5. **Plugin Extensibility**: The system can be extended without modifying core code
+
+For more details, see our [Architecture Principles](docs/reference/architecture-principles-summary.md) documentation.
+
 ## 📚 Documentation
 
 For more detailed documentation:
 
-- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Architecture Overview](docs/concepts/architecture.md)
+- [Architecture Principles](docs/concepts/principles.md)
 - [Creating Plugins](docs/guides/creating_plugins.md)
-- [Creating Domains](docs/guides/creating_domains.md)
-- [Recipe Reference](docs/reference/recipes.md)
-- [Link Types Reference](docs/reference/link_types.md)
+- [Creating Domains](docs/guides/creating-domains.md)
+- [Package Management](docs/concepts/packages.md)
+- [Recipe Execution](docs/concepts/recipes.md)
+- [Security & Credentials](docs/security/credentials.md)
+- [Component Checklist](docs/guides/component-checklist.md)
+- [Reference Documentation](docs/reference/)
 
 ## 🤝 Contributing
 

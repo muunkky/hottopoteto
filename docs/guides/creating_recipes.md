@@ -1,6 +1,6 @@
-# Creating Recipes in LangChain V2
+# Creating Recipes in Hottopoteto
 
-This guide explains how to create recipes in LangChain V2, including recipe structure, link configuration, and best practices.
+This guide explains how to create recipes in Hottopoteto, including recipe structure, link configuration, and best practices.
 
 ## Recipe Overview
 

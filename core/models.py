@@ -46,3 +46,24 @@ class RecipeDefinition(BaseModel):
     def to_dict(self) -> Dict[str, Any]:
         """Convert recipe to dictionary."""
         return self.model_dump()
+
+class PackageInfo(BaseModel):
+    """Model representing a package"""
+    name: str
+    version: str = "0.1.0"
+    type: str = "extension"  # "core" or "extension"
+    description: str = ""
+    author: str = ""
+    author_email: str = ""
+    homepage: str = ""
+    documentation: str = ""
+    dependencies: List[str] = Field(default_factory=list)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert package info to dictionary."""
+        return self.model_dump()
+        
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "PackageInfo":
+        """Create an instance from dictionary data."""
+        return cls(**data)

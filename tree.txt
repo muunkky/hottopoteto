@@ -1,46 +1,100 @@
 .
-├── ARCHITECTURE.md
 ├── CONTRIBUTING.md
 ├── README.md
 ├── __init__.py
 ├── __pycache__
+│   ├── __init__.cpython-312.pyc
+│   ├── __init__.cpython-313.pyc
+│   ├── conftest.cpython-312-pytest-8.3.5.pyc
+│   └── main.cpython-312.pyc
+├── assets
+│   └── style.css
+├── conftest.py
 ├── core
+│   ├── __init__.py
 │   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── executor.cpython-312.pyc
+│   │   ├── registry.cpython-312.pyc
+│   │   ├── registry.cpython-313.pyc
+│   │   └── schemas.cpython-312.pyc
+│   ├── cli
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── commands
+│   ├── domains
+│   │   ├── __init__.py
+│   │   ├── llm
+│   │   └── storage
 │   ├── domains.py
 │   ├── executor.py
 │   ├── links
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
 │   ├── models.py
+│   ├── registration
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   └── domains.py
 │   ├── registry.py
-│   ├── schemas
-│   │   └── __init__.py
-│   └── utils.py
-├── docs
-│   ├── core
-│   │   ├── domains.md
-│   │   └── plugins.md
-│   ├── guides
-│   │   ├── creating_plugins.md
-│   │   └── creating_recipes.md
-│   ├── recipe_execution.md
-│   ├── sequence_diagram_execute_command.md
-│   └── trace_logger.md
-├── domains
-│   ├── __init__.py
-│   └── conlang
+│   ├── schema
+│   │   ├── extension.py
+│   │   ├── pydantic_integration.py
+│   │   └── translator.py
+│   ├── schemas.py
+│   ├── security
+│   │   ├── __pycache__
+│   │   └── credentials.py
+│   ├── templates.py
+│   └── utils
 │       ├── __init__.py
-│       ├── cli.py
-│       ├── migrations.py
-│       ├── models.py
-│       ├── processors.py
-│       ├── schema.py
-│       └── schema_interface.py
+│       ├── __pycache__
+│       ├── package_template.py
+│       └── templates.py
+├── docs
+│   ├── README.md
+│   ├── architecture
+│   │   └── decisions
+│   ├── concepts
+│   │   ├── architecture.md
+│   │   ├── components.md
+│   │   ├── domains.md
+│   │   ├── packages.md
+│   │   ├── plugins.md
+│   │   ├── principles.md
+│   │   └── recipes.md
+│   ├── guides
+│   │   ├── configuring-logging.md
+│   │   ├── creating-domains.md
+│   │   ├── creating-packages.md
+│   │   ├── creating_packages.md
+│   │   ├── creating_plugins.md
+│   │   ├── creating_recipes.md
+│   │   ├── using-schemae.md
+│   │   └── using-templates.md
+│   ├── reference
+│   │   ├── architecture-map.md
+│   │   ├── architecture-principles-summary.md
+│   │   ├── cli-commands.md
+│   │   ├── link-types.md
+│   │   ├── recipe-format.md
+│   │   └── schema-formats.md
+│   └── security
+│       └── credentials.md
 ├── hottopoteto_mvp.bkp.py
 ├── main.py
+├── output
+│   └── data
+│       └── greetings
 ├── plugins
 │   ├── __init__.py
+│   ├── conlang
+│   │   ├── __init__.py
+│   │   └── domains
 │   ├── gemini
 │   │   ├── __init__.py
+│   │   ├── __pycache__
 │   │   ├── links.py
 │   │   ├── manifest.json
 │   │   ├── requirements.txt
@@ -48,56 +102,28 @@
 │   ├── mongodb
 │   │   ├── links.py
 │   │   └── schemas
-│   ├── sqlite
-│   │   ├── links.py
-│   │   └── schemas
-│   └── storage
-│       └── links.py
-├── prompts
-│   ├── 1-Instructions for applying the EECH.txt
-│   ├── 2-Select the origin language.txt
-│   ├── 3-Generate the origin words.txt
-│   ├── 4-Apply Morphology.txt
-│   ├── 5-Apply Phonology.txt
-│   └── 6-Derivatives.txt
-├── recipes
-│   ├── conlang
-│   │   ├── eldorian_word.yaml
-│   │   └── schemas
-│   ├── examples
-│   │   ├── gemini_example.yaml
-│   │   ├── mongodb_example.yaml
-│   │   └── sqlite_example.yaml
-│   ├── storytelling
-│   ├── test
-│   │   └── test_recipe.yaml
-│   └── worldbuilding
+│   └── sqlite
+│       ├── links.py
+│       └── schemas
+├── pytest.ini
+├── report.html
 ├── requirements.txt
-├── storage
-│   ├── __init__.py
-│   ├── adapters
-│   │   ├── __init__.py
-│   │   └── file_adapter.py
-│   ├── indexing.py
-│   ├── repository.py
-│   └── utils.py
+├── templates
+│   ├── recipes
+│   │   ├── conlang
+│   │   ├── examples
+│   │   ├── storytelling
+│   │   ├── test
+│   │   └── worldbuilding
+│   └── text
+│       └── conlang
 ├── tests
-│   ├── __init__.py
 │   ├── __pycache__
-│   ├── conftest.py
-│   ├── test_executor_errors.py
-│   ├── test_indexing.py
-│   ├── test_lexicon_integration.py
-│   ├── test_lexicon_manager.py
-│   ├── test_lexicon_manager_errors.py
-│   ├── test_main.py
-│   ├── test_migrations.py
-│   └── test_word_entry_model.py
-├── tree.txt
-└── utils
-    ├── __init__.py
-    ├── __pycache__
-    ├── clean_unused_files.py
-    └── cleanup.ps1
+│   │   ├── conftest.cpython-312-pytest-8.3.5.pyc
+│   │   └── conftest.cpython-313-pytest-8.3.5.pyc
+│   └── architecture
+│       ├── __pycache__
+│       └── test_domain_registration.py
+└── tree.txt
 
-32 directories, 68 files
+52 directories, 74 files

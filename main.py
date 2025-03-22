@@ -9,9 +9,16 @@ import pkgutil
 import importlib
 from typing import Dict, Any, List
 
+# Ensure core is imported to trigger registration
+import core
 from core.executor import RecipeExecutor
+from core.cli.commands.packages import packages_group, list_packages, install_package, uninstall_package, create_package
+from core.cli.commands.credentials import add_credentials_command, handle_credentials_command
 
 def main():
+    # Enable debug logs to help investigate issues
+    logging.basicConfig(level=logging.DEBUG)
+    
     parser = argparse.ArgumentParser(description="Recipe Execution CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -19,11 +26,9 @@ def main():
     execute_parser = subparsers.add_parser("execute", help="Execute a recipe file")
     execute_parser.add_argument("--recipe_file", type=str, required=True, help="Path to the recipe YAML/JSON file")
     execute_parser.add_argument("--output_dir", type=str, help="Directory to save recipe output")
-    execute_parser.add_argument("--domain", type=str, help="Override the domain specified in the recipe")
 
     # list command: List all available recipes
     list_parser = subparsers.add_parser("list", help="List available recipes")
-    list_parser.add_argument("--domain", type=str, help="Filter recipes by domain")
 
     # plugins command: Manage plugins
     plugins_parser = subparsers.add_parser("plugins", help="Manage plugins")
@@ -51,6 +56,29 @@ def main():
     domains_packages_parser = domains_subparsers.add_parser("packages", help="List packages supporting a domain")
     domains_packages_parser.add_argument("domain_name", help="Name of the domain")
 
+    # Register package commands
+    # Create a subparser for packages commands
+    packages_parser = subparsers.add_subparser("packages", help="Manage packages")
+    packages_subparsers = packages_parser.add_subparsers(dest="packages_command", required=True)
+    
+    # Add package commands to the subparser
+    packages_subparsers.add_parser("list", help="List installed packages")
+    
+    install_parser = packages_subparsers.add_parser("install", help="Install a package")
+    install_parser.add_argument("package_name", help="Name of the package to install")
+    install_parser.add_argument("--dev", action="store_true", help="Install in development mode")
+    
+    uninstall_parser = packages_subparsers.add_parser("uninstall", help="Uninstall a package")
+    uninstall_parser.add_argument("package_name", help="Name of the package to uninstall")
+    
+    create_parser = packages_subparsers.add_parser("create", help="Create a new package template")
+    create_parser.add_argument("name", help="Name of the package")
+    create_parser.add_argument("--domain", help="Include domain template")
+    create_parser.add_argument("--plugin", help="Include plugin template")
+
+    # Add credentials command
+    add_credentials_command(subparsers)
+
     # Add domain-specific subcommands
     try:
         for domain_module_info in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "domains")]):
@@ -68,43 +96,29 @@ def main():
     args = parser.parse_args()
 
     if args.command == "execute":
-        # Load the recipe file
         try:
-            with open(args.recipe_file, "r") as f:
-                if args.recipe_file.endswith((".yaml", ".yml")):
-                    recipe = yaml.safe_load(f)
-                else:
-                    recipe = json.load(f)
-        except Exception as e:
-            print(f"Failed to load recipe: {e}")
-            return
-            
-        # Execute the recipe
-        try:
-            executor = RecipeExecutor(args.recipe_file)
-            if args.domain:
-                executor.domain = args.domain
+            # Load the recipe file
+            try:
+                with open(args.recipe_file, "r") as f:
+                    if args.recipe_file.endswith((".yaml", ".yml")):
+                        recipe = yaml.safe_load(f)
+                    else:
+                        recipe = json.load(f)
+            except Exception as e:
+                print(f"Failed to load recipe: {e}")
+                return
                 
-            result = executor.execute()
+            # Standard execution for recipes
+            executor = RecipeExecutor(args.recipe_file)
+            executor.execute()
             print(f"Recipe execution completed successfully.")
             
-            # Save output if requested
-            if args.output_dir:
-                os.makedirs(args.output_dir, exist_ok=True)
-                output_file = os.path.join(args.output_dir, f"{os.path.basename(args.recipe_file)}.output.json")
-                with open(output_file, 'w') as f:
-                    json.dump(result, f, indent=2)
-                print(f"Output saved to {output_file}")
-                
         except Exception as e:
             print(f"Error executing recipe: {e}")
             
     elif args.command == "list":
         # List available recipes
-        recipe_dir = "recipes"
-        if args.domain:
-            recipe_dir = os.path.join(recipe_dir, args.domain)
-            
+        recipe_dir = "templates/recipes"  # Updated path
         if not os.path.exists(recipe_dir):
             print(f"Recipe directory not found: {recipe_dir}")
             return
@@ -195,6 +209,21 @@ def main():
             else:
                 print(f"No packages found for domain '{args.domain_name}'")
     
+    # Handle credentials command
+    if args.command == "credentials":
+        handle_credentials_command(args)
+
+    # Add package command handler
+    if args.command == "packages":
+        if args.packages_command == "list":
+            list_packages()
+        elif args.packages_command == "install":
+            install_package(args.package_name, args.dev if hasattr(args, 'dev') else False)
+        elif args.packages_command == "uninstall":
+            uninstall_package(args.package_name)
+        elif args.packages_command == "create":
+            create_package(args.name, args.domain, args.plugin)
+
     # Handle domain-specific commands
     else:
         try:

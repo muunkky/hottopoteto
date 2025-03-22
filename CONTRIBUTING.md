@@ -19,7 +19,7 @@ There are many ways to contribute:
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/muunkky/hottopoteto.git`
+2. Clone your fork: `git clone https://github.com/yourusername/hottopoteto.git`
 3. Create a new branch: `git checkout -b your-branch-name`
 4. Make your changes
 5. Test your changes
@@ -35,19 +35,80 @@ Set up your development environment:
 # Install dependencies
 pip install -r requirements.txt
 
-# Install development dependencies
-pip install -r requirements-dev.txt
+# Install recommended development tools
+pip install pytest black mypy pytest-cov flake8
 ```
+
+While we don't have a separate `requirements-dev.txt` yet, these tools are recommended for development.
+
+## Core Design Principles
+
+When contributing to Hottopoteto, please keep these principles in mind:
+
+1. **Domain Isolation**: Links should be limited to using components from a single domain
+2. **Cross-Domain Communication**: Use core infrastructure for cross-domain interactions
+3. **Output Constraints**: Links should only write to their domain output folder or root output
+4. **Recipe Composition**: Recipes are the primary way to combine functionality across domains
+5. **Template Referencing**: Only recipe templates should reference other templates
+6. **Credential Security**: Never store sensitive information in code or configuration files
+
+See our [Architecture Principles](docs/reference/architecture-principles-summary.md) document and [Component Checklist](docs/guides/component-checklist.md) for detailed guidance.
+
+## Architecture Validation
+
+We use automated architecture tests to ensure contributions maintain the system's architectural integrity:
+
+```bash
+# Run architecture validation tests
+pytest -m architecture
+```
+These tests verify that components follow our domain registration patterns and directory structures.
+
+
+## Quick Architecture Overview
+
+Hottopoteto has a few key concepts worth understanding:
+
+### Domains
+
+Domains represent knowledge areas with specialized data models and functions:
+- **Models**: Define data structures for the domain (e.g., `LLMMessage`, `StorageEntity`)
+- **Functions**: Implement domain operations (e.g., `generate_text`, `save_entity`)
+- **Links**: Provide recipe integration for domain operations
+
+### Links
+
+Links are the building blocks of recipes:
+- Each link has a **type** (e.g., `llm`, `storage.save`)
+- Links take **inputs** and produce **outputs**
+- Links are connected through a shared **context**
+
+### Plugins
+
+Plugins extend Hottopoteto with:
+- New link types
+- Domain implementations
+- Specialized functionality
+
+For more details, see the [Architecture Document](docs/ARCHITECTURE.md).
 
 ## Project Structure
 
 ```
 hottopoteto/
 ├── core/                  # Core system components
-├── domains/               # Domain implementations
-├── plugins/               # Plugin implementations
-├── recipes/               # Recipe definitions
-└── storage/               # Storage system
+│   ├── domains/           # Domain implementations
+│   ├── links/             # Link system
+│   ├── registration/      # Registration system
+│   └── schemas/           # Schema definitions
+├── plugins/               # Plugin implementations 
+├── docs/                  # Documentation
+│   ├── concepts/          # Core concepts
+│   ├── guides/            # How-to guides
+│   └── reference/         # Technical reference
+├── tests/                 # Test suite
+│   └── architecture/      # Architecture validation tests
+└── recipes/               # Recipe definitions
 ```
 
 ## Contribution Guidelines
@@ -99,7 +160,6 @@ Add word derivation utility for conlang domain
 
 Fixes #123
 ```
-
 
 ## Extending the System
 
@@ -161,6 +221,23 @@ class MyLinkHandler(LinkHandler):
 # Register the link type
 register_link_type("my_link", MyLinkHandler)
 ```
+
+### Creating a Package
+
+Packages allow distributing extensions without modifying the core codebase:
+
+1. Create a package template:
+   ```bash
+   python main.py packages create my_package --domain my_domain --plugin my_plugin
+   ```
+
+2. Develop your package components
+3. Install for testing:
+   ```bash
+   pip install -e ./hottopoteto-my_package
+   ```
+
+See [Package Management](docs/packages.md) for more details on package development.
 
 ## Pull Request Process
 
