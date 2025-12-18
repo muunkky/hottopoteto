@@ -1,0 +1,2 @@
+{"timestamp": "2025-12-18T13:08:44.649138Z", "level": "INFO", "logger": "gitban.tools", "message": "Getting gitban stats", "operation": "get_gitban_stats_start"}
+{"timestamp": "2025-12-18T13:08:44.652137Z", "level": "INFO", "logger": "gitban.tools", "message": "No cards found", "operation": "get_gitban_stats_no_cards"}

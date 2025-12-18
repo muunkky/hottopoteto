@@ -98,10 +98,55 @@ hottopoteto/
 
 ### Code Style
 
-- Follow the PEP 8 style guide
-- Use type hints
-- Write docstrings for functions and classes
+**Follow PEP 8 style guidelines strictly:**
+
+- Use type hints for function signatures:
+  ```python
+  def process_recipe(recipe: dict, context: dict) -> dict:
+      """Process a recipe and return results."""
+      pass
+  ```
+  
+- Write docstrings for all public APIs:
+  ```python
+  def my_function(param: str) -> bool:
+      """
+      Brief one-line summary.
+      
+      Args:
+          param: Description of parameter
+          
+      Returns:
+          Description of return value
+          
+      Raises:
+          ValueError: When param is invalid
+      """
+      pass
+  ```
+
 - Keep lines under 100 characters
+- Use 4 spaces for indentation (no tabs)
+- Organize imports: stdlib → third-party → local
+
+**Code Quality Checklist:**
+- [ ] Type hints on all function signatures
+- [ ] Docstrings on public functions/classes
+- [ ] No hardcoded credentials or secrets
+- [ ] Error handling for edge cases
+- [ ] Logging added for debugging (use Python logging module)
+
+**Before Committing:**
+```bash
+# Run tests
+pytest
+
+# Check coverage
+pytest --cov=core --cov=plugins --cov-report=term
+
+# Verify code runs
+python main.py --help
+```
 
 ### Documentation
 
@@ -111,38 +156,111 @@ hottopoteto/
 
 ### Testing
 
-- Write tests for new features
-- Ensure existing tests pass
-- Use pytest for testing
+**Testing is required for all contributions.** Follow these standards:
 
-Example test:
+- **Write tests first** (TDD approach preferred)
+- **All new features must have tests** with meaningful assertions
+- **Bug fixes must include regression tests** to prevent reoccurrence
+- **Aim for 50%+ code coverage** for new modules
+- **Use pytest** exclusively for test framework
 
-```python
-def test_function():
-    result = function_to_test(input_value)
-    assert result == expected_value
+**Test Organization:**
+- Unit tests → `tests/unit/`
+- Integration tests → `tests/integration/`
+- Use existing fixtures from `tests/conftest.py`
+- Mark tests appropriately: `@pytest.mark.unit`, `@pytest.mark.integration`
+
+**Running Tests:**
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=core --cov=plugins
+
+# Run specific types
+pytest -m unit              # Unit tests only
+pytest -m "not slow"        # Skip slow tests
 ```
+
+**Example Test:**
+```python
+import pytest
+from core.executor import RecipeExecutor
+
+def test_executor_initialization():
+    """Test executor creates successfully with default config."""
+    executor = RecipeExecutor()
+    assert executor is not None
+    assert hasattr(executor, 'execute')
+
+def test_with_fixture(sample_recipe_yaml):
+    """Use shared fixtures for consistent test data."""
+    assert "steps" in sample_recipe_yaml
+    assert isinstance(sample_recipe_yaml["steps"], list)
+```
+
+**Code Coverage Requirements:**
+- New modules should have 50%+ coverage
+- Critical paths must be tested
+- Edge cases should have explicit tests
+- Use `--cov-report=html` to identify gaps
 
 ### Commit Messages
 
-Write clear commit messages:
+**Use Conventional Commits format:**
 
+```
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `test`: Adding or updating tests
+- `refactor`: Code refactoring
+- `chore`: Maintenance tasks
+- `perf`: Performance improvements
+
+**Examples:**
+
+```bash
+# Simple feature commit
+git commit -m "feat(domains): add LLM streaming support"
+
+# Bug fix with body
+git commit -m "fix(executor): handle missing context keys" \
+           -m "" \
+           -m "Previously crashed when optional context keys were missing" \
+           -m "Now uses default values and logs warning"
+
+# Breaking change
+git commit -m "feat(registry)!: change domain registration API" \
+           -m "" \
+           -m "BREAKING CHANGE: register_domain now requires manifest dict"
+```
+
+**PowerShell Multi-line Commits:**
+```powershell
+# Use multiple -m flags (NOT multiline strings)
+git commit -m "feat(testing): add pytest framework" `
+           -m "" `
+           -m "- Added pytest with coverage, mocking, asyncio plugins" `
+           -m "- Created test fixtures and configuration" `
+           -m "- Established 8% baseline coverage"
+```
+
+**Commit Best Practices:**
 - Use present tense ("Add feature" not "Added feature")
 - Use imperative mood ("Move cursor" not "Moves cursor")
-- Limit the first line to 72 characters
-- Reference issues and pull requests
-
-Example:
-
-```
-Add word derivation utility for conlang domain
-
-- Implements derivation rules based on phonological patterns
-- Adds tests for derivation functionality
-- Updates documentation
-
-Fixes #123
-```
+- Limit first line to 72 characters
+- Reference issues: `Fixes #123`, `Closes #456`
+- Explain WHY in body, not just what changed
 
 ## Extending the System
 
@@ -224,11 +342,42 @@ See [Package Management](docs/packages.md) for more details on package developme
 
 ## Pull Request Process
 
-- Update documentation if necessary
-- Add or update tests
-- Ensure all tests pass
-- Update the `CHANGELOG.md` file if applicable
-- Submit the pull request
+**Before Submitting:**
+1. [ ] All tests pass locally (`pytest`)
+2. [ ] Code coverage meets requirements (`pytest --cov`)
+3. [ ] Documentation updated (if applicable)
+4. [ ] CHANGELOG.md updated (if applicable)
+5. [ ] Conventional commit messages used
+6. [ ] No merge conflicts with main branch
+
+**PR Description Template:**
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix (non-breaking change fixing an issue)
+- [ ] New feature (non-breaking change adding functionality)
+- [ ] Breaking change (fix or feature causing existing functionality to change)
+- [ ] Documentation update
+
+## Testing
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] All tests passing
+- [ ] Coverage: XX%
+
+## Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] No new warnings generated
+```
+
+**After Submission:**
+- Respond to review comments promptly
+- Make requested changes in new commits (don't force-push)
+- Request re-review after addressing feedback
 
 ### Review Process
 

@@ -1,0 +1,29 @@
+{
+  "sprint_id": "sprint-foundation-m1-testing-infrastructure-20251218",
+  "sprint_name": "FOUNDATION-M1-Testing-Infrastructure",
+  "sprint_folder": "sprint-foundation-m1-testing-infrastructure-20251218",
+  "created_at": "2025-12-18T14:45:13.539685",
+  "start_date": null,
+  "end_date": "2025-12-18",
+  "archived_at": "2025-12-18T14:45:13.539685",
+  "card_ids": [
+    "9t7ep6",
+    "2y7oug",
+    "jy04kg"
+  ],
+  "metrics": {
+    "total_cards": 3,
+    "by_priority": {
+      "P0": 1,
+      "P1": 2
+    },
+    "by_type": {
+      "feature": 1,
+      "documentation": 1,
+      "test": 1
+    },
+    "by_owner": {
+      "CAMERON": 3
+    }
+  }
+}

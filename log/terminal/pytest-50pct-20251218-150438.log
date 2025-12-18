@@ -1,0 +1,100 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-7.1.1, pluggy-1.6.0
+rootdir: C:\Users\Cameron\Projects\hottopoteto, configfile: pytest.ini, testpaths: tests
+plugins: anyio-4.12.0, langsmith-0.5.0, asyncio-0.18.3, cov-3.0.0, mock-3.7.0
+asyncio: mode=Mode.AUTO
+collected 95 items
+
+tests\unit\test_domains.py .s                                            [  2%]
+tests\unit\test_executor.py ..ss                                         [  6%]
+tests\unit\test_executor_utils.py ..........F...FF.FFFFFF                [ 30%]
+tests\unit\test_models.py .............                                  [ 44%]
+tests\unit\test_registry.py ...........                                  [ 55%]
+tests\unit\test_schemas.py ...........                                   [ 67%]
+tests\unit\test_templates.py .............                               [ 81%]
+tests\unit\test_utils.py ..................                              [100%]
+
+================================== FAILURES ===================================
+___________________ TestExtractJson.test_extract_from_dict ____________________
+tests\unit\test_executor_utils.py:115: in test_extract_from_dict
+    result = extract_json(input_dict)
+        input_dict = {'key': 'value', 'number': 42}
+        self       = <unit.test_executor_utils.TestExtractJson object at 0x000002182D1D3350>
+core\executor.py:147: in extract_json
+    logger.trace(f"\U0001f50d Attempting to extract JSON from text: {text[:200]}...")
+E   KeyError: slice(None, 200, None)
+        text       = {'key': 'value', 'number': 42}
+_________ TestAttemptFixTruncatedJson.test_adds_missing_closing_brace _________
+tests\unit\test_executor_utils.py:160: in test_adds_missing_closing_brace
+    parsed = json.loads(result)
+        result     = '{"key": "value", "nested": {"inner": "data"}'
+        self       = <unit.test_executor_utils.TestAttemptFixTruncatedJson object at 0x000002182D1D0320>
+        truncated  = '{"key": "value", "nested": {"inner": "data"'
+C:\Python312\Lib\json\__init__.py:346: in loads
+    return _default_decoder.decode(s)
+        cls        = None
+        kw         = {}
+        object_hook = None
+        object_pairs_hook = None
+        parse_constant = None
+        parse_float = None
+        parse_int  = None
+        s          = '{"key": "value", "nested": {"inner": "data"}'
+C:\Python312\Lib\json\decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+        _w         = <built-in method match of re.Pattern object at 0x0000021827DA2B50>
+        s          = '{"key": "value", "nested": {"inner": "data"}'
+        self       = <json.decoder.JSONDecoder object at 0x0000021827DF8B90>
+C:\Python312\Lib\json\decoder.py:353: in raw_decode
+    obj, end = self.scan_once(s, idx)
+E   json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 45 (char 44)
+        idx        = 0
+        s          = '{"key": "value", "nested": {"inner": "data"}'
+        self       = <json.decoder.JSONDecoder object at 0x0000021827DF8B90>
+_______ TestAttemptFixTruncatedJson.test_handles_completely_closed_json _______
+tests\unit\test_executor_utils.py:168: in test_handles_completely_closed_json
+    parsed = json.loads(result)
+        result     = '{"key": " "value"", "other": " {"nested": "data""}}'
+        self       = <unit.test_executor_utils.TestAttemptFixTruncatedJson object at 0x000002182D27A330>
+        valid      = '{"key": "value", "other": {"nested": "data"}}'
+C:\Python312\Lib\json\__init__.py:346: in loads
+    return _default_decoder.decode(s)
+        cls        = None
+        kw         = {}
+        object_hook = None
+        object_pairs_hook = None
+        parse_constant = None
+        parse_float = None
+        parse_int  = None
+        s          = '{"key": " "value"", "other": " {"nested": "data""}}'
+C:\Python312\Lib\json\decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+        _w         = <built-in method match of re.Pattern object at 0x0000021827DA2B50>
+        s          = '{"key": " "value"", "other": " {"nested": "data""}}'
+        self       = <json.decoder.JSONDecoder object at 0x0000021827DF8B90>
+C:\Python312\Lib\json\decoder.py:353: in raw_decode
+    obj, end = self.scan_once(s, idx)
+E   json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 12 (char 11)
+        idx        = 0
+        s          = '{"key": " "value"", "other": " {"nested": "data""}}'
+        self       = <json.decoder.JSONDecoder object at 0x0000021827DF8B90>
+______ TestAttemptFixTruncatedJson.test_handles_multiple_missing_braces _______
+tests\unit\test_executor_utils.py:185: in test_handles_multiple_missing_braces
+    parsed = json.loads(result)
+        result     = '{"level1": {"level2": {"level3": "value"}'
+        self       = <unit.test_executor_utils.TestAttemptFixTruncatedJson object at 0x000002182D279460>
+        truncated  = '{"level1": {"level2": {"level3": "value"'
+C:\Python312\Lib\json\__init__.py:346: in loads
+    return _default_decoder.decode(s)
+        cls        = None
+        kw         = {}
+        object_hook = None
+        object_pairs_hook = None
+        parse_constant = None
+        parse_float = None
+        parse_int  = None
+        s          = '{"level1": {"level2": {"level3": "value"}'
+C:\Python312\Lib\json\decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+        _w         = <built-in method match of re.Pattern object at 0x0000021827DA2B50>
+        s          = '{"level1": {"level2": {"level3": "value"}'

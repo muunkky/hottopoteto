@@ -1,0 +1,62 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-7.1.1, pluggy-1.6.0
+rootdir: C:\Users\Cameron\Projects\hottopoteto, configfile: pytest.ini, testpaths: tests
+plugins: anyio-4.12.0, langsmith-0.5.0, asyncio-0.18.3, cov-3.0.0, mock-3.7.0
+asyncio: mode=Mode.AUTO
+collected 49 items
+
+tests\unit\test_domains.py .s                                            [  4%]
+tests\unit\test_executor.py ..ss                                         [ 12%]
+tests\unit\test_models.py .............                                  [ 38%]
+tests\unit\test_registry.py ...s.s                                       [ 51%]
+tests\unit\test_schemas.py ...........                                   [ 73%]
+tests\unit\test_templates.py .............                               [100%]
+
+---------- coverage: platform win32, python 3.12.2-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+core\__init__.py                        7      0   100%
+core\cli\__init__.py                    0      0   100%
+core\cli\commands\__init__.py           0      0   100%
+core\cli\commands\credentials.py      150    150     0%   4-239
+core\cli\commands\packages.py          98     98     0%   4-149
+core\cli\commands\recipes.py           53     53     0%   4-114
+core\domains.py                         2      2     0%   3-15
+core\domains\__init__.py                1      0   100%
+core\domains\llm\__init__.py            8      8     0%   4-44
+core\domains\llm\functions.py          16     16     0%   4-83
+core\domains\llm\links.py              23     23     0%   4-66
+core\domains\llm\models.py             49     49     0%   4-120
+core\domains\storage\__init__.py        4      4     0%   4-15
+core\domains\storage\functions.py      85     85     0%   4-187
+core\domains\storage\links.py         116    116     0%   4-308
+core\domains\storage\models.py         94     94     0%   4-149
+core\domains\storage\utils.py          32     32     0%   4-50
+core\executor.py                      532    461    13%   24-25, 41-51, 76-106, 110-134, 147-287, 298, 306-308, 324-326, 364-366, 372, 388-423, 427-435, 444-472, 476-624, 628-662, 665-836, 840-894, 898-923, 927-949, 954-955
+core\links\__init__.py                 47     47     0%   4-107
+core\models.py                         45      0   100%
+core\registration\__init__.py           1      0   100%
+core\registration\domains.py           56     43    23%   15-17, 21-32, 36, 40, 44, 48-76, 80-103, 107-116
+core\registry.py                       58     29    50%   22, 38, 82, 99, 115-117, 130, 140, 157-180, 197-203
+core\schemas.py                        13      0   100%
+core\templates.py                      57      9    84%   69, 76, 83, 87-92
+core\utils\__init__.py                 50     38    24%   24-29, 41-44, 57-68, 82-94, 106-115
+core\utils\package_template.py         45     45     0%   4-202
+core\utils\templates.py                 5      5     0%   4-23
+plugins\__init__.py                    50     50     0%   4-106
+plugins\conlang\__init__.py            15     15     0%   4-34
+plugins\gemini\__init__.py              3      3     0%   1-5
+plugins\gemini\links.py                43     43     0%   2-61
+-----------------------------------------------------------------
+TOTAL                                1758   1518    14%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_domains.py:18: Requires understanding of domain base classes
+SKIPPED [1] tests\unit\test_executor.py:27: Requires recipe loading implementation
+SKIPPED [1] tests\unit\test_executor.py:34: Requires full execution flow
+SKIPPED [1] tests\unit\test_registry.py:26: Requires function registration implementation details
+SKIPPED [1] tests\unit\test_registry.py:40: Requires package registration implementation details
+======================== 44 passed, 5 skipped in 7.64s ========================
