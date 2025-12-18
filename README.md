@@ -110,6 +110,54 @@ Hottopoteto follows these key architectural principles:
 
 For more details, see our [Core Principles](docs/core/principles.md) documentation.
 
+## 🧪 Testing
+
+Hottopoteto uses pytest for testing with comprehensive coverage reporting.
+
+### Running Tests
+
+```bash
+# Activate virtual environment
+.\.venv\Scripts\Activate.ps1  # Windows PowerShell
+source .venv/bin/activate      # Linux/Mac
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test file
+pytest tests/unit/test_executor.py
+
+# Run tests with coverage report
+pytest --cov=core --cov=plugins --cov-report=html
+
+# Run tests by marker
+pytest -m unit          # Only unit tests
+pytest -m integration   # Only integration tests
+```
+
+### Test Organization
+
+- `tests/unit/` - Fast, isolated unit tests
+- `tests/integration/` - Integration tests requiring external resources
+- `tests/conftest.py` - Shared fixtures and test configuration
+
+### Coverage
+
+Current test coverage baseline: **8%**
+
+View detailed coverage reports:
+```bash
+# Generate HTML coverage report
+pytest --cov=core --cov=plugins --cov-report=html
+
+# Open the report
+start htmlcov/index.html  # Windows
+open htmlcov/index.html   # Mac
+```
+
 ## 📚 Documentation
 
 For more detailed documentation:
