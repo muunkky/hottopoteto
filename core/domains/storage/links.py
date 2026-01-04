@@ -26,10 +26,11 @@ class StorageSaveLink(LinkHandler):
         """Execute the storage.save link."""
         collection = link_config.get("collection")
         data_source = link_config.get("data")
-        metadata = link_config.get("metadata", {})
+        metadata_source = link_config.get("metadata", {})
         
-        # Extract and render templates in data before saving
+        # Extract and render templates in data and metadata before saving
         data = cls._extract_data(data_source, context)
+        metadata = cls._extract_data(metadata_source, context)
         
         # Use the domain function for saving entities
         result = save_entity(collection, data, metadata)

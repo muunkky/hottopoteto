@@ -329,6 +329,49 @@ class TestStorageSaveLink:
         assert result["nested"]["deep"] == "rendered2"
         assert result["nested"]["list"][0] == "rendered3"
         assert result["nested"]["list"][1] == "literal"
+    
+    def test_storage_save_renders_metadata_templates(self):
+        """Test that template strings in metadata are also rendered"""
+        # Arrange
+        link_config = {
+            "collection": "test_collection",
+            "data": {
+                "field": "{{ TestLink.data.value }}"
+            },
+            "metadata": {
+                "source": "test",
+                "user": "{{ TestLink.data.user }}",
+                "timestamp": "{{ TestLink.data.time }}"
+            }
+        }
+        
+        context = {
+            "TestLink": {
+                "data": {
+                    "value": "test_value",
+                    "user": "alice",
+                    "time": "2026-01-04T12:00:00"
+                }
+            }
+        }
+        
+        # Mock the save_entity function
+        with patch('core.domains.storage.links.save_entity') as mock_save:
+            mock_save.return_value = {
+                "success": True,
+                "data": {"id": "test-123"}
+            }
+            
+            # Act
+            result = StorageSaveLink.execute(link_config, context)
+            
+            # Assert - Check metadata was rendered
+            assert mock_save.called
+            saved_metadata = mock_save.call_args[0][2]  # Third positional arg is 'metadata'
+            assert saved_metadata["source"] == "test"
+            assert saved_metadata["user"] == "alice"
+            assert saved_metadata["timestamp"] == "2026-01-04T12:00:00"
+            assert "{{" not in str(saved_metadata)
 
 
 if __name__ == "__main__":
