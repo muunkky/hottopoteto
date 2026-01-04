@@ -1,0 +1,19 @@
+name: "Test Storage Template Rendering"
+description: "Simple test to verify storage.save properly renders templates"
+version: "1.0.0"
+
+links:
+  - name: "Create Test Data"
+    type: "function"
+    function: "lambda: {'simple_value': 'hello', 'nested': {'value': 'world'}}"
+    
+  - name: "Save With Templates"
+    type: "storage.save"
+    collection: "test_storage"
+    data:
+      simple_field: "{{ Create_Test_Data.data.simple_value }}"
+      nested_field: "{{ Create_Test_Data.data.nested.value }}"
+      literal_field: "This is literal"
+      number_field: 42
+    metadata:
+      test: true

@@ -25,8 +25,11 @@ class StorageSaveLink(LinkHandler):
     def execute(cls, link_config: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """Execute the storage.save link."""
         collection = link_config.get("collection")
-        data = link_config.get("data")
+        data_source = link_config.get("data")
         metadata = link_config.get("metadata", {})
+        
+        # Extract and render templates in data before saving
+        data = cls._extract_data(data_source, context)
         
         # Use the domain function for saving entities
         result = save_entity(collection, data, metadata)
@@ -38,71 +41,77 @@ class StorageSaveLink(LinkHandler):
     
     @classmethod
     def _extract_data(cls, data_source, context):
-        """Extract data from source reference or direct value"""
-        logger.info(f"Extracting data from source type: {type(data_source).__name__}")
+        """
+        Extract and render templates in data recursively.
         
-        # Debug the context
-        for k, v in context.items():
-            if isinstance(v, dict):
-                logger.debug(f"Context key: {k}, contains: {list(v.keys())}")
-                if 'data' in v:
-                    logger.debug(f"  'data' is type: {type(v['data']).__name__}")
+        Handles:
+        - Template strings: "{{ var }}" → rendered value
+        - Nested dicts: {"key": {"nested": "{{ var }}"}}
+        - Lists: ["{{ var1 }}", "literal", "{{ var2 }}"]
+        - Non-string values: numbers, booleans, None (preserved as-is)
         
-        if isinstance(data_source, dict):
-            # Direct data structure - use it directly
-            for k, v in data_source.items():
-                if isinstance(v, str) and "{{" in v and "}}" in v:
-                    # Template string inside a dict value
-                    from jinja2 import Environment
-                    env = Environment()
-                    template = env.from_string(v)
-                    try:
-                        # Add now() function to context
-                        def now():
-                            return datetime.now().isoformat()
-                        context_with_funcs = {**context, "now": now}
-                        
-                        rendered = template.render(**context_with_funcs)
-                        data_source[k] = rendered
-                    except Exception as e:
-                        logger.error(f"Error rendering template in dict value: {e}")
+        Args:
+            data_source: Data to extract/render (dict, list, str, or primitive)
+            context: Jinja2 template context with recipe memory
             
-            logger.info(f"Using direct data: {data_source}")
-            return data_source
-            
-        elif isinstance(data_source, str) and "{{" in data_source and "}}" in data_source:
-            # It's a Jinja template reference
-            from jinja2 import Environment
-            env = Environment()
-            template = env.from_string(data_source)
-            
-            try:
-                # Add now() function to context
-                def now():
-                    return datetime.now().isoformat()
-                context_with_funcs = {**context, "now": now}
-                
-                # Render the template in context
-                rendered = template.render(**context_with_funcs)
-                logger.info(f"Template rendered to: {rendered}")
-                
-                # Try to parse as JSON if it's a string
+        Returns:
+            Data with all templates rendered
+        """
+        from jinja2 import Environment, UndefinedError
+        
+        # Handle None
+        if data_source is None:
+            return None
+        
+        # Handle template strings
+        if isinstance(data_source, str):
+            # Only process if it looks like a template
+            if "{{" in data_source and "}}" in data_source:
                 try:
-                    import json
-                    return json.loads(rendered)
-                except:
-                    # Just return the string if it's not JSON
-                    logger.debug(f"Not JSON, returning as content: {rendered}")
-                    return {"content": rendered}
+                    env = Environment()
+                    template = env.from_string(data_source)
                     
-            except Exception as e:
-                logger.error(f"Error extracting data from template: {e}")
-                # Return simple placeholder data rather than None
-                return {"error": f"Template error: {str(e)}"}
+                    # Add helper functions to context
+                    def now():
+                        return datetime.now().isoformat()
+                    
+                    context_with_funcs = {**context, "now": now}
+                    rendered = template.render(**context_with_funcs)
+                    
+                    logger.debug(f"Rendered template: '{data_source}' → '{rendered}'")
+                    return rendered
+                    
+                except UndefinedError as e:
+                    # Undefined variable - return empty string (Jinja2 default)
+                    logger.warning(f"Undefined variable in template '{data_source}': {e}")
+                    return ""
+                except Exception as e:
+                    # Other template errors - return original string
+                    logger.error(f"Error rendering template '{data_source}': {e}")
+                    return data_source
+            else:
+                # Not a template - return as-is
+                return data_source
         
-        # Default case - return input as-is or empty dict if None
-        logger.info(f"Using default case: {data_source}")
-        return data_source or {}
+        # Handle dictionaries recursively
+        elif isinstance(data_source, dict):
+            rendered_dict = {}
+            for key, value in data_source.items():
+                # Recursively render each value
+                rendered_dict[key] = cls._extract_data(value, context)
+            return rendered_dict
+        
+        # Handle lists recursively
+        elif isinstance(data_source, list):
+            rendered_list = []
+            for item in data_source:
+                # Recursively render each item
+                rendered_list.append(cls._extract_data(item, context))
+            return rendered_list
+        
+        # Handle other types (int, float, bool, etc.) - return as-is
+        else:
+            return data_source
 
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
