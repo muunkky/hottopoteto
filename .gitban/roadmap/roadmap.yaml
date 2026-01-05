@@ -55,6 +55,17 @@ changelog:
         3.0.3'
       - Added comprehensive testing documentation to README
       - Created shared test fixtures and configuration (pytest.ini, conftest.py)
+  - version: 0.3.0
+    date: '2026-01-04'
+    changes:
+      - Created DOCENRICH sprint for Schema-Driven Document Enrichment 
+        architecture
+      - 'Designed new link types: storage.init, storage.update, llm.extract_to_schema,
+        llm.enrich'
+      - Established pattern for external schema files (templates/schemas/)
+      - Created 7 sprint cards covering ADR, features, and closeout tasks
+      - Added schema-enrichment feature to roadmap with 6 projects
+      - 'Architecture decision: Two-step LLM+Storage pattern preserving domain isolation'
 versions:
   v1:
     id: v1
@@ -178,4 +189,61 @@ versions:
                 description: Integrate pylint, black, and mypy
                 status: todo
                 sequence: 3
+                owner: CAMERON
+          schema-enrichment:
+            id: schema-enrichment
+            title: Schema-Driven Document Enrichment
+            description: Implement schema-driven document building with 
+              llm.extract_to_schema, llm.enrich, storage.init, storage.update 
+              link types. Enable recipes to progressively build validated 
+              documents.
+            status: in_progress
+            priority: high
+            depends_on: []
+            projects:
+              external-schemas:
+                name: External Schema Files
+                description: Load schemas from external YAML files 
+                  (templates/schemas/)
+                status: todo
+                sequence: 1
+                owner: CAMERON
+                tdd_spec: Test schema file loading, validation, caching
+              storage-init:
+                name: storage.init Link Type
+                description: Initialize working documents with schema and 
+                  initial data
+                status: todo
+                sequence: 2
+                owner: CAMERON
+                tdd_spec: Test document creation, schema attachment, ID 
+                  generation
+              storage-update:
+                name: storage.update Link Type
+                description: Merge data into documents with schema validation
+                status: todo
+                sequence: 3
+                owner: CAMERON
+                tdd_spec: Test merge logic, validation, nested updates
+              llm-extract:
+                name: llm.extract_to_schema Link Type
+                description: Extract structured data from prose using schema
+                status: todo
+                sequence: 4
+                owner: CAMERON
+                tdd_spec: Test prompt generation, JSON mode, validation
+              llm-enrich:
+                name: llm.enrich Link Type
+                description: Document-aware enrichment with full context
+                status: todo
+                sequence: 5
+                owner: CAMERON
+                tdd_spec: Test context awareness, field preservation, target 
+                  fields
+              adr-documentation:
+                name: ADR-0006 Documentation
+                description: Document architecture decision for schema 
+                  enrichment
+                status: todo
+                sequence: 6
                 owner: CAMERON

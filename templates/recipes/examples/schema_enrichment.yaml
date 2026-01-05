@@ -1,0 +1,165 @@
+# Schema-Driven Document Enrichment Example
+#
+# This recipe demonstrates the DOCENRICH Sprint pattern for enriching documents
+# with multiple LLM passes while maintaining schema validation throughout.
+#
+# The pattern uses:
+# 1. storage.init - Create a working document with schema
+# 2. llm.extract_to_schema - Extract structured data from LLM output
+# 3. llm.enrich - Enrich document with context-aware extraction
+# 4. storage.update - Persist enriched data to the document
+#
+# This example creates a "conlang word" document that gets progressively enriched
+# with etymological information, translation, and morphological analysis.
+
+name: "schema_enrichment"
+version: "1.0"
+description: "Demonstrate schema-driven document enrichment with multiple LLM passes"
+
+# Schema for the word document (could also be in external file)
+# Using inline for demonstration - production would use: schema: { file: "schemas/word.yaml" }
+schemas:
+  word_schema:
+    type: "object"
+    properties:
+      english_word:
+        type: "string"
+        description: "The English word to translate"
+      connotation:
+        type: "string"
+        description: "Cultural/emotional context"
+      origin_words:
+        type: "array"
+        description: "Etymological root words"
+        items:
+          type: "object"
+          properties:
+            word:
+              type: "string"
+            meaning:
+              type: "string"
+            origin:
+              type: "string"
+      revised_connotation:
+        type: "string"
+        description: "Refined connotation based on etymology"
+      translated_word:
+        type: "string"
+        description: "The final conlang word"
+      morphology:
+        type: "object"
+        description: "Word structure analysis"
+        properties:
+          root:
+            type: "string"
+          affixes:
+            type: "array"
+            items:
+              type: "string"
+          pronunciation:
+            type: "string"
+
+links:
+  # Step 1: Get input from user
+  - name: "User_Input"
+    type: "user_input"
+    description: "Enter the word to translate"
+    inputs:
+      word:
+        type: "string"
+        description: "English word to translate"
+        required: true
+      connotation:
+        type: "string"
+        description: "Cultural/emotional context for the word"
+        required: true
+
+  # Step 2: Initialize working document with schema
+  - name: "Working_Doc"
+    type: "storage.init"
+    collection: "conlang_words"
+    schema: "{{ schemas.word_schema }}"
+    initial_data:
+      english_word: "{{ User_Input.data.word }}"
+      connotation: "{{ User_Input.data.connotation }}"
+
+  # Step 3: Generate etymology analysis
+  - name: "Generate_Etymology"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.7
+    prompt: |
+      Create fictional etymology for a fantasy conlang word.
+      
+      English Word: {{ Working_Doc.data.data.english_word }}
+      Connotation: {{ Working_Doc.data.data.connotation }}
+      
+      Invent 2-3 root words from ancient languages (Sylvan, Proto-Eldarin, etc.)
+      that combine to create this meaning. Include:
+      - Each root word
+      - Its meaning
+      - Its language of origin
+      
+      Be creative and consistent with the fantasy aesthetic.
+
+  # Step 4: Extract structured etymology data
+  - name: "Extract_Etymology"
+    type: "llm.extract_to_schema"
+    source: "{{ Generate_Etymology.data.raw_content }}"
+    schema: "{{ Working_Doc.data.schema.properties.origin_words }}"
+    hint: "Extract the fictional root words and their meanings"
+
+  # Step 5: Update document with etymology
+  - name: "Update_Etymology"
+    type: "storage.update"
+    document_id: "{{ Working_Doc.data.id }}"
+    collection: "{{ Working_Doc.data.collection }}"
+    data:
+      origin_words: "{{ Extract_Etymology.data }}"
+
+  # Step 6: Generate translation with full context
+  - name: "Generate_Translation"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.7
+    prompt: |
+      Create a conlang translation based on the etymology.
+      
+      Document State:
+      {{ Update_Etymology.data.data | tojson }}
+      
+      Combine the root words into a single conlang word that:
+      1. Reflects the etymology components
+      2. Sounds natural and consistent
+      3. Has clear morphological structure
+      
+      Provide the word and break down its morphology (root, affixes, pronunciation).
+
+  # Step 7: Enrich document with translation and morphology
+  - name: "Enrich_Translation"
+    type: "llm.enrich"
+    document: "{{ Update_Etymology.data }}"
+    source: "{{ Generate_Translation.data.raw_content }}"
+    target_fields:
+      - "translated_word"
+      - "morphology"
+      - "revised_connotation"
+    hint: "Extract the translated word, morphological breakdown, and any refined connotation"
+
+  # Step 8: Final update with all enriched data
+  - name: "Final_Update"
+    type: "storage.update"
+    document_id: "{{ Working_Doc.data.id }}"
+    collection: "{{ Working_Doc.data.collection }}"
+    data: "{{ Enrich_Translation.data }}"
+
+  # Step 9: Log the result
+  - name: "Log_Result"
+    type: "log"
+    level: "info"
+    message: |
+      Created conlang word:
+      English: {{ Final_Update.data.data.english_word }}
+      Conlang: {{ Final_Update.data.data.translated_word }}
+      Etymology: {{ Final_Update.data.data.origin_words | length }} root words
+      Document ID: {{ Working_Doc.data.id }}

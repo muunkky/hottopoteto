@@ -1,0 +1,263 @@
+initializing test run...
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\Cameron\Projects\hottopoteto\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Cameron\Projects\hottopoteto
+configfile: pytest.ini
+plugins: anyio-4.12.0, asyncio-1.3.0, cov-7.0.0, mock-3.15.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 200 items
+
+tests/unit/test_domains.py::TestDomainModule::test_domains_module_imports PASSED [  0%]
+tests/unit/test_domains.py::TestDomainModule::test_domain_base_class_exists SKIPPED [  1%]
+tests/unit/test_executor.py::TestRecipeExecutor::test_executor_initialization PASSED [  1%]
+tests/unit/test_executor.py::TestRecipeExecutor::test_executor_has_execute_method PASSED [  2%]
+tests/unit/test_executor.py::TestRecipeExecutor::test_executor_can_load_recipe SKIPPED [  2%]
+tests/unit/test_executor.py::TestRecipeExecutor::test_executor_can_execute_simple_recipe SKIPPED [  3%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_function PASSED [  3%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_with_metadata PASSED [  4%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_nonexistent_returns_none PASSED [  4%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_returns_function PASSED [  5%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_raw_and_data PASSED [  5%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_minimal PASSED [  6%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_returns_data PASSED [  6%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_falls_back_to_raw PASSED [  7%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_wraps_unparseable_raw PASSED [  7%]
+tests/unit/test_executor_basic.py::TestLLMOutput::test_create_llm_output PASSED [  8%]
+tests/unit/test_executor_basic.py::TestFunctionOutput::test_create_function_output PASSED [  8%]
+tests/unit/test_executor_basic.py::TestUserInputOutput::test_create_user_input_output PASSED [  9%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_adds_closing_brace PASSED [  9%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_handles_already_complete_json PASSED [ 10%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_plain_json_object PASSED [ 10%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_from_markdown PASSED [ 11%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_array PASSED [ 11%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_with_text_before PASSED [ 12%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_returns_original_if_no_json PASSED [ 12%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_valid_recipe PASSED [ 13%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_default_domain PASSED [ 13%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_explicit_domain PASSED [ 14%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_jinja_environment PASSED [ 14%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_memory_dict PASSED [ 15%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_function_registry PASSED [ 15%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_empty_context PASSED [ 16%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_memory PASSED [ 16%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_dict_memory PASSED [ 17%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_memory_initialized_as_dict PASSED [ 17%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_can_store_in_memory PASSED [ 18%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_can_retrieve_from_memory PASSED [ 18%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_function_exists PASSED [ 19%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_function_returns_dict PASSED [ 19%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_within_range PASSED [ 20%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_default_range PASSED [ 20%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorInitialization::test_init_with_valid_recipe PASSED [ 21%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorInitialization::test_init_uses_recipe_domain PASSED [ 21%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorInitialization::test_init_with_explicit_domain PASSED [ 22%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorInitialization::test_init_defaults_to_generic_domain PASSED [ 22%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorMemory::test_memory_initialized_empty PASSED [ 23%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorMemory::test_build_context_from_memory PASSED [ 23%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorFunctions::test_random_number_function_exists PASSED [ 24%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorFunctions::test_random_number_returns_dict_with_num_events PASSED [ 24%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorFunctions::test_random_number_respects_min_max PASSED [ 25%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorExecution::test_execute_empty_recipe PASSED [ 25%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorExecution::test_execute_accepts_inputs PASSED [ 26%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorExecution::test_execute_with_none_inputs PASSED [ 26%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorHandlers::test_env_initialized PASSED [ 27%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorHandlers::test_function_registry_initialized PASSED [ 27%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorHelpers::test_get_domain_processor_returns_none_for_generic PASSED [ 28%]
+tests/unit/test_executor_comprehensive.py::TestRecipeExecutorHelpers::test_recipe_loaded_correctly PASSED [ 28%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_markdown_fences_labeled PASSED [ 29%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_unlabeled_markdown_fences PASSED [ 29%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_array_extraction PASSED [ 30%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_nested_json_extraction PASSED [ 30%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_escaped_quotes PASSED [ 31%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_newlines PASSED [ 31%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_numbers PASSED [ 32%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_booleans PASSED [ 32%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_with_null PASSED [ 33%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_empty_object PASSED [ 33%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_json_empty_array PASSED [ 34%]
+tests/unit/test_executor_coverage_batch1.py::TestExtractJsonEdgeCases::test_multiple_json_objects_returns_first PASSED [ 34%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_init_with_list_links PASSED [ 35%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_init_with_dict_links PASSED [ 35%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_memory_stores_link_outputs PASSED [ 36%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_build_context_handles_multiple_links PASSED [ 36%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_function_registry_attribute_exists PASSED [ 37%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_recipe_path_attribute PASSED [ 37%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_env_attribute_is_jinja_environment PASSED [ 38%]
+tests/unit/test_executor_coverage_batch1.py::TestRecipeExecutorEdgeCases::test_random_number_function_callable PASSED [ 38%]
+tests/unit/test_executor_coverage_batch2.py::TestProcessFunctionInputs::test_no_inputs_returns_empty_dict PASSED [ 39%]
+tests/unit/test_executor_coverage_batch2.py::TestProcessFunctionInputs::test_static_value_inputs PASSED [ 39%]
+tests/unit/test_executor_coverage_batch2.py::TestProcessFunctionInputs::test_dict_input_with_value PASSED [ 40%]
+tests/unit/test_executor_coverage_batch2.py::TestProcessFunctionInputs::test_dict_input_with_default PASSED [ 40%]
+tests/unit/test_executor_coverage_batch2.py::TestBuildContextConversions::test_build_context_with_recipe_link_output PASSED [ 41%]
+tests/unit/test_executor_coverage_batch2.py::TestBuildContextConversions::test_build_context_with_dict_containing_raw_and_data PASSED [ 41%]
+tests/unit/test_executor_coverage_batch2.py::TestBuildContextConversions::test_build_context_with_plain_dict PASSED [ 42%]
+tests/unit/test_executor_coverage_batch2.py::TestTerminateProcessException::test_exception_creation PASSED [ 42%]
+tests/unit/test_executor_coverage_batch2.py::TestTerminateProcessException::test_exception_with_custom_message PASSED [ 43%]
+tests/unit/test_executor_coverage_batch2.py::TestTerminateProcessException::test_exception_is_exception PASSED [ 43%]
+tests/unit/test_executor_coverage_batch2.py::TestOutputModelsInheritance::test_llm_output_inherits_from_recipe_link_output PASSED [ 44%]
+tests/unit/test_executor_coverage_batch2.py::TestOutputModelsInheritance::test_function_output_inherits_from_recipe_link_output PASSED [ 44%]
+tests/unit/test_executor_coverage_batch2.py::TestOutputModelsInheritance::test_llm_output_get_data_method PASSED [ 45%]
+tests/unit/test_executor_coverage_batch2.py::TestOutputModelsInheritance::test_function_output_get_data_method PASSED [ 45%]
+tests/unit/test_executor_coverage_batch2.py::TestFunctionRegistryGlobal::test_register_multiple_functions PASSED [ 46%]
+tests/unit/test_executor_coverage_batch2.py::TestFunctionRegistryGlobal::test_register_overwrites_existing PASSED [ 46%]
+tests/unit/test_executor_coverage_batch2.py::TestFunctionRegistryGlobal::test_register_with_different_metadata PASSED [ 47%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_initialization_with_defaults PASSED [ 47%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_initialization_with_values PASSED [ 48%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_get_data_returns_data_when_present PASSED [ 48%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_get_data_falls_back_to_raw_json PASSED [ 49%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_get_data_wraps_unparseable_raw PASSED [ 49%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_get_data_returns_empty_when_no_fallback PASSED [ 50%]
+tests/unit/test_executor_utils.py::TestRecipeLinkOutput::test_get_data_prefers_data_over_raw PASSED [ 50%]
+tests/unit/test_executor_utils.py::TestOutputSubclasses::test_user_input_output_inherits_correctly PASSED [ 51%]
+tests/unit/test_executor_utils.py::TestOutputSubclasses::test_llm_output_inherits_correctly PASSED [ 51%]
+tests/unit/test_executor_utils.py::TestOutputSubclasses::test_function_output_inherits_correctly PASSED [ 52%]
+tests/unit/test_executor_utils.py::TestExtractJson::test_extract_from_dict PASSED [ 52%]
+tests/unit/test_executor_utils.py::TestExtractJson::test_extract_from_clean_json_string PASSED [ 53%]
+tests/unit/test_executor_utils.py::TestExtractJson::test_extract_from_text_with_embedded_json PASSED [ 53%]
+tests/unit/test_executor_utils.py::TestExtractJson::test_extract_from_markdown_code_block PASSED [ 54%]
+tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_adds_missing_closing_brace PASSED [ 54%]
+tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_handles_completely_closed_json PASSED [ 55%]
+tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_handles_no_opening_brace PASSED [ 55%]
+tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_handles_multiple_missing_braces PASSED [ 56%]
+tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_fixes_trailing_commas PASSED [ 56%]
+tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_fixes_unquoted_keys PASSED [ 57%]
+tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_removes_javascript_line_comments PASSED [ 57%]
+tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_removes_javascript_block_comments PASSED [ 58%]
+tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_handles_already_valid_json PASSED [ 58%]
+tests/unit/test_models.py::TestGenericEntryModel::test_initialization_with_defaults PASSED [ 59%]
+tests/unit/test_models.py::TestGenericEntryModel::test_initialization_with_custom_values PASSED [ 59%]
+tests/unit/test_models.py::TestGenericEntryModel::test_to_dict_converts_datetimes_to_iso PASSED [ 60%]
+tests/unit/test_models.py::TestGenericEntryModel::test_to_dict_handles_nested_metadata_dates PASSED [ 60%]
+tests/unit/test_models.py::TestGenericEntryModel::test_from_dict_creates_instance PASSED [ 61%]
+tests/unit/test_models.py::TestRecipeDefinition::test_initialization_with_minimal_fields PASSED [ 61%]
+tests/unit/test_models.py::TestRecipeDefinition::test_initialization_with_all_fields PASSED [ 62%]
+tests/unit/test_models.py::TestRecipeDefinition::test_to_dict_conversion PASSED [ 62%]
+tests/unit/test_models.py::TestPackageInfo::test_initialization_with_name_only PASSED [ 63%]
+tests/unit/test_models.py::TestPackageInfo::test_initialization_with_all_fields PASSED [ 63%]
+tests/unit/test_models.py::TestPackageInfo::test_to_dict_conversion PASSED [ 64%]
+tests/unit/test_models.py::TestPackageInfo::test_from_dict_creates_instance PASSED [ 64%]
+tests/unit/test_models.py::TestPackageInfo::test_package_type_validation PASSED [ 65%]
+tests/unit/test_registration.py::TestDomainInterfaceRegistration::test_register_domain_interface PASSED [ 65%]
+tests/unit/test_registration.py::TestDomainInterfaceRegistration::test_get_domain_interface PASSED [ 66%]
+tests/unit/test_registration.py::TestDomainInterfaceRegistration::test_get_domain_interface_returns_none_for_unregistered PASSED [ 66%]
+tests/unit/test_registration.py::TestDomainInterfaceRegistration::test_list_domains_returns_registered_names PASSED [ 67%]
+tests/unit/test_registration.py::TestPackageRegistration::test_register_package_for_domain PASSED [ 67%]
+tests/unit/test_registration.py::TestPackageRegistration::test_register_package_creates_domain_if_missing PASSED [ 68%]
+tests/unit/test_registration.py::TestPackageRegistration::test_get_packages_for_domain_returns_empty_set PASSED [ 68%]
+tests/unit/test_registration.py::TestPackageRegistration::test_register_multiple_packages_for_domain PASSED [ 69%]
+tests/unit/test_registration.py::TestSchemaRegistration::test_register_domain_schema PASSED [ 69%]
+tests/unit/test_registration.py::TestSchemaRegistration::test_register_schema_creates_domain_if_missing PASSED [ 70%]
+tests/unit/test_registration.py::TestSchemaRegistration::test_register_multiple_schemas PASSED [ 70%]
+tests/unit/test_registration.py::TestSchemaRegistration::test_register_schema_updates_existing PASSED [ 71%]
+tests/unit/test_registration.py::TestFunctionRegistration::test_register_domain_function PASSED [ 71%]
+tests/unit/test_registration.py::TestFunctionRegistration::test_get_domain_function PASSED [ 72%]
+tests/unit/test_registration.py::TestFunctionRegistration::test_get_domain_function_returns_none_for_missing PASSED [ 72%]
+tests/unit/test_registration.py::TestFunctionRegistration::test_register_multiple_functions PASSED [ 73%]
+tests/unit/test_registration.py::TestFunctionRegistration::test_register_function_updates_existing PASSED [ 73%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_registry_exists PASSED [ 74%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_registry_has_register_method PASSED [ 74%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_registry_has_get_method PASSED [ 75%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_can_register_function PASSED [ 75%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_can_get_registered_function PASSED [ 76%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_get_nonexistent_returns_none PASSED [ 76%]
+tests/unit/test_registry.py::TestFunctionRegistry::test_register_with_metadata PASSED [ 77%]
+tests/unit/test_registry.py::TestPackageRegistry::test_registry_exists PASSED [ 77%]
+tests/unit/test_registry.py::TestPackageRegistry::test_can_register_core_package PASSED [ 78%]
+tests/unit/test_registry.py::TestPackageRegistry::test_can_register_extension_package PASSED [ 78%]
+tests/unit/test_registry.py::TestPackageRegistry::test_is_core_package_check PASSED [ 79%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_register_schema_stores_schema PASSED [ 79%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_register_multiple_schemas PASSED [ 80%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_register_schema_overwrites_existing PASSED [ 80%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_get_schema_returns_registered_schema PASSED [ 81%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_get_schema_returns_none_for_unregistered PASSED [ 81%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_get_schema_with_empty_registry PASSED [ 82%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_list_schemas_returns_all_registered PASSED [ 82%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_list_schemas_returns_empty_dict_when_none_registered PASSED [ 83%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_list_schemas_returns_copy_not_reference PASSED [ 83%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_schema_with_complex_structure PASSED [ 84%]
+tests/unit/test_schemas.py::TestSchemaRegistry::test_schema_name_formats PASSED [ 84%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_register_new_template_type PASSED [ 85%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_register_additional_directory_for_existing_type PASSED [ 85%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_register_duplicate_directory_ignored PASSED [ 86%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_get_template_directories_returns_list PASSED [ 86%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_get_template_directories_unknown_type_returns_empty PASSED [ 87%]
+tests/unit/test_templates.py::TestTemplateDirectoryRegistry::test_default_template_directories_exist PASSED [ 87%]
+tests/unit/test_templates.py::TestResolveTemplatePath::test_resolve_existing_direct_path PASSED [ 88%]
+tests/unit/test_templates.py::TestResolveTemplatePath::test_resolve_nonexistent_direct_path_returns_none PASSED [ 88%]
+tests/unit/test_templates.py::TestResolveTemplatePath::test_resolve_returns_none_for_missing_template PASSED [ 89%]
+tests/unit/test_templates.py::TestResolveTemplatePath::test_resolve_with_file_extension_in_reference PASSED [ 89%]
+tests/unit/test_templates.py::TestListTemplates::test_list_templates_returns_dict PASSED [ 90%]
+tests/unit/test_templates.py::TestListTemplates::test_list_templates_with_type_filter PASSED [ 90%]
+tests/unit/test_templates.py::TestListTemplates::test_list_templates_without_filter PASSED [ 91%]
+tests/unit/test_utils.py::TestEnsureDirectory::test_creates_directory PASSED [ 91%]
+tests/unit/test_utils.py::TestEnsureDirectory::test_handles_existing_directory PASSED [ 92%]
+tests/unit/test_utils.py::TestEnsureDirectory::test_creates_nested_directories PASSED [ 92%]
+tests/unit/test_utils.py::TestGenerateId::test_generates_id_without_prefix PASSED [ 93%]
+tests/unit/test_utils.py::TestGenerateId::test_generates_id_with_prefix PASSED [ 93%]
+tests/unit/test_utils.py::TestGenerateId::test_generates_unique_ids PASSED [ 94%]
+tests/unit/test_utils.py::TestGenerateId::test_prefix_is_lowercased PASSED [ 94%]
+tests/unit/test_utils.py::TestSafeLoadJson::test_loads_valid_json_file PASSED [ 95%]
+tests/unit/test_utils.py::TestSafeLoadJson::test_returns_default_for_missing_file PASSED [ 95%]
+tests/unit/test_utils.py::TestSafeLoadJson::test_returns_empty_dict_by_default PASSED [ 96%]
+tests/unit/test_utils.py::TestSafeLoadJson::test_handles_invalid_json PASSED [ 96%]
+tests/unit/test_utils.py::TestSafeSaveJson::test_saves_json_file PASSED  [ 97%]
+tests/unit/test_utils.py::TestSafeSaveJson::test_creates_directory_if_needed PASSED [ 97%]
+tests/unit/test_utils.py::TestSafeSaveJson::test_uses_custom_indent PASSED [ 98%]
+tests/unit/test_utils.py::TestSafeSaveJson::test_preserves_unicode PASSED [ 98%]
+tests/unit/test_utils.py::TestFormatTimestamp::test_formats_current_time_when_none PASSED [ 99%]
+tests/unit/test_utils.py::TestFormatTimestamp::test_formats_datetime_object PASSED [ 99%]
+tests/unit/test_utils.py::TestFormatTimestamp::test_formats_string_timestamp PASSED [100%]
+
+============================== warnings summary ===============================
+tests/unit/test_domains.py::TestDomainModule::test_domains_module_imports
+  C:\Users\Cameron\Projects\hottopoteto\__init__.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.10-final-0 _______________
+
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+core\__init__.py                        7      0   100%
+core\cli\__init__.py                    0      0   100%
+core\cli\commands\__init__.py           0      0   100%
+core\cli\commands\credentials.py      150    150     0%   4-239
+core\cli\commands\packages.py          98     98     0%   4-149
+core\cli\commands\recipes.py           53     53     0%   4-114
+core\domains.py                         2      2     0%   3-15
+core\domains\__init__.py                1      0   100%
+core\domains\llm\__init__.py            8      8     0%   4-44
+core\domains\llm\functions.py          16     16     0%   4-83
+core\domains\llm\links.py              23     23     0%   4-66
+core\domains\llm\models.py             49     49     0%   4-120
+core\domains\storage\__init__.py        4      4     0%   4-15
+core\domains\storage\functions.py      85     85     0%   4-187
+core\domains\storage\links.py         116    116     0%   4-308
+core\domains\storage\models.py         94     94     0%   4-149
+core\domains\storage\utils.py          32     32     0%   4-50
+core\executor.py                      534    315    41%   25, 95-96, 102-106, 151-152, 178-180, 192-194, 206-208, 216-218, 236-237, 248-266, 271-278, 319-321, 359-361, 394-397, 404-411, 423, 428, 471-619, 643, 646-652, 660-831, 835-889, 893-918, 922-944
+core\links\__init__.py                 47     47     0%   4-107
+core\models.py                         45      0   100%
+core\registration\__init__.py           1      0   100%
+core\registration\domains.py           56      4    93%   31, 75, 102, 116
+core\registry.py                       58     25    57%   115-117, 130, 140, 157-180, 197-203
+core\schemas.py                        13      0   100%
+core\templates.py                      57      9    84%   69, 76, 83, 87-92
+core\utils\__init__.py                 50      8    84%   27-29, 92-94, 112-113
+core\utils\package_template.py         45     45     0%   4-202
+core\utils\templates.py                 5      5     0%   4-23
+plugins\__init__.py                    50     50     0%   4-106
+plugins\conlang\__init__.py            15     15     0%   4-34
+plugins\gemini\__init__.py              3      3     0%   1-5
+plugins\gemini\links.py                43     43     0%   2-61
+-----------------------------------------------------------------
+TOTAL                                1760   1299    26%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_domains.py:18: Requires understanding of domain base classes
+SKIPPED [1] tests\unit\test_executor.py:27: Requires recipe loading implementation
+SKIPPED [1] tests\unit\test_executor.py:34: Requires full execution flow
+================= 197 passed, 3 skipped, 1 warning in 41.04s ==================

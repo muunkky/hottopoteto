@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "2p4owm",
+  "created_at": "2026-01-04T12:53:56.559709+00:00",
+  "template_name": "feature",
+  "owner": "CAMERON",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "storage-update-link-type",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "feature",
+    "sprint": "DOCENRICH",
+    "filename": "DOCENRICH-backlog-P1-feature-storage-update-link-type-2p4owm-CAMERON.md"
+  }
+}

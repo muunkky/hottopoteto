@@ -1,0 +1,57 @@
+.s..ss..........................F...FF.FFFFFF........................... [ 64%]
+.......................................                                  [100%]
+
+---------- coverage: platform win32, python 3.12.2-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+core\__init__.py                        7      0   100%
+core\cli\__init__.py                    0      0   100%
+core\cli\commands\__init__.py           0      0   100%
+core\cli\commands\credentials.py      150    150     0%   4-239
+core\cli\commands\packages.py          98     98     0%   4-149
+core\cli\commands\recipes.py           53     53     0%   4-114
+core\domains.py                         2      2     0%   3-15
+core\domains\__init__.py                1      0   100%
+core\domains\llm\__init__.py            8      8     0%   4-44
+core\domains\llm\functions.py          16     16     0%   4-83
+core\domains\llm\links.py              23     23     0%   4-66
+core\domains\llm\models.py             49     49     0%   4-120
+core\domains\storage\__init__.py        4      4     0%   4-15
+core\domains\storage\functions.py      85     85     0%   4-187
+core\domains\storage\links.py         116    116     0%   4-308
+core\domains\storage\models.py         94     94     0%   4-149
+core\domains\storage\utils.py          32     32     0%   4-50
+core\executor.py                      532    348    35%   25, 95-96, 100-101, 122, 151-152, 156-157, 183-185, 197-199, 205-213, 221-223, 241-242, 253-271, 276-283, 298, 306-308, 324-326, 364-366, 399-402, 409-416, 428, 433, 452-457, 476-624, 628-662, 665-836, 840-894, 898-923, 927-949, 954-955
+core\links\__init__.py                 47     47     0%   4-107
+core\models.py                         45      0   100%
+core\registration\__init__.py           1      0   100%
+core\registration\domains.py           56     43    23%   15-17, 21-32, 36, 40, 44, 48-76, 80-103, 107-116
+core\registry.py                       58     25    57%   115-117, 130, 140, 157-180, 197-203
+core\schemas.py                        13      0   100%
+core\templates.py                      57      9    84%   69, 76, 83, 87-92
+core\utils\__init__.py                 50      8    84%   27-29, 92-94, 112-113
+core\utils\package_template.py         45     45     0%   4-202
+core\utils\templates.py                 5      5     0%   4-23
+plugins\__init__.py                    50     50     0%   4-106
+plugins\conlang\__init__.py            15     15     0%   4-34
+plugins\gemini\__init__.py              3      3     0%   1-5
+plugins\gemini\links.py                43     43     0%   2-61
+-----------------------------------------------------------------
+TOTAL                                1758   1371    22%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_domains.py:18: Requires understanding of domain base classes
+SKIPPED [1] tests\unit\test_executor.py:27: Requires recipe loading implementation
+SKIPPED [1] tests\unit\test_executor.py:34: Requires full execution flow
+FAILED tests/unit/test_executor_utils.py::TestExtractJson::test_extract_from_dict
+FAILED tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_adds_missing_closing_brace
+FAILED tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_handles_completely_closed_json
+FAILED tests/unit/test_executor_utils.py::TestAttemptFixTruncatedJson::test_handles_multiple_missing_braces
+FAILED tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_fixes_trailing_commas
+FAILED tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_fixes_unquoted_keys
+FAILED tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_removes_javascript_line_comments
+FAILED tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_removes_javascript_block_comments
+FAILED tests/unit/test_executor_utils.py::TestFixCommonJsonErrors::test_handles_already_valid_json
+9 failed, 99 passed, 3 skipped in 11.46s

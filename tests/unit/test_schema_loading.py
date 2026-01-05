@@ -12,60 +12,67 @@ import json
 from unittest.mock import patch, MagicMock
 
 
-class TestSchemaFileLoading:
-    """Tests for loading JSON Schema files from templates/schemas/."""
+# =============================================================================
+# Module-level fixtures for schema file testing
+# =============================================================================
+
+@pytest.fixture
+def sample_schema_yaml(tmp_path):
+    """Create a sample schema YAML file."""
+    schema_dir = tmp_path / "templates" / "schemas"
+    schema_dir.mkdir(parents=True)
     
-    @pytest.fixture
-    def sample_schema_yaml(self, tmp_path):
-        """Create a sample schema YAML file."""
-        schema_dir = tmp_path / "templates" / "schemas"
-        schema_dir.mkdir(parents=True)
-        
-        schema = {
-            "type": "object",
-            "properties": {
-                "english_word": {"type": "string", "description": "The English word"},
-                "translation": {"type": "string", "description": "The translation"},
-                "origin_words": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "word": {"type": "string"},
-                            "meaning": {"type": "string"}
-                        }
+    schema = {
+        "type": "object",
+        "properties": {
+            "english_word": {"type": "string", "description": "The English word"},
+            "translation": {"type": "string", "description": "The translation"},
+            "origin_words": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "word": {"type": "string"},
+                        "meaning": {"type": "string"}
                     }
                 }
-            },
-            "required": ["english_word", "translation"]
-        }
-        
-        schema_file = schema_dir / "test_word.yaml"
-        with open(schema_file, 'w') as f:
-            yaml.dump(schema, f)
-        
-        return schema_file
+            }
+        },
+        "required": ["english_word", "translation"]
+    }
     
-    @pytest.fixture
-    def sample_schema_json(self, tmp_path):
-        """Create a sample schema JSON file."""
-        schema_dir = tmp_path / "templates" / "schemas"
-        schema_dir.mkdir(parents=True, exist_ok=True)
-        
-        schema = {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "count": {"type": "integer"}
-            },
-            "required": ["name"]
-        }
-        
-        schema_file = schema_dir / "simple.json"
-        with open(schema_file, 'w') as f:
-            json.dump(schema, f)
-        
-        return schema_file
+    schema_file = schema_dir / "test_word.yaml"
+    with open(schema_file, 'w') as f:
+        yaml.dump(schema, f)
+    
+    return schema_file
+
+
+@pytest.fixture
+def sample_schema_json(tmp_path):
+    """Create a sample schema JSON file."""
+    schema_dir = tmp_path / "templates" / "schemas"
+    schema_dir.mkdir(parents=True, exist_ok=True)
+    
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "count": {"type": "integer"}
+        },
+        "required": ["name"]
+    }
+    
+    schema_file = schema_dir / "simple.json"
+    with open(schema_file, 'w') as f:
+        json.dump(schema, f)
+    
+    return schema_file
+
+
+class TestSchemaFileLoading:
+    """Tests for loading JSON Schema files from templates/schemas/."""
+    pass
 
 
 class TestSchemaDirectoryRegistration:
