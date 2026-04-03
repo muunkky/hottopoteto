@@ -1,47 +1,60 @@
-# Eldorian Word Schema
-# JSON Schema defining the structure of an Eldorian conlang word entry.
-# Used by storage.init to create working documents and by llm.enrich
-# to progressively build structured output.
+# DEPRECATED: This file is no longer needed
+#
+# The eldorian_word recipe now uses direct domain schema references:
+#
+#   schema:
+#     $ref: "linguistics.word"
+#
+# The linguistics domain (plugins/conlang/domains/linguistics/models.py)
+# registers the comprehensive Word schema which defines what a word IS
+# in a constructed language.
+#
+# This file remains only for backwards compatibility with old tests/docs.
+# New recipes should use the direct $ref approach shown above.
+
+title: Eldorian Word Entry (Deprecated)
+description: Minimal backward-compatible schema. Use linguistics.word domain reference instead.
 
 type: object
-title: Eldorian Word Entry
-description: A complete word entry in the Eldorian constructed language
+
+required:
+  - english_word
+  - eldorian_word
 
 properties:
   english_word:
     type: string
     description: The English word being translated to Eldorian
   
+  eldorian_word:
+    type: string
+    description: The canonical form of the word in Eldorian (lemma)
+  
+  pronunciation:
+    type: string
+    description: IPA phonetic transcription
+  
+  language:
+    type: string
+    default: eldorian
+    description: Language code
+  
   connotation:
     type: string
-    description: The intended connotation or nuance of the word
+    description: The intended emotional coloring or nuance
   
   origin_words:
     type: array
-    description: Etymology - the source words from which this word derives
+    description: Source words from which this word derives
     items:
       type: object
       properties:
         word:
           type: string
-          description: The origin word
         meaning:
           type: string
-          description: The meaning of the origin word
         origin:
           type: string
-          description: The language or culture of origin
-      required:
-        - word
-        - meaning
-  
-  eldorian_word:
-    type: string
-    description: The generated Eldorian word
-  
-  pronunciation:
-    type: string
-    description: IPA or phonetic pronunciation guide
   
   morphology:
     type: object
@@ -51,7 +64,6 @@ properties:
         type: array
         items:
           type: string
-        description: Root morphemes in the word
       affixes:
         type: array
         items:
@@ -61,30 +73,37 @@ properties:
               type: string
             type:
               type: string
-              enum: [prefix, suffix, infix]
             meaning:
               type: string
       word_class:
         type: string
-        description: Part of speech (noun, verb, adjective, etc.)
   
   usage_examples:
     type: array
-    description: Example sentences using this word
+    description: Example sentences demonstrating usage
     items:
       type: object
       properties:
         eldorian:
           type: string
-          description: The sentence in Eldorian
         translation:
           type: string
-          description: English translation
   
   cultural_notes:
     type: string
-    description: Cultural context or usage notes
-
-required:
-  - english_word
-  - eldorian_word
+    description: Cultural significance, associations, or context
+  
+  metadata:
+    type: object
+    description: Generation metadata
+    properties:
+      source:
+        type: string
+      generated_at:
+        type: string
+      version:
+        type: string
+      schema_file:
+        type: string
+      working_document_id:
+        type: string

@@ -179,10 +179,11 @@ def resolve_schema_reference(
     """
     Resolve a schema reference to an actual schema dictionary.
     
-    Handles three cases:
-    1. File reference: { "file": "path/to/schema.yaml" }
-    2. Inline schema: { "type": "object", ... }
-    3. None/empty: Returns None
+    Handles four cases:
+    1. Domain schema reference: { "$ref": "domain.schema" }
+    2. File reference: { "file": "path/to/schema.yaml" }
+    3. Inline schema: { "type": "object", ... }
+    4. None/empty: Returns None
     
     Args:
         schema_ref: The schema reference from recipe config
@@ -199,6 +200,22 @@ def resolve_schema_reference(
     if schema_ref is None:
         return None
     
+    # Handle domain schema reference ($ref)
+    if isinstance(schema_ref, dict) and "$ref" in schema_ref:
+        ref_path = schema_ref["$ref"]
+        
+        # Look up in the central schema registry
+        schema = get_schema(ref_path)
+        
+        if schema is None:
+            raise SchemaNotFoundError(
+                f"Domain schema not found: {ref_path}. "
+                f"Make sure the domain has registered this schema using "
+                f"register_domain_schema()."
+            )
+        
+        return schema
+    
     # Handle file reference
     if isinstance(schema_ref, dict) and "file" in schema_ref:
         file_ref = schema_ref["file"]
@@ -212,11 +229,19 @@ def resolve_schema_reference(
         for search_dir in search_dirs:
             candidate = os.path.join(search_dir, file_ref)
             if os.path.exists(candidate):
-                return load_schema_file(candidate)
+                loaded_schema = load_schema_file(candidate)
+                # If the loaded file contains a $ref, resolve it recursively
+                if isinstance(loaded_schema, dict) and "$ref" in loaded_schema:
+                    return resolve_schema_reference(loaded_schema, search_dirs)
+                return loaded_schema
         
         # Also try direct path
         if os.path.exists(file_ref):
-            return load_schema_file(file_ref)
+            loaded_schema = load_schema_file(file_ref)
+            # If the loaded file contains a $ref, resolve it recursively
+            if isinstance(loaded_schema, dict) and "$ref" in loaded_schema:
+                return resolve_schema_reference(loaded_schema, search_dirs)
+            return loaded_schema
         
         raise SchemaNotFoundError(
             f"Schema file not found: {file_ref}. "

@@ -1,0 +1,179 @@
+# Eldorian Lexicon Entry Schema
+# Comprehensive schema for official dictionary entries
+# This defines the canonical structure for a complete Eldorian word
+
+type: object
+title: Eldorian Lexicon Entry
+description: Complete lexicon entry for an Eldorian constructed language word
+
+required:
+  - english_word
+  - eldorian_word
+  - pronunciation
+  - part_of_speech
+  - meaning
+  - etymology
+
+properties:
+  # Core identification
+  english_word:
+    type: string
+    description: The English word or concept
+  
+  eldorian_word:
+    type: string
+    description: The word in Eldorian script/phonetics
+  
+  pronunciation:
+    type: string
+    description: IPA or phonetic pronunciation guide
+  
+  # Grammatical
+  part_of_speech:
+    type: string
+    description: Grammatical category (noun, verb, adjective, etc.)
+    enum: [noun, verb, adjective, adverb, pronoun, preposition, conjunction, interjection]
+  
+  declension:
+    type: string
+    description: Declension pattern or class (if applicable)
+  
+  # Meaning and usage
+  meaning:
+    type: string
+    description: Primary definition in English
+  
+  connotation:
+    type: string
+    description: The intended connotation or cultural nuance
+  
+  usage_examples:
+    type: array
+    description: Example sentences demonstrating usage
+    items:
+      type: object
+      required: [eldorian, translation]
+      properties:
+        eldorian:
+          type: string
+          description: Example sentence in Eldorian
+        translation:
+          type: string
+          description: English translation
+        context:
+          type: string
+          description: Optional context note
+  
+  # Etymology and morphology
+  etymology:
+    type: object
+    description: Word origin and formation
+    required: [origin_language, origin_words]
+    properties:
+      origin_language:
+        type: string
+        description: Source language (Old Elven, Sylvan, etc.)
+      
+      origin_words:
+        type: array
+        description: Root words that formed this word
+        items:
+          type: object
+          required: [word, meaning]
+          properties:
+            word:
+              type: string
+              description: The origin word
+            meaning:
+              type: string
+              description: Meaning of the origin word
+            origin:
+              type: string
+              description: Language or culture of origin
+      
+      compound_form:
+        type: string
+        description: Original compound form before evolution
+      
+      evolution_summary:
+        type: string
+        description: How the word evolved (morphology + phonology)
+  
+  morphology:
+    type: object
+    description: Morphological structure and components
+    properties:
+      roots:
+        type: array
+        items:
+          type: string
+        description: Root morphemes
+      
+      affixes:
+        type: array
+        items:
+          type: object
+          properties:
+            affix:
+              type: string
+            type:
+              type: string
+              enum: [prefix, suffix, infix]
+            meaning:
+              type: string
+        description: Affixes and their meanings
+      
+      word_class:
+        type: string
+        description: Morphological word class
+  
+  # Derivatives and related words
+  derivatives:
+    type: array
+    description: Words derived from this root
+    items:
+      type: object
+      required: [word, part_of_speech, meaning]
+      properties:
+        word:
+          type: string
+          description: The derivative word
+        part_of_speech:
+          type: string
+          description: Grammatical category
+        meaning:
+          type: string
+          description: English translation/meaning
+        morphological_changes:
+          type: string
+          description: How it was derived
+        examples:
+          type: array
+          items:
+            type: string
+          description: Usage examples
+  
+  # Cultural and contextual
+  cultural_notes:
+    type: string
+    description: Cultural context and usage conventions
+  
+  register:
+    type: string
+    description: Formality level (formal, neutral, informal, vulgar)
+    enum: [formal, neutral, informal, vulgar]
+  
+  frequency:
+    type: string
+    description: Usage frequency (common, uncommon, rare, archaic)
+    enum: [common, uncommon, rare, archaic]
+  
+  # Metadata
+  created_at:
+    type: string
+    format: date-time
+    description: When this entry was created
+  
+  version:
+    type: string
+    description: Schema version for this entry
