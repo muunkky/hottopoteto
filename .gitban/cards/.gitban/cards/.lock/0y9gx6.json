@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "0y9gx6",
+  "created_at": "2026-01-05T12:17:47.046408+00:00",
+  "template_name": "feature",
+  "owner": "CAMERON",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "enhance-eldorian-word-recipe-with-schema-driven-enrichment",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "feature",
+    "sprint": null,
+    "filename": "backlog-P1-feature-enhance-eldorian-word-recipe-with-schema-driven-enrichment-0y9gx6-CAMERON.md"
+  }
+}

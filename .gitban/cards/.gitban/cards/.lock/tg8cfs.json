@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "tg8cfs",
+  "created_at": "2026-01-06T02:37:48.187343+00:00",
+  "template_name": "bug-regression",
+  "owner": "CAMERON",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "llm-links-with-output-schema-don-t-enforce-json-mode",
+    "priority": "P0",
+    "status": "todo",
+    "type": "bug",
+    "sprint": null,
+    "filename": "todo-P0-bug-llm-links-with-output-schema-don-t-enforce-json-mode-tg8cfs-CAMERON.md"
+  }
+}

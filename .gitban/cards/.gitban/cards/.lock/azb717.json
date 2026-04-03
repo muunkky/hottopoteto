@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "azb717",
+  "created_at": "2026-01-06T19:49:46.167486+00:00",
+  "template_name": "documentation-adr",
+  "owner": "UNASSIGNED",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "schema-validation-error-handling-architecture",
+    "priority": "P0",
+    "status": "todo",
+    "type": "documentation",
+    "sprint": null,
+    "filename": "todo-P0-documentation-schema-validation-error-handling-architecture-azb717.md"
+  }
+}

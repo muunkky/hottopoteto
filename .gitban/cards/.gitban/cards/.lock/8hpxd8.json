@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "8hpxd8",
+  "created_at": "2026-01-06T23:57:33.403868+00:00",
+  "template_name": "refactor",
+  "owner": "UNASSIGNED",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "centralize-type-coercion-to-core-validation-module",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "refactor",
+    "sprint": null,
+    "filename": "backlog-P1-refactor-centralize-type-coercion-to-core-validation-module-8hpxd8.md"
+  }
+}
