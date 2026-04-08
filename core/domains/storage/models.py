@@ -17,7 +17,8 @@ class StorageEntity(GenericEntryModel):
     """Base model for stored entities"""
     collection: str
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
+
 class StorageQuery(BaseModel):
     """Query parameters for storage operations"""
     collection: str

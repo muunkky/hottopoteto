@@ -14,13 +14,15 @@ class LLMMessage(BaseModel):
 
 class LLMRequest(BaseModel):
     """Request to an LLM provider"""
-    messages: List[LLMMessage] = Field(default_factory=list)
+    messages: Optional[List[LLMMessage]] = Field(default=None)
     model: str
     temperature: float = 0.7
     max_tokens: Optional[int] = None
-    
+
     def add_message(self, role: str, content: str) -> None:
         """Add a message to the request"""
+        if self.messages is None:
+            self.messages = []
         self.messages.append(LLMMessage(role=role, content=content))
 
 class LLMResponse(BaseModel):
@@ -107,8 +109,12 @@ register_domain_schema("llm", "request", {
     "required": ["model"],
     "properties": {
         "messages": {
-            "anyOf": [{"type": "array", "items": {"$ref": "#/definitions/llm.message"}}, {"type": "null"}],
-            "description": "Messages in the conversation"
+            "anyOf": [
+                {"type": "array", "items": {"$ref": "#/definitions/llm.message"}},
+                {"type": "null"}
+            ],
+            "description": "Messages in the conversation",
+            "default": None
         },
         "model": {"type": "string", "description": "LLM model to use"},
         "temperature": {"type": "number", "description": "Sampling temperature"},
