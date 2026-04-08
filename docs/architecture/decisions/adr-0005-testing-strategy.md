@@ -66,6 +66,16 @@ tests/
 3. **Mock External Dependencies**: Mock LLM APIs, database connections
 4. **Test Discovery**: Follow pytest conventions (test_*.py files, test_* functions)
 
+### Coverage Threshold
+
+**Decision (2026-04-08):** A minimum coverage gate of **50%** has been established and enforced via `--cov-fail-under=50` in `pytest.ini`.
+
+**Rationale:**
+- Measured coverage at TESTCOV1 sprint closeout: **54.6%** (415 tests, covering `core/` and `plugins/`)
+- Threshold set at 50% — the measured value rounded down to the nearest 5% — to provide a stable gate without false failures from minor test variation
+- This gate automatically fails `pytest` runs that regress below 50%, catching coverage regressions in CI and local development
+- The long-term target remains 80%+ (see Implementation Plan step 6 below); the 50% gate is the enforced floor, not the ceiling
+
 ## Consequences
 
 ### Positive
@@ -76,6 +86,7 @@ tests/
 - **Easy CI/CD Integration**: Works seamlessly with GitHub Actions, Jenkins, GitLab CI
 - **Team Familiarity**: Most Python developers already know pytest
 - **Incremental Adoption**: Can start small and grow test suite over time
+- **Coverage Gate**: `--cov-fail-under=50` prevents coverage regressions automatically
 
 ### Negative
 - **Additional Dependency**: One more package to manage (though minimal overhead)
@@ -172,15 +183,16 @@ tests/
    - Added Testing section to README.md
    - Included instructions for running tests, coverage reports
 
-5. ⏭️ **Establish Test Baseline** (Next Card)
-   - Audit existing code for test coverage opportunities
-   - Create initial unit tests for critical paths
-   - Set coverage baseline and quality gates
+5. ✅ **Establish Test Baseline and Coverage Gate** (Completed - 2026-04-08)
+   - TESTCOV1 sprint delivered 415 tests (unit + integration) with 54.6% coverage
+   - Coverage gate set at 50% (`--cov-fail-under=50` in pytest.ini)
+   - Gate enforced automatically on every `pytest` run
 
 6. ⏭️ **CI/CD Integration** (Future)
    - Add pytest to GitHub Actions workflow
    - Enforce coverage thresholds in CI
    - Generate coverage badges
+   - Grow coverage toward 80%+ long-term target
 
 ## References
 
@@ -190,8 +202,10 @@ tests/
 - [Test Pyramid Concept](https://martinfowler.com/articles/practical-test-pyramid.html)
 - Test Framework Setup: Card 9t7ep6
 - Initial Test Baseline: Card jy04kg
+- Coverage Threshold Gate: Card 5opq45 (TESTCOV1 sprint closeout)
 
 ## Review History
 
 - **2025-12-18**: Initial ADR created by CAMERON
-- **Status**: Accepted - Framework implemented and validated
+- **2026-04-08**: Coverage threshold of 50% established and enforced. TESTCOV1 sprint measured 54.6% coverage across 415 tests. Gate set at 50% (measured value rounded down to nearest 5%). ADR updated to document the decision.
+- **Status**: Accepted
