@@ -95,15 +95,15 @@ class CompoundElement(BaseModel):
 
 class Morphology(BaseModel):
     """Morphological breakdown"""
-    roots: Optional[List[str]] = Field(default_factory=list, description="Root morphemes")
-    affixes: Optional[List[Affix]] = Field(default_factory=list)
-    compound_elements: Optional[List[CompoundElement]] = Field(default_factory=list)
+    roots: Optional[List[str]] = Field(default=None, description="Root morphemes")
+    affixes: Optional[List[Affix]] = Field(default=None)
+    compound_elements: Optional[List[CompoundElement]] = Field(default=None)
 
 class Meaning(BaseModel):
     """Distinct sense/definition"""
     definition: Optional[str] = None
     sense_number: Optional[int] = None
-    examples: Optional[List[str]] = Field(default_factory=list)
+    examples: Optional[List[str]] = Field(default=None)
     register: Optional[str] = Field(None, description="formal, informal, archaic, poetic, etc.")
 
 class UsageExample(BaseModel):
@@ -158,18 +158,18 @@ class ArgumentRole(BaseModel):
 class ArgumentStructure(BaseModel):
     """Syntactic argument structure for verbs"""
     valency: Optional[int] = Field(None, description="Number of arguments (0=weather verb, 1=intransitive, 2=transitive, 3=ditransitive)")
-    arguments: Optional[List[ArgumentRole]] = Field(default_factory=list)
+    arguments: Optional[List[ArgumentRole]] = Field(default=None)
 
 # Comprehensive Word model - the platonic ideal of a lexicon entry
 class Word(GenericEntryModel):
     """
     Comprehensive word model for constructed languages.
-    
+
     This is the domain's definition of what a word IS - everything that can be
     known about a word in a constructed language. Not all fields need to be
     populated for every word; this is the complete schema.
     """
-    
+
     # === BASIC IDENTIFICATION ===
     # Only eldorian_word is required at model level - everything else can be built up over time
     # Recipe-level validation should enforce additional requirements for specific workflows
@@ -178,20 +178,20 @@ class Word(GenericEntryModel):
     language: Optional[str] = Field(default="eldorian", description="Language code")
     pronunciation: Optional[str] = Field(None, description="IPA phonetic transcription")
     alternate_forms: Optional[List[AlternateForm]] = Field(
-        default_factory=list,
+        default=None,
         description="Variant spellings or pronunciations with context"
     )
-    
+
     # === ETYMOLOGY ===
     origin_words: Optional[List[OriginWord]] = Field(
-        default_factory=list,
+        default=None,
         description="Source words from which this derives"
     )
     historical_development: Optional[str] = Field(
-        None, 
+        None,
         description="Diachronic evolution of form and meaning"
     )
-    
+
     # === GRAMMATICAL CLASSIFICATION ===
     word_class: Optional[str] = Field(
         None,
@@ -202,10 +202,10 @@ class Word(GenericEntryModel):
         description="Grammatical gender (masculine, feminine, neuter, common, animate, inanimate)"
     )
     animacy: Optional[str] = Field(
-        None, 
+        None,
         description="Animacy class (animate, inanimate, divine, abstract)"
     )
-    
+
     # === INFLECTIONAL MORPHOLOGY ===
     declension: Optional[Declension] = Field(
         None,
@@ -220,27 +220,27 @@ class Word(GenericEntryModel):
         description="Degrees of comparison (positive, comparative, superlative)"
     )
     irregular_forms: Optional[List[IrregularForm]] = Field(
-        default_factory=list,
+        default=None,
         description="Any irregular inflected forms"
     )
-    
+
     # === DERIVATIONAL MORPHOLOGY ===
     morphology: Optional[Morphology] = Field(
         None,
         description="Morphological breakdown (roots, affixes, compounds)"
     )
     derived_words: Optional[List[DerivedWord]] = Field(
-        default_factory=list,
+        default=None,
         description="Words derived from this word"
     )
     derives_from: Optional[str] = Field(
         None,
         description="Reference to source word if this is derived"
     )
-    
+
     # === SEMANTICS ===
     meanings: Optional[List[Meaning]] = Field(
-        default_factory=list,
+        default=None,
         description="Distinct senses/definitions with examples and register"
     )
     connotation: Optional[str] = Field(
@@ -248,10 +248,10 @@ class Word(GenericEntryModel):
         description="Emotional coloring (positive, negative, neutral, honorific, pejorative, intimate, formal)"
     )
     semantic_fields: Optional[List[str]] = Field(
-        default_factory=list,
+        default=None,
         description="Semantic domains (e.g., nature.water, emotion.fear)"
     )
-    
+
     # === SYNTAX ===
     argument_structure: Optional[ArgumentStructure] = Field(
         None,
@@ -261,50 +261,50 @@ class Word(GenericEntryModel):
         None,
         description="Types of complements this word takes"
     )
-    
+
     # === USAGE ===
     usage_examples: Optional[List[UsageExample]] = Field(
-        default_factory=list,
+        default=None,
         description="Example sentences with translation and context"
     )
     collocations: Optional[List[Collocation]] = Field(
-        default_factory=list,
+        default=None,
         description="Common word combinations"
     )
     frequency: Optional[str] = Field(
         None,
         description="Frequency of use (very_common, common, uncommon, rare, archaic, obsolete)"
     )
-    
+
     # === LEXICAL RELATIONS ===
     synonyms: Optional[List[Synonym]] = Field(
-        default_factory=list,
+        default=None,
         description="Words with similar meanings and how they differ"
     )
-    antonyms: Optional[List[str]] = Field(default_factory=list, description="Opposite meanings")
+    antonyms: Optional[List[str]] = Field(default=None, description="Opposite meanings")
     related_words: Optional[List[RelatedWord]] = Field(
-        default_factory=list,
+        default=None,
         description="Semantically related words with relationship type"
     )
     compound_of: Optional[List[str]] = Field(
-        default_factory=list,
+        default=None,
         description="Constituent words if this is a compound"
     )
-    
+
     # === SOCIOLINGUISTIC ===
     register: Optional[str] = Field(
         None,
         description="Overall register/style level (formal, informal, neutral, archaic, poetic, technical, colloquial, vulgar, literary, ceremonial)"
     )
     dialectal_variations: Optional[List[DialectalVariation]] = Field(
-        default_factory=list,
+        default=None,
         description="How this word varies across dialects"
     )
     stylistic_notes: Optional[str] = Field(
         None,
         description="Notes on appropriate contexts of use"
     )
-    
+
     # === CULTURAL & PRAGMATIC ===
     cultural_notes: Optional[str] = Field(
         None,
@@ -315,31 +315,40 @@ class Word(GenericEntryModel):
         description="How this word functions in discourse"
     )
     taboos: Optional[str] = Field(None, description="Cultural taboos or restrictions")
-    
+
     # === META ===
     notes: Optional[str] = Field(None, description="General notes or comments")
-    references: Optional[List[str]] = Field(default_factory=list, description="Sources or attestations")
+    references: Optional[List[str]] = Field(default=None, description="Sources or attestations")
     created_date: Optional[datetime] = Field(None, description="When this entry was created")
     last_modified: Optional[datetime] = Field(None, description="When last updated")
     status: Optional[str] = Field(
         None,
         description="Completeness status (draft, partial, complete, verified)"
     )
-    
+
     # Legacy compatibility fields
-    tags: Optional[List[str]] = Field(default_factory=list, description="Classification tags")
-    cognates: Optional[List[str]] = Field(default_factory=list, description="Cognates in other languages")
+    tags: Optional[List[str]] = Field(default=None, description="Classification tags")
+    cognates: Optional[List[str]] = Field(default=None, description="Cognates in other languages")
+
+    # Override GenericEntryModel fields to allow null in JSON schema (Pydantic v2)
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
+    created_at: Optional[datetime] = Field(default=None)
+    updated_at: Optional[datetime] = Field(default=None)
 
 # Phoneme model
 class Phoneme(GenericEntryModel):
     """A phoneme in a language"""
     symbol: str
-    features: Optional[Dict[str, bool]] = Field(default_factory=dict)
+    features: Optional[Dict[str, bool]] = Field(default=None)
     description: Optional[str] = None
-    example_words: Optional[List[str]] = Field(default_factory=list)
+    example_words: Optional[List[str]] = Field(default=None)
     ipa: Optional[str] = None
     sound_type: Optional[str] = "consonant"
-    articulation: Optional[Dict[str, str]] = Field(default_factory=dict)
+    articulation: Optional[Dict[str, str]] = Field(default=None)
+
+    # Override GenericEntryModel fields to allow null in JSON schema (Pydantic v2)
+    tags: Optional[List[str]] = Field(default=None, description="Classification tags")
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
 
 # MorphologicalRule model
 class MorphologicalRule(GenericEntryModel):
@@ -348,12 +357,16 @@ class MorphologicalRule(GenericEntryModel):
     description: Optional[str] = None
     pattern: str
     replacement: Optional[str] = None
-    conditions: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    examples: Optional[List[Dict[str, str]]] = Field(default_factory=list)
+    conditions: Optional[Dict[str, Any]] = Field(default=None)
+    examples: Optional[List[Dict[str, str]]] = Field(default=None)
     rule_type: Optional[str] = "inflection"
-    applies_to: Optional[List[str]] = Field(default_factory=list)
+    applies_to: Optional[List[str]] = Field(default=None)
 
-# Language model 
+    # Override GenericEntryModel fields to allow null in JSON schema (Pydantic v2)
+    tags: Optional[List[str]] = Field(default=None, description="Classification tags")
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
+
+# Language model
 class Language(GenericEntryModel):
     """A constructed language"""
     name: str
@@ -361,10 +374,14 @@ class Language(GenericEntryModel):
     description: Optional[str] = None
     creator: Optional[str] = None
     creation_date: Optional[datetime] = None
-    phonology: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    grammar: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    phonology: Optional[Dict[str, Any]] = Field(default=None)
+    grammar: Optional[Dict[str, Any]] = Field(default=None)
     vocabulary_size: Optional[int] = 0
     writing_system: Optional[Dict[str, Any]] = None
+
+    # Override GenericEntryModel fields to allow null in JSON schema (Pydantic v2)
+    tags: Optional[List[str]] = Field(default=None, description="Classification tags")
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
 
 # Text model
 class Text(GenericEntryModel):
@@ -374,14 +391,18 @@ class Text(GenericEntryModel):
     language: str
     translation: Optional[str] = None
     notes: Optional[str] = None
-    glosses: Optional[List[Dict[str, str]]] = Field(default_factory=list)
+    glosses: Optional[List[Dict[str, str]]] = Field(default=None)
+
+    # Override GenericEntryModel fields to allow null in JSON schema (Pydantic v2)
+    tags: Optional[List[str]] = Field(default=None, description="Classification tags")
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
 
 # Register model schemas
-register_domain_schema("linguistics", "word", Word.schema())
-register_domain_schema("linguistics", "phoneme", Phoneme.schema())
-register_domain_schema("linguistics", "language", Language.schema())
-register_domain_schema("linguistics", "text", Text.schema())
-register_domain_schema("linguistics", "morphological_rule", MorphologicalRule.schema())
+register_domain_schema("linguistics", "word", Word.model_json_schema())
+register_domain_schema("linguistics", "phoneme", Phoneme.model_json_schema())
+register_domain_schema("linguistics", "language", Language.model_json_schema())
+register_domain_schema("linguistics", "text", Text.model_json_schema())
+register_domain_schema("linguistics", "morphological_rule", MorphologicalRule.model_json_schema())
 
 # Register additional schemas that don't have corresponding models
 register_domain_schema("linguistics", "syllable", {
@@ -445,7 +466,7 @@ def load_schema_files():
             if filename.endswith(".json"):
                 schema_name = os.path.splitext(filename)[0]
                 schema_path = os.path.join(schema_dir, filename)
-                
+
                 with open(schema_path, "r") as f:
                     schema = json.load(f)
                     register_domain_schema("linguistics", schema_name, schema)
