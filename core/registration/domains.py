@@ -107,10 +107,53 @@ def get_domain_function(domain_name: str, function_name: str) -> Optional[Any]:
     domain_interface = _domain_interfaces.get(domain_name)
     if not domain_interface:
         return None
-        
+
     functions = domain_interface.get("functions", [])
     for func in functions:
         if func.get("name") == function_name:
             return func.get("function")
-    
+
     return None
+
+
+def get_domain_schema(domain_name: str, schema_name: str) -> Optional[Dict[str, Any]]:
+    """Get a registered schema for a domain by name.
+
+    Looks up the schema stored via ``register_domain_schema`` and returns the
+    raw schema dict, or ``None`` if the domain or schema is not found.
+
+    Args:
+        domain_name: The registered domain (e.g. ``"linguistics"``).
+        schema_name: The schema identifier within that domain (e.g. ``"word"``).
+
+    Returns:
+        The JSON-schema dict, or ``None`` if not found.
+    """
+    domain_interface = _domain_interfaces.get(domain_name)
+    if not domain_interface:
+        return None
+
+    schemas = domain_interface.get("schemas", [])
+    for entry in schemas:
+        if entry.get("name") == schema_name:
+            return entry.get("schema")
+
+    return None
+
+
+def get_all_domain_schemas() -> Dict[str, Dict[str, Any]]:
+    """Return all registered schemas keyed by domain then schema name.
+
+    Returns:
+        ``{domain_name: {schema_name: schema_dict, ...}, ...}``
+    """
+    result: Dict[str, Dict[str, Any]] = {}
+    for domain_name, interface in _domain_interfaces.items():
+        schemas = interface.get("schemas", [])
+        if schemas:
+            result[domain_name] = {
+                entry["name"]: entry["schema"]
+                for entry in schemas
+                if "name" in entry and "schema" in entry
+            }
+    return result

@@ -10,5 +10,7 @@ from .domains import (
     list_domains,
     register_domain_schema,
     register_domain_function,
-    get_domain_function
+    get_domain_function,
+    get_domain_schema,
+    get_all_domain_schemas,
 )
