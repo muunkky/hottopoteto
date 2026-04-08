@@ -17,6 +17,7 @@ class StorageEntity(GenericEntryModel):
     """Base model for stored entities"""
     collection: str
     data: Dict[str, Any] = Field(default_factory=dict)
+    tags: Optional[List[str]] = Field(default=None)
     
 class StorageQuery(BaseModel):
     """Query parameters for storage operations"""
@@ -145,5 +146,5 @@ StorageAdapter.register(FileAdapter)
 # Register schemas with domain schema registry
 from core.registration import register_domain_schema
 
-register_domain_schema("storage", "entity", StorageEntity.schema())
-register_domain_schema("storage", "query", StorageQuery.schema())
+register_domain_schema("storage", "entity", StorageEntity.model_json_schema())
+register_domain_schema("storage", "query", StorageQuery.model_json_schema())

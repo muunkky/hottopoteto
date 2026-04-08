@@ -14,7 +14,7 @@ class LLMMessage(BaseModel):
 
 class LLMRequest(BaseModel):
     """Request to an LLM provider"""
-    messages: List[LLMMessage] = Field(default_factory=list)
+    messages: Optional[List[LLMMessage]] = Field(default=None)
     model: str
     temperature: float = 0.7
     max_tokens: Optional[int] = None
@@ -107,8 +107,7 @@ register_domain_schema("llm", "request", {
     "required": ["messages", "model"],
     "properties": {
         "messages": {
-            "type": "array",
-            "items": {"$ref": "#/definitions/llm.message"},
+            "anyOf": [{"type": "array", "items": {"$ref": "#/definitions/llm.message"}}, {"type": "null"}],
             "description": "Messages in the conversation"
         },
         "model": {"type": "string", "description": "LLM model to use"},
