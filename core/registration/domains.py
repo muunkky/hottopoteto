@@ -119,9 +119,6 @@ def get_domain_function(domain_name: str, function_name: str) -> Optional[Any]:
 def get_domain_schema(domain_name: str, schema_name: str) -> Optional[Dict[str, Any]]:
     """Get a registered schema for a domain by name.
 
-    Looks up the schema stored via ``register_domain_schema`` and returns the
-    raw schema dict, or ``None`` if the domain or schema is not found.
-
     Args:
         domain_name: The registered domain (e.g. ``"linguistics"``).
         schema_name: The schema identifier within that domain (e.g. ``"word"``).
