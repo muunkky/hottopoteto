@@ -1,0 +1,7 @@
+{"ts":"2026-04-08T17:15:00Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"init"}
+{"ts":"2026-04-08T17:15:01Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"read-diff","data":{"commit":"2e09d61"}}
+{"ts":"2026-04-08T17:15:02Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"read-card","data":{"card_id":"5opq45"}}
+{"ts":"2026-04-08T17:15:03Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"read-adr","data":{"file":"docs/architecture/decisions/adr-0005-testing-strategy.md"}}
+{"ts":"2026-04-08T17:15:04Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"write-review","data":{"verdict":"APPROVAL"}}
+{"ts":"2026-04-08T17:15:05Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"card-status-change","data":{"new_status":"in_progress"}}
+{"ts":"2026-04-08T17:15:06Z","role":"reviewer","sprint":"TESTCOV1","card":"5opq45","cycle":1,"event":"summary","data":{"blockers":0,"followups":2,"verdict":"APPROVAL"}}
