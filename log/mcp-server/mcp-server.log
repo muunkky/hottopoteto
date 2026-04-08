@@ -4,3 +4,19 @@
 {"timestamp": "2026-01-04T00:33:33.928951Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
 {"timestamp": "2026-01-04T00:33:33.928951Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
 {"timestamp": "2026-01-04T00:33:33.928951Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-01-05T19:03:12.266865Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
+{"timestamp": "2026-01-05T19:03:12.267866Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
+{"timestamp": "2026-01-05T19:03:12.267866Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-01-06T12:22:15.176353Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
+{"timestamp": "2026-01-06T12:22:15.178354Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
+{"timestamp": "2026-01-06T12:22:15.178354Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-01-07T01:56:05.325512Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
+{"timestamp": "2026-01-07T01:56:05.326516Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
+{"timestamp": "2026-01-07T01:56:05.326516Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-04-02T18:24:36.806884Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
+{"timestamp": "2026-04-02T18:24:36.807884Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
+{"timestamp": "2026-04-02T18:24:36.807884Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-04-08T13:19:07.855376Z", "level": "INFO", "logger": "gitban", "message": "Logging initialized", "operation": "logging_setup"}
+{"timestamp": "2026-04-08T13:19:07.855376Z", "level": "INFO", "logger": "gitban", "message": "MCP Server starting up", "operation": "startup"}
+{"timestamp": "2026-04-08T13:19:07.855376Z", "level": "INFO", "logger": "gitban", "message": "MCP Server initialized successfully"}
+{"timestamp": "2026-04-08T13:19:48.306518Z", "level": "INFO", "logger": "gitban.views.viewer_server", "message": "Viewer server started on 127.0.0.1:55883"}
