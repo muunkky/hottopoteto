@@ -20,7 +20,9 @@ class LLMRequest(BaseModel):
     max_tokens: Optional[int] = None
     
     def add_message(self, role: str, content: str) -> None:
-        """Add a message to the request"""
+        """Add a message to the request."""
+        if self.messages is None:
+            self.messages = []
         self.messages.append(LLMMessage(role=role, content=content))
 
 class LLMResponse(BaseModel):
@@ -104,7 +106,7 @@ register_domain_schema("llm", "message", {
 
 register_domain_schema("llm", "request", {
     "type": "object",
-    "required": ["messages", "model"],
+    "required": ["model"],  # messages is optional/nullable
     "properties": {
         "messages": {
             "anyOf": [{"type": "array", "items": {"$ref": "#/definitions/llm.message"}}, {"type": "null"}],
