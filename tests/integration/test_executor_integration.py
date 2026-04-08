@@ -14,17 +14,25 @@ Test Cases:
   7. Complete multi-link recipe flow (user_input -> llm -> storage.save)
 
 Architecture Notes:
-  - executor._execute_link() dispatches via get_link_handler() first, then
-    falls back to built-in handlers on ImportError.
-  - In this codebase, `llm` is registered as LLMHandler; `storage.save` is
-    registered as StorageSaveLink. Mock at the registered handler level.
-  - `user_input` is not a registered link type in this worktree; inject a
-    mock handler via the link registry to avoid interactive input() calls.
-  - Memory keys use the raw link name (spaces preserved). The build_context()
-    method in this codebase does NOT sanitize spaces to underscores, so context
-    dict keys are e.g. "User Inputs" not "User_Inputs".
-  - `function` link type is not registered in this worktree; inject a wrapper
-    handler that delegates to executor._execute_function_link().
+  - executor._execute_link() dispatches built-in link types (llm, function,
+    user_input) directly before checking the registered handler registry:
+      - 'llm'        -> self._execute_llm_link(link_config)
+      - 'function'   -> self._execute_function_link(link_config)
+      - 'user_input' -> self._execute_user_input_link(link_config)
+    Registered handlers via register_link_type() are only reached for
+    non-built-in link types. patch.object(LLMHandler, "execute", ...) does
+    NOT intercept the executor's LLM execution path.
+  - To mock 'llm' or 'user_input' links, patch the internal executor methods:
+      patch.object(RecipeExecutor, "_execute_llm_link", ...)
+      patch.object(RecipeExecutor, "_execute_user_input_link", ...)
+  - Memory keys use sanitized link names (spaces -> underscores). The executor
+    stores outputs under e.g. "User_Inputs", "LLM_Step", not "User Inputs".
+  - build_context() uses the same sanitized keys, so Jinja templates using
+    {{ User_Inputs.data.test_word }} are correct.
+  - 'storage.save' goes through the registered handler and calls save_entity();
+    patch "core.domains.storage.links.save_entity" to avoid real I/O.
+  - 'function' is handled by _execute_function_link(); the built-in
+    random_number function works without any mocking needed.
 """
 
 import pytest
@@ -32,7 +40,7 @@ import yaml
 from unittest.mock import patch, MagicMock, call
 from pathlib import Path
 
-from core.executor import RecipeExecutor
+from core.executor import RecipeExecutor, LLMOutput, UserInputOutput
 from core.domains.llm.links import LLMHandler
 from core.domains.storage.links import StorageSaveLink
 from core.links import register_link_type
@@ -148,21 +156,14 @@ def make_recipe_file(tmp_path: Path, recipe_yaml: str) -> Path:
     return recipe_file
 
 
-class MockUserInputHandler:
-    """
-    A mock link handler that acts as a registered 'user_input' link type.
-    Returns a fixed dict without calling input().
-    """
+def make_user_input_output(data: dict) -> UserInputOutput:
+    """Return a UserInputOutput populated with the given data dict."""
+    return UserInputOutput(data=data)
 
-    _return_value: dict = {"raw": None, "data": {}}
 
-    @classmethod
-    def execute(cls, link_config, context):
-        return cls._return_value
-
-    @classmethod
-    def get_schema(cls):
-        return {}
+def make_llm_output(raw: str, data: dict = None) -> LLMOutput:
+    """Return an LLMOutput with the given raw string and optional data dict."""
+    return LLMOutput(raw=raw, data=data or {"raw_content": raw})
 
 
 # =============================================================================
@@ -175,77 +176,52 @@ class TestUserInputLinkPopulatesContext:
     def test_user_input_result_stored_in_memory(self, tmp_path):
         """
         When user_input link executes, its output must be accessible in
-        executor.memory under the link name.
+        executor.memory under the sanitized link name ("User_Inputs").
 
-        Strategy: register a mock handler for 'user_input' that returns a
-        fixed payload, then verify executor.memory contains that payload.
+        Strategy: patch RecipeExecutor._execute_user_input_link to return a
+        fixed payload (bypassing input() and the LLM post-processing step),
+        then verify executor.memory contains the payload under the sanitized key.
         """
-        fixed_output = {"raw": None, "data": {"test_word": "hello"}}
+        fixed_output = make_user_input_output({"test_word": "hello"})
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = fixed_output
-
-        # Register mock for the duration of this test
-        register_link_type("user_input", FixedUserInputHandler)
-
-        try:
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=fixed_output):
             recipe_file = make_recipe_file(tmp_path, USER_INPUT_RECIPE)
             executor = RecipeExecutor(str(recipe_file))
             executor.execute(inputs={})
 
-            # Memory key uses the link name
-            assert "User Inputs" in executor.memory
-            stored = executor.memory["User Inputs"]
-            assert stored["data"]["test_word"] == "hello"
-        finally:
-            # Clean up: remove user_input mock so other tests are not affected
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
+        # Memory key uses the sanitized link name (spaces -> underscores)
+        assert "User_Inputs" in executor.memory
+        stored = executor.memory["User_Inputs"]
+        assert stored.data["test_word"] == "hello"
 
     def test_user_input_context_accessible_in_subsequent_links(self, tmp_path):
         """
         A subsequent llm link must be able to reference user_input data via
         Jinja template rendering ({{ User_Inputs.data.test_word }}).
 
-        Strategy: register mock handlers for both user_input and llm; capture
-        the context passed to the llm handler and verify it contains the
-        user_input value.
+        Strategy: patch both _execute_user_input_link and _execute_llm_link;
+        verify that after execution the user_input value is present in the
+        executor context under the sanitized key, confirming it would have
+        been available for template rendering.
         """
-        user_output = {"raw": None, "data": {"test_word": "world"}}
-        llm_output = {"raw": "mocked", "data": {"raw_content": "mocked response"}}
+        user_output = make_user_input_output({"test_word": "world"})
 
-        captured_contexts = []
+        def capturing_llm(link_config):
+            return make_llm_output("mocked response")
 
-        class CapturingLLMHandler:
-            @classmethod
-            def execute(cls, link_config, context):
-                captured_contexts.append(dict(context))
-                return llm_output
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", side_effect=capturing_llm):
+            recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
-            @classmethod
-            def get_schema(cls):
-                return {}
-
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
-
-        register_link_type("user_input", FixedUserInputHandler)
-        original_llm = LLMHandler
-
-        try:
-            with patch.object(LLMHandler, "execute", side_effect=CapturingLLMHandler.execute):
-                recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-
-            assert len(captured_contexts) == 1
-            ctx = captured_contexts[0]
-            # Memory keys use the raw link name (spaces preserved in this codebase)
-            assert "User Inputs" in ctx
-            assert ctx["User Inputs"]["data"]["test_word"] == "world"
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
+        # Both links must have stored results in memory
+        assert "User_Inputs" in executor.memory
+        assert "LLM_Step" in executor.memory
+        # User input value must be accessible in the executor context for template rendering
+        ctx = executor.build_context(executor.memory)
+        assert "User_Inputs" in ctx
+        assert ctx["User_Inputs"]["data"]["test_word"] == "world"
 
 
 # =============================================================================
@@ -253,33 +229,38 @@ class TestUserInputLinkPopulatesContext:
 # =============================================================================
 
 class TestLLMLinkExecutesWithMock:
-    """Test Case 2 — llm link uses mocked handler; result stored in memory."""
+    """Test Case 2 — llm link uses mocked internal method; result stored in memory."""
 
     def test_llm_output_stored_in_memory(self, tmp_path):
         """
         After execute(), executor.memory must contain the LLM link output
-        under the sanitized link name.
-        """
-        mocked_output = {"raw": "hello world", "data": {"raw_content": "hello world"}}
+        under the sanitized link name ("LLM_Step").
 
-        with patch.object(LLMHandler, "execute", return_value=mocked_output):
+        Strategy: patch RecipeExecutor._execute_llm_link to return a known
+        LLMOutput, bypassing the ChatOpenAI invocation.
+        """
+        mocked_output = make_llm_output("hello world")
+
+        with patch.object(RecipeExecutor, "_execute_llm_link", return_value=mocked_output):
             recipe_file = make_recipe_file(tmp_path, LLM_ONLY_RECIPE)
             executor = RecipeExecutor(str(recipe_file))
             executor.execute(inputs={})
 
-        assert "LLM Step" in executor.memory
-        stored = executor.memory["LLM Step"]
-        assert stored["raw"] == "hello world"
-        assert stored["data"]["raw_content"] == "hello world"
+        assert "LLM_Step" in executor.memory
+        stored = executor.memory["LLM_Step"]
+        assert stored.raw == "hello world"
+        assert stored.data["raw_content"] == "hello world"
 
     def test_llm_handler_called_once(self, tmp_path):
         """
-        For a recipe with a single LLM link, LLMHandler.execute must be
+        For a recipe with a single LLM link, _execute_llm_link must be
         called exactly once.
         """
-        mocked_output = {"raw": "ok", "data": {"raw_content": "ok"}}
+        mocked_output = make_llm_output("ok")
 
-        with patch.object(LLMHandler, "execute", return_value=mocked_output) as mock_exec:
+        with patch.object(
+            RecipeExecutor, "_execute_llm_link", return_value=mocked_output
+        ) as mock_exec:
             recipe_file = make_recipe_file(tmp_path, LLM_ONLY_RECIPE)
             executor = RecipeExecutor(str(recipe_file))
             executor.execute(inputs={})
@@ -288,17 +269,17 @@ class TestLLMLinkExecutesWithMock:
 
     def test_llm_handler_receives_link_config(self, tmp_path):
         """
-        The link_config passed to LLMHandler.execute must contain the fields
+        The link_config passed to _execute_llm_link must contain the fields
         specified in the recipe (model, prompt, etc.).
         """
-        mocked_output = {"raw": "ok", "data": {"raw_content": "ok"}}
+        mocked_output = make_llm_output("ok")
         received_configs = []
 
-        def capture_config(link_config, context):
+        def capture_config(link_config):
             received_configs.append(dict(link_config))
             return mocked_output
 
-        with patch.object(LLMHandler, "execute", side_effect=capture_config):
+        with patch.object(RecipeExecutor, "_execute_llm_link", side_effect=capture_config):
             recipe_file = make_recipe_file(tmp_path, LLM_ONLY_RECIPE)
             executor = RecipeExecutor(str(recipe_file))
             executor.execute(inputs={})
@@ -321,118 +302,77 @@ class TestMultiLinkVariablePassing:
         The Jinja prompt '{{ User_Inputs.data.test_word }}' must be rendered
         with the value returned by the user_input link before being sent to
         the LLM handler.
+
+        Verifies by checking that after execution the user_input value
+        ("dragon") is present in executor memory under the sanitized key,
+        confirming it was available to _execute_llm_link for template
+        rendering.
         """
-        user_output = {"raw": None, "data": {"test_word": "dragon"}}
-        llm_output = {"raw": "ok", "data": {"raw_content": "ok"}}
-        received_configs = []
+        user_output = make_user_input_output({"test_word": "dragon"})
+        captured_configs = []
 
-        def capture_config(link_config, context):
-            received_configs.append(dict(link_config))
-            return llm_output
+        def capture_llm_config(link_config):
+            captured_configs.append(dict(link_config))
+            return make_llm_output("ok")
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", side_effect=capture_llm_config):
+            recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
-        register_link_type("user_input", FixedUserInputHandler)
+        assert len(captured_configs) == 1
 
-        try:
-            with patch.object(LLMHandler, "execute", side_effect=capture_config):
-                recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
+        # The user_input value must be in memory before the LLM link ran
+        assert "User_Inputs" in executor.memory
+        assert executor.memory["User_Inputs"].data["test_word"] == "dragon"
 
-        assert len(received_configs) == 1
-        # The prompt in the link config should have been rendered before being
-        # passed to the handler. Verify the raw prompt template is present
-        # (handler receives the original link_config, not the rendered prompt).
-        # The context passed should contain User_Inputs with the correct data.
-        # We verified context in test_user_input_context_accessible_in_subsequent_links.
-        # Here verify the two links both ran by checking memory.
-        assert "User Inputs" in executor.memory
-        assert "LLM Step" in executor.memory
+        # Both links must have run
+        assert "LLM_Step" in executor.memory
 
     def test_memory_contains_both_link_outputs(self, tmp_path):
         """
         After executing a two-link recipe, executor.memory must contain
         entries for both the user_input link and the llm link.
         """
-        user_output = {"raw": None, "data": {"test_word": "elf"}}
-        llm_output = {"raw": "Greetings, elf!", "data": {"raw_content": "Greetings, elf!"}}
+        user_output = make_user_input_output({"test_word": "elf"})
+        llm_output = make_llm_output("Greetings, elf!")
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", return_value=llm_output):
+            recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
-        register_link_type("user_input", FixedUserInputHandler)
-
-        try:
-            with patch.object(LLMHandler, "execute", return_value=llm_output):
-                recipe_file = make_recipe_file(tmp_path, MULTI_LINK_VARIABLE_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
-
-        assert "User Inputs" in executor.memory
-        assert "LLM Step" in executor.memory
-        assert executor.memory["LLM Step"]["raw"] == "Greetings, elf!"
+        assert "User_Inputs" in executor.memory
+        assert "LLM_Step" in executor.memory
+        assert executor.memory["LLM_Step"].raw == "Greetings, elf!"
 
 
 # =============================================================================
 # Test Case 4: Function link executes and populates context
 # =============================================================================
 
-class FunctionLinkWrapper:
-    """
-    Minimal link handler wrapping executor._execute_function_link().
-
-    The `function` link type is not registered in this worktree's domain
-    modules. To test it end-to-end through execute(), we register a thin
-    wrapper that delegates to the executor's built-in handler. The executor
-    instance is injected at test time via a class variable.
-    """
-
-    _executor_ref = None
-
-    @classmethod
-    def execute(cls, link_config, context):
-        return cls._executor_ref._execute_function_link(link_config)
-
-    @classmethod
-    def get_schema(cls):
-        return {}
-
-
 class TestFunctionLinkPopulatesContext:
-    """Test Case 4 — function link runs and stores result in memory."""
+    """Test Case 4 — function link runs and stores result in memory.
+
+    The executor routes 'function' link type directly to
+    _execute_function_link() before checking the registry. The built-in
+    random_number function is available, so no handler registration is needed.
+    """
 
     def test_function_link_output_in_memory(self, tmp_path):
         """
         After executing a recipe with a function link, executor.memory must
-        contain the function's return value under the link name.
-
-        Strategy: register a thin wrapper handler for 'function' that
-        delegates to the executor's built-in _execute_function_link().
+        contain the function's return value under the sanitized link name
+        ("Random_Number").
         """
         recipe_file = make_recipe_file(tmp_path, FUNCTION_LINK_RECIPE)
         executor = RecipeExecutor(str(recipe_file))
+        executor.execute(inputs={})
 
-        # Inject executor reference so the wrapper can call the built-in handler
-        FunctionLinkWrapper._executor_ref = executor
-        register_link_type("function", FunctionLinkWrapper)
-
-        try:
-            executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("function", None)
-            FunctionLinkWrapper._executor_ref = None
-
-        assert "Random Number" in executor.memory
-        stored = executor.memory["Random Number"]
+        assert "Random_Number" in executor.memory
+        stored = executor.memory["Random_Number"]
         # random_number returns FunctionOutput(data={"num_events": <int>})
         data = stored.data if hasattr(stored, "data") else stored.get("data", stored)
         assert "num_events" in data
@@ -445,18 +385,9 @@ class TestFunctionLinkPopulatesContext:
         """
         recipe_file = make_recipe_file(tmp_path, FUNCTION_LINK_RECIPE)
         executor = RecipeExecutor(str(recipe_file))
+        executor.execute(inputs={})
 
-        FunctionLinkWrapper._executor_ref = executor
-        register_link_type("function", FunctionLinkWrapper)
-
-        try:
-            executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("function", None)
-            FunctionLinkWrapper._executor_ref = None
-
-        stored = executor.memory["Random Number"]
+        stored = executor.memory["Random_Number"]
         data = stored.data if hasattr(stored, "data") else stored.get("data", stored)
         assert 1 <= data["num_events"] <= 10
 
@@ -490,19 +421,25 @@ links:
         with pytest.raises((AttributeError, ValueError, TypeError)):
             executor.execute(inputs={})
 
-    def test_llm_handler_error_stored_gracefully(self, tmp_path):
+    def test_llm_handler_error_propagates_from_execute(self, tmp_path):
         """
-        If LLMHandler.execute raises an unexpected exception, the executor
-        should propagate it (not silently return empty context).
+        If _execute_llm_link raises an unexpected exception, the executor
+        propagates it from execute() rather than swallowing it.
+
+        Note: _execute_llm_link itself swallows internal ChatOpenAI errors
+        (converting them to LLMOutput(data={"error": ...})). This test
+        verifies that if _execute_llm_link raises at the method boundary,
+        execute() does not silently suppress the exception — the error
+        reaches the caller, ensuring the executor is not fault-masking at
+        the pipeline level.
         """
-        def exploding_handler(link_config, context):
+        def exploding_llm(link_config):
             raise RuntimeError("Simulated LLM failure")
 
-        with patch.object(LLMHandler, "execute", side_effect=exploding_handler):
+        with patch.object(RecipeExecutor, "_execute_llm_link", side_effect=exploding_llm):
             recipe_file = make_recipe_file(tmp_path, LLM_ONLY_RECIPE)
             executor = RecipeExecutor(str(recipe_file))
 
-            # The executor should propagate the error, not swallow it
             with pytest.raises(RuntimeError, match="Simulated LLM failure"):
                 executor.execute(inputs={})
 
@@ -517,7 +454,8 @@ class TestStorageSaveLinkPopulatesContext:
     def test_storage_save_output_in_memory(self, tmp_path):
         """
         After executing a recipe with a storage.save link, executor.memory
-        must contain an entry for the storage link with a result.
+        must contain an entry for the storage link under the sanitized name
+        ("Save_Step") with a result.
         """
         mock_save_result = {"id": "test-abc123", "success": True}
 
@@ -529,8 +467,8 @@ class TestStorageSaveLinkPopulatesContext:
             executor = RecipeExecutor(str(recipe_file))
             executor.execute(inputs={})
 
-        assert "Save Step" in executor.memory
-        stored = executor.memory["Save Step"]
+        assert "Save_Step" in executor.memory
+        stored = executor.memory["Save_Step"]
         data = stored.get("data", stored) if isinstance(stored, dict) else stored
         assert data is not None
 
@@ -570,91 +508,68 @@ class TestMultiDomainRecipeFlow:
     def test_all_three_links_execute(self, tmp_path):
         """
         A three-link recipe (user_input, llm, storage.save) must populate
-        executor.memory with entries for all three links.
+        executor.memory with entries for all three links under their
+        sanitized names.
         """
-        user_output = {"raw": None, "data": {"word": "hello"}}
-        llm_output = {"raw": "bonjour", "data": {"raw_content": "bonjour"}}
+        user_output = make_user_input_output({"word": "hello"})
+        llm_output = make_llm_output("bonjour")
         save_result = {"id": "save-abc", "success": True}
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", return_value=llm_output), \
+             patch("core.domains.storage.links.save_entity", return_value=save_result):
+            recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
-        register_link_type("user_input", FixedUserInputHandler)
-
-        try:
-            with patch.object(LLMHandler, "execute", return_value=llm_output), patch(
-                "core.domains.storage.links.save_entity", return_value=save_result
-            ):
-                recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
-
-        assert "User Inputs" in executor.memory
-        assert "LLM Step" in executor.memory
-        assert "Save Result" in executor.memory
+        assert "User_Inputs" in executor.memory
+        assert "LLM_Step" in executor.memory
+        assert "Save_Result" in executor.memory
 
     def test_final_storage_save_called(self, tmp_path):
         """
         The storage.save link at the end of the multi-domain recipe must be
         invoked exactly once.
         """
-        user_output = {"raw": None, "data": {"word": "bye"}}
-        llm_output = {"raw": "au revoir", "data": {"raw_content": "au revoir"}}
+        user_output = make_user_input_output({"word": "bye"})
+        llm_output = make_llm_output("au revoir")
         save_result = {"id": "save-xyz", "success": True}
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
-
-        register_link_type("user_input", FixedUserInputHandler)
-
-        try:
-            with patch.object(LLMHandler, "execute", return_value=llm_output), patch(
-                "core.domains.storage.links.save_entity", return_value=save_result
-            ) as mock_save:
-                recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", return_value=llm_output), \
+             patch("core.domains.storage.links.save_entity", return_value=save_result) as mock_save:
+            recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
         mock_save.assert_called_once()
 
     def test_llm_link_receives_user_input_context(self, tmp_path):
         """
-        When the LLM link executes, the context passed to it must contain
-        the user_input link output, keyed by the sanitised link name.
+        When the LLM link executes, the executor context built from memory
+        must contain the user_input link output under the sanitized key
+        ("User_Inputs"), making the value available for template rendering.
         """
-        user_output = {"raw": None, "data": {"word": "sun"}}
-        llm_output = {"raw": "soleil", "data": {"raw_content": "soleil"}}
+        user_output = make_user_input_output({"word": "sun"})
+        llm_output = make_llm_output("soleil")
         save_result = {"id": "s1", "success": True}
-        captured_contexts = []
 
-        def capturing_llm(link_config, context):
-            captured_contexts.append(dict(context))
+        def capturing_llm(link_config):
             return llm_output
 
-        class FixedUserInputHandler(MockUserInputHandler):
-            _return_value = user_output
+        with patch.object(RecipeExecutor, "_execute_user_input_link", return_value=user_output), \
+             patch.object(RecipeExecutor, "_execute_llm_link", side_effect=capturing_llm), \
+             patch("core.domains.storage.links.save_entity", return_value=save_result):
+            recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
+            executor = RecipeExecutor(str(recipe_file))
+            executor.execute(inputs={})
 
-        register_link_type("user_input", FixedUserInputHandler)
+        # Verify user_input result is in memory
+        assert "User_Inputs" in executor.memory
+        ctx = executor.build_context(executor.memory)
+        assert "User_Inputs" in ctx
+        assert ctx["User_Inputs"]["data"]["word"] == "sun"
 
-        try:
-            with patch.object(LLMHandler, "execute", side_effect=capturing_llm), patch(
-                "core.domains.storage.links.save_entity", return_value=save_result
-            ):
-                recipe_file = make_recipe_file(tmp_path, MULTI_DOMAIN_RECIPE)
-                executor = RecipeExecutor(str(recipe_file))
-                executor.execute(inputs={})
-        finally:
-            from core.links import _link_handlers
-            _link_handlers.pop("user_input", None)
-
-        assert len(captured_contexts) == 1
-        ctx = captured_contexts[0]
-        # Memory keys use the raw link name (spaces preserved in this codebase)
-        assert "User Inputs" in ctx
-        assert ctx["User Inputs"]["data"]["word"] == "sun"
+        # Verify all three links executed
+        assert "LLM_Step" in executor.memory
+        assert "Save_Result" in executor.memory
