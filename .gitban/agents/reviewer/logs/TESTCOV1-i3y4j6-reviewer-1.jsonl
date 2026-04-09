@@ -1,0 +1,6 @@
+{"event":"init","role":"reviewer","sprint":"TESTCOV1","card":"i3y4j6","cycle":1,"ts":"2026-04-09T03:05:52Z"}
+{"event":"read-diff","commit":"14aee22","ts":"2026-04-09T03:07:43Z"}
+{"event":"read-card","card_id":"i3y4j6","ts":"2026-04-09T03:07:43Z"}
+{"event":"write-review","verdict":"APPROVAL","ts":"2026-04-09T03:08:28Z"}
+{"event":"card-status-change","new_status":"in_progress","ts":"2026-04-09T03:08:28Z"}
+{"event":"summary","result":"APPROVAL","blockers":0,"follow_ups":3,"ts":"2026-04-09T03:08:28Z"}
