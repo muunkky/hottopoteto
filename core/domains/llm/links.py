@@ -421,9 +421,19 @@ class LLMEnrichLink(LinkHandler):
     
     @classmethod
     def execute(cls, link_config: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the llm.enrich link."""
+        """Execute the llm.enrich link.
+
+        When ``target_schema_path`` is provided, the method attempts to
+        extract the corresponding sub-schema and sub-data so that only the
+        relevant branch is sent to the LLM (branch quarantine).  If either
+        extraction returns ``None`` (i.e. the path does not exist in the
+        schema or the data), a ``logger.warning`` is emitted and execution
+        falls back to the full schema / empty dict respectively.  This
+        preserves backward-compatible behaviour while making
+        misconfigurations observable.
+        """
         logger.info(f"Executing llm.enrich link: {link_config.get('name')}")
-        
+
         try:
             # Resolve document (required)
             document_config = link_config.get("document")
@@ -458,8 +468,27 @@ class LLMEnrichLink(LinkHandler):
             target_schema_path = link_config.get("target_schema_path", "")
 
             if target_schema_path:
-                active_schema = cls._extract_schema_branch(schema, target_schema_path) or schema
-                active_data = cls._extract_data_branch(current_data, target_schema_path) or {}
+                schema_branch = cls._extract_schema_branch(schema, target_schema_path)
+                if schema_branch is None:
+                    logger.warning(
+                        "target_schema_path '%s' did not resolve to a schema branch; "
+                        "falling back to full schema — quarantine is bypassed",
+                        target_schema_path,
+                    )
+                    active_schema = schema
+                else:
+                    active_schema = schema_branch
+
+                data_branch = cls._extract_data_branch(current_data, target_schema_path)
+                if data_branch is None:
+                    logger.warning(
+                        "target_schema_path '%s' did not resolve to a data branch; "
+                        "falling back to empty dict — quarantine data context is lost",
+                        target_schema_path,
+                    )
+                    active_data = {}
+                else:
+                    active_data = data_branch
             else:
                 active_schema = schema
                 active_data = current_data
@@ -618,7 +647,10 @@ class LLMEnrichLink(LinkHandler):
                   Empty string returns the full schema.
 
         Returns:
-            Sub-schema dict at the given path, or None if the path doesn't exist.
+            Sub-schema dict at the given path, or ``None`` if the path does
+            not resolve.  Callers should handle the ``None`` case — in
+            ``execute()`` a warning is logged and the full schema is used as
+            a fallback.
         """
         if not path:
             return schema
@@ -645,7 +677,9 @@ class LLMEnrichLink(LinkHandler):
                   Empty string returns the full data.
 
         Returns:
-            Value at the path, or None if not found.
+            Value at the path, or ``None`` if the path does not resolve.
+            Callers should handle the ``None`` case — in ``execute()`` a
+            warning is logged and an empty dict is used as a fallback.
         """
         if not path:
             return data
