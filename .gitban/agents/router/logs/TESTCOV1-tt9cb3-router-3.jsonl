@@ -1,0 +1,5 @@
+{"ts":"2026-04-09T02:57:05Z","role":"router","sprint":"TESTCOV1","card":"tt9cb3","cycle":3,"event":"init"}
+{"ts":"2026-04-09T02:57:05Z","role":"router","sprint":"TESTCOV1","card":"tt9cb3","cycle":3,"event":"read-review","file":".gitban/agents/reviewer/inbox/TESTCOV1-tt9cb3-reviewer-3.md","verdict":"APPROVAL"}
+{"ts":"2026-04-09T02:57:20Z","role":"router","sprint":"TESTCOV1","card":"tt9cb3","cycle":3,"event":"write-executor-inbox","file":".gitban/agents/executor/inbox/TESTCOV1-tt9cb3-executor-3.md"}
+{"ts":"2026-04-09T02:57:25Z","role":"router","sprint":"TESTCOV1","card":"tt9cb3","cycle":3,"event":"card-update","action":"append"}
+{"ts":"2026-04-09T02:57:30Z","role":"router","sprint":"TESTCOV1","card":"tt9cb3","cycle":3,"event":"summary","verdict":"APPROVAL","executor_inbox":".gitban/agents/executor/inbox/TESTCOV1-tt9cb3-executor-3.md","planner_inbox":null,"blockers":0,"follow_up_cards":0}
