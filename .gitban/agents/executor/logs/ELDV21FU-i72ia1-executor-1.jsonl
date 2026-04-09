@@ -1,0 +1,10 @@
+{"ts":"2026-04-09T00:00:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-09T00:01:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-card","data":{"card_id":"i72ia1"}}
+{"ts":"2026-04-09T00:02:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"baseline-tests","data":{"passed":64,"failed":0,"pre_existing_failures":13}}
+{"ts":"2026-04-09T00:03:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"code-change","data":{"files":["core/domains/llm/links.py","core/domains/storage/links.py","core/schema/pydantic_integration.py","tests/unit/test_llm_links_bugs.py"]}}
+{"ts":"2026-04-09T00:04:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"test-run","data":{"file":"tests/unit/test_llm_links_bugs.py","passed":20,"failed":0}}
+{"ts":"2026-04-09T00:05:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"test-run","data":{"file":"tests/unit/","passed":376,"failed":13,"note":"13 failures are pre-existing (test_llm_enrich_schema_path.py - missing _extract_schema_branch method)"}}
+{"ts":"2026-04-09T00:06:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"commit","data":{"hash":"78571aa","message":"test(i72ia1): add failing TDD tests for 5 link-type bugs"}}
+{"ts":"2026-04-09T00:07:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"commit","data":{"hash":"5fc1c91","message":"fix(i72ia1): resolve 5 link-type bugs from PR4 code review"}}
+{"ts":"2026-04-09T00:08:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"commit","data":{"hash":"b059ba2","message":"fix(i72ia1): add provider field to get_schema()"}}
+{"ts":"2026-04-09T00:09:00Z","role":"executor","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"summary","data":{"bugs_fixed":5,"tests_added":20,"commits":3,"regressions":0}}
