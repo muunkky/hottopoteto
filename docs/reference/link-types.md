@@ -46,6 +46,7 @@ The `llm.extract_to_schema` link type extracts structured data from unstructured
 - **hint**: Extraction guidance for the LLM
 - **model**: LLM model to use (default: "gpt-4o")
 - **temperature**: Sampling temperature (default: 0.2 for accuracy)
+- **provider**: LLM provider to use (default: "openai"; supports "anthropic")
 
 #### Example
 ```yaml
@@ -88,6 +89,7 @@ The `llm.enrich` link type is a document-aware extraction that enriches an exist
 - **hint**: Enrichment guidance for the LLM
 - **model**: LLM model to use (default: "gpt-4o")
 - **temperature**: Sampling temperature (default: 0.3)
+- **provider**: LLM provider to use (default: "openai"; supports "anthropic")
 
 #### Example
 ```yaml
