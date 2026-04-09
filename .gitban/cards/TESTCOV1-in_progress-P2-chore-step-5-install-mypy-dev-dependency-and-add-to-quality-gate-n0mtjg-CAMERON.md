@@ -115,3 +115,40 @@
 - **Mypy not run in worktree:** The shared `.venv` is read-only in worktree context; mypy was not installed and could not be installed. The full `python -m mypy core/ plugins/` run is deferred to post-merge on the main branch after `pip install -r requirements.txt` picks up the new entry.
 - **Pre-existing test failure:** `tests/architecture/test_directory_structure.py::TestDirectoryStructure::test_plugins_directory_structure` was already failing before this card (conlang plugin missing plugin.yaml). Not introduced by this change.
 - **Strict mode deferred:** The card notes a follow-up to consider `--strict` mode once a baseline clean run is established on main.
+
+## BLOCKED
+B1: requirements.txt collateral rewrite drops active dependencies (PyExecJS, click, pytest-cov, pytest-mock) and downgrades every pinned package far below tested versions. Fix: revert requirements.txt to HEAD~1 state and insert only mypy>=1.10.
+
+
+## Review Log — Cycle 1
+
+- **Verdict:** REJECTION
+- **Review cycle:** 1
+- **Commit reviewed:** 2fabd66
+- **Date:** 2026-04-08
+- **Review report:** `.gitban/agents/reviewer/inbox/TESTCOV1-n0mtjg-reviewer-1.md`
+- **Executor instructions:** `.gitban/agents/executor/inbox/TESTCOV1-n0mtjg-executor-1.md`
+- **Blocker:** B1 — `requirements.txt` wholesale replacement silently removes 9 packages (including `pytest-cov`, `PyExecJS`, `click`) and downgrades every remaining pin below the installed working versions. Fix: revert to `HEAD~1` state and insert only `mypy>=1.10` in alphabetical order. `mypy.ini` and `DEVELOPMENT.md` changes are approved and must be kept.
+
+## Review Cycle 2 — Executor Summary
+
+**Status:** in_progress (pending re-review)
+**Branch:** worktree-agent-addcfcf9
+**Commits:**
+- `fd5dd3f` — `chore(deps): restore requirements.txt to correct state with mypy added`
+- `821ac9b` — `chore(gitban): stage executor log for TESTCOV1-n0mtjg cycle 2`
+
+**Tag:** TESTCOV1-n0mtjg-done
+
+### Fix Applied (B1)
+
+Reverted the wholesale replacement of `requirements.txt` introduced in cycle 1. The correct approach was applied:
+
+1. Restored `requirements.txt` to the pre-cycle-1 state (`4b458c6`) — all 19 packages at their tested versions, including previously dropped packages (`PyExecJS`, `click`, `MarkupSafe`, `langchain-core`, `langsmith`, `setuptools`, `pytest-cov`, `pytest-mock`, `pytest-asyncio`).
+2. Inserted only the intended change: `mypy>=1.10` in alphabetical order between `lexicon` and `protobuf`.
+3. `mypy.ini` and `DEVELOPMENT.md` (approved in cycle 1 review) re-added — they were absent from this worktree's HEAD.
+
+### Notes
+
+- `DEVELOPMENT.md` did not exist in HEAD of this worktree (`ff3cd54`) — it was created fresh from the approved content in commit `2fabd66`.
+- Mypy cannot be run in worktree (shared venv is read-only); full type-check run deferred to post-merge on main.
