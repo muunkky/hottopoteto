@@ -1,3 +1,46 @@
+# Sprint TESTCOV1 — Executive Summary
+
+**Sprint:** TESTCOV1 — Testing Infrastructure & Pydantic v2 Modernisation
+**Completed:** 2026-04-09
+**Cards:** 7 delivered, 0 blocked, 0 deferred
+**Branch:** `sprint/ELDV21FU`
+
+---
+
+## What this sprint was about
+
+The codebase had accumulated two categories of technical debt that were starting to friction new development: an absent test safety net and reliance on Pydantic v1 APIs that were deprecated and removed in v2. TESTCOV1 addressed both in a single sprint.
+
+**Testing infrastructure (P1):** The project had no coverage gate and no integration-level tests for the core `RecipeExecutor` pipeline. This sprint added 92+ new integration tests covering the executor's handler dispatch, link chaining, error propagation, and template rendering paths. It then measured the resulting coverage (54.6%) and locked in a 50% floor via `--cov-fail-under=50` in `pytest.ini`, backed by `docs/architecture/decisions/adr-0005-testing-strategy.md`.
+
+**Pydantic v2 migration (P2):** `__fields__`, `.schema()`, and other v1 APIs were still in use across `core/` and `plugins/`. A spike first investigated the `StorageEntity.tags` inheritance quirk to understand the scope, then two parallel cards swept all deprecated usages and replaced them with `model_fields`, `model_json_schema()`, and `model_fields_set`. A follow-on cleanup simplified `generate_recipe_template()` to a single-pass iteration over `model_fields.items()`, removed a dead guard, and pinned the correct `Optional[str] = None` default-omission behaviour with a regression test.
+
+**Type checking foundation (P2):** mypy was added as a dev dependency (`mypy>=1.10`), a `mypy.ini` configured for the project, and a "Before Committing" quality gate documented in `DEVELOPMENT.md`. The baseline run revealed 167 pre-existing annotation gaps (tracked as follow-up card `7uy2wz`) — none introduced by this sprint.
+
+## Key outcomes
+
+| Outcome | Detail |
+| :--- | :--- |
+| Coverage gate active | `--cov-fail-under=50` in `pytest.ini`; 54.6% measured at close |
+| Integration test suite | 92+ new tests for `RecipeExecutor` pipeline |
+| Pydantic v2 clean | No remaining `__fields__` / `.schema()` / deprecated v1 API calls |
+| Type checking in place | `mypy>=1.10`, `mypy.ini`, quality gate docs |
+| Follow-up card | `7uy2wz` — fix 167 pre-existing mypy baseline errors |
+
+## Cards executed
+
+| Card | Title | Cycles |
+| :--- | :--- | :---: |
+| `wfvvve` | RecipeExecutor integration tests | 1 |
+| `5opq45` | Coverage threshold gate & ADR-0005 update | 1 |
+| `tt9cb3` | StorageEntity tags inheritance spike | 1 |
+| `7l3637` | Pydantic v2 deprecated API migration | 1 (already clean) |
+| `i3y4j6` | Migrate `__fields__` → `model_fields` in LLM/storage | 1 |
+| `rmyo6v` | `generate_recipe_template()` single-pass cleanup + regression test | 1 |
+| `n0mtjg` | Install mypy + quality gate docs | 2 (requirements.txt fix) |
+
+---
+
 # Generic Chore Task Template
 
 **When to use this template:** Use this for straightforward maintenance tasks, dependency updates, configuration changes, documentation updates, cleanup work, or any technical work that needs basic progress tracking but doesn't require the structure of specialized templates.
