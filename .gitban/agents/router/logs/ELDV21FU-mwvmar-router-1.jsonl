@@ -1,0 +1,10 @@
+{"timestamp":"2026-04-09T22:27:41Z","operation":"init","role":"router","sprint":"ELDV21FU","card_id":"mwvmar","cycle":1}
+{"timestamp":"2026-04-09T22:27:41Z","operation":"event","label":"read-review","metadata":{"file":"ELDV21FU-mwvmar-reviewer-1.md","verdict":"APPROVAL"}}
+{"timestamp":"2026-04-09T22:27:41Z","operation":"hook_cmd","command":"cd C:/Users/Cameron/Projects/hottopoteto && export AGENT_LOG_DIR=\".gitban/agents/router/logs\" && export AGENT_ROLE=\"router\" && export AGENT_SPRINT_TAG=\"ELDV21FU\" && export AGENT_CARD_ID=\"mwvmar\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"read-review\" '{\"file\":\"ELDV21FU-mwvmar-reviewer-1.md\",\"verdict\":\"APPROVAL\"}' && echo \"INIT_OK\""}
+{"timestamp":"2026-04-09T22:27:48Z","operation":"hook_cmd","command":"mkdir -p C:/Users/Cameron/Projects/hottopoteto/.gitban/agents/executor/inbox C:/Users/Cameron/Projects/hottopoteto/.gitban/agents/planner/inbox"}
+{"timestamp":"2026-04-09T22:28:54Z","operation":"init","role":"router","sprint":"ELDV21FU","card_id":"mwvmar","cycle":1}
+{"timestamp":"2026-04-09T22:28:54Z","operation":"event","label":"read-review","metadata":{"file":"ELDV21FU-mwvmar-reviewer-1.md","verdict":"APPROVAL"}}
+{"timestamp":"2026-04-09T22:28:54Z","operation":"event","label":"write-executor-inbox","metadata":{"file":"ELDV21FU-mwvmar-executor-1.md"}}
+{"timestamp":"2026-04-09T22:28:54Z","operation":"event","label":"write-planner-inbox","metadata":{"file":"ELDV21FU-mwvmar-planner-1.md"}}
+{"timestamp":"2026-04-09T22:28:54Z","operation":"event","label":"card-update","metadata":{"action":"append"}}
+{"timestamp":"2026-04-09T22:28:55Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":0}
