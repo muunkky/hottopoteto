@@ -1,0 +1,6 @@
+{"ts":"2026-04-08T00:00:00Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"init"}
+{"ts":"2026-04-08T00:00:01Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"read-review","data":{"file":".gitban/agents/reviewer/inbox/TESTCOV1-rmyo6v-reviewer-1.md","verdict":"APPROVAL"}}
+{"ts":"2026-04-08T00:00:02Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"write-executor-inbox","data":{"file":".gitban/agents/executor/inbox/TESTCOV1-rmyo6v-executor-1.md"}}
+{"ts":"2026-04-08T00:00:03Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"write-planner-inbox","data":{"file":".gitban/agents/planner/inbox/TESTCOV1-rmyo6v-planner-1.md"}}
+{"ts":"2026-04-08T00:00:04Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"card-update","data":{"action":"append"}}
+{"ts":"2026-04-08T00:00:05Z","role":"router","sprint":"TESTCOV1","card":"rmyo6v","cycle":1,"event":"summary","data":{"verdict":"APPROVAL","blockers":0,"close_out_items":2,"planner_cards":1}}

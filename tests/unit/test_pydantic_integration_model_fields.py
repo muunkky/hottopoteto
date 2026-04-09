@@ -7,8 +7,8 @@ Verifies that generate_recipe_template uses Pydantic v2 model_fields API
 Card: TESTCOV1-i3y4j6 (step-4b migrate dunder fields to model_fields)
 """
 import warnings
-import pytest
-from typing import Optional, List
+import yaml
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -127,7 +127,6 @@ class TestGenerateRecipeTemplateUsesModelFields:
         result = generate_recipe_template("test.link", input_model=ModelWithNoneDefault)
         assert "optional_field" in result, "optional_field must appear in the template"
         # The default: key must NOT appear for an Optional[str] = None field
-        import yaml
         parsed = yaml.safe_load(result)
         inputs = parsed["links"][0]["inputs"]
         assert "optional_field" in inputs, "optional_field must be in the inputs dict"
