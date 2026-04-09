@@ -268,3 +268,122 @@ class TestStrictUndefined:
         from core.domains.storage.links import StorageUpdateLink
         with pytest.raises(UndefinedError):
             StorageUpdateLink._render_template("{{ nonexistent_var }}", {})
+
+
+# ---------------------------------------------------------------------------
+# Design contract: _render_template always returns str (dead branch guard)
+#
+# The isinstance(rendered, dict) guards that previously appeared in
+# _resolve_schema and _resolve_document could never be reached:
+# _render_template returns the value unchanged only for non-str input (dict
+# already handled by the outer branch), and always returns a str when given a
+# str.  These tests pin that contract so a future refactor of _render_template
+# cannot silently re-introduce unreachable code.
+# ---------------------------------------------------------------------------
+
+class TestRenderTemplateAlwaysReturnsStr:
+    """_render_template must always return a str when the input is a str."""
+
+    def test_render_template_returns_str_for_simple_template(self):
+        """Template rendering a non-string context value must still produce a str."""
+        # Jinja2 renders Python objects by calling str() on them, so the result
+        # is always a string — never the original Python object.
+        result = LLMExtractToSchemaLink._render_template(
+            "{{ value }}", {"value": {"key": "val"}}
+        )
+        assert isinstance(result, str), (
+            "_render_template returned a non-str; isinstance(rendered, dict) guard "
+            "would now be reachable and must be restored."
+        )
+
+    def test_render_template_returns_str_for_dict_context_value(self):
+        """Jinja2 renders a dict context value as its Python repr, not as a dict."""
+        d = {"x": 1}
+        result = LLMExtractToSchemaLink._render_template("{{ d }}", {"d": d})
+        # The result is str(d), i.e. "{'x': 1}" — a string, not a dict
+        assert isinstance(result, str)
+        assert result != d
+
+    def test_render_template_enrich_also_returns_str_for_dict(self):
+        """Same contract holds for LLMEnrichLink._render_template."""
+        d = {"schema": {}, "data": {}}
+        result = LLMEnrichLink._render_template("{{ d }}", {"d": d})
+        assert isinstance(result, str)
+
+
+# ---------------------------------------------------------------------------
+# Design contract: ast.literal_eval fallback in _resolve_schema /
+# _resolve_document exists because Jinja2 renders dicts as Python repr.
+#
+# When a template string renders a Python dict, Jinja2 produces the Python
+# repr (e.g., "{'key': 'value'}"), NOT valid JSON.  json.loads() will
+# therefore fail and the ast.literal_eval fallback is the only path back to
+# the original dict.  If the architecture ever moves to JSON-serialising
+# context values before rendering, these fallbacks should be removed because
+# the repr path will never be reached.
+# ---------------------------------------------------------------------------
+
+class TestAstLiteralEvalFallback:
+    """ast.literal_eval fallback in _resolve_schema / _resolve_document is exercised
+    when Jinja2 produces Python repr for a dict context value."""
+
+    def test_resolve_schema_recovers_from_python_repr(self):
+        """Schema dict passed through a Jinja2 template must be recovered via ast.literal_eval."""
+        # Jinja2 renders {"type": "object"} as "{'type': 'object'}" (Python repr)
+        # json.loads fails on this; ast.literal_eval succeeds.
+        schema = {"type": "object", "properties": {"name": {"type": "string"}}}
+        context = {"schema": schema}
+        result = LLMExtractToSchemaLink._resolve_schema("{{ schema }}", context)
+        assert result == schema, (
+            "ast.literal_eval fallback path failed to recover dict from Python repr. "
+            "If context values are JSON-serialised before rendering, remove the fallback."
+        )
+
+    def test_resolve_document_recovers_from_python_repr(self):
+        """Document dict passed through a Jinja2 template must be recovered via ast.literal_eval."""
+        doc = {"schema": {"type": "object"}, "data": {"term": "eldorian"}}
+        context = {"doc": doc}
+        result = LLMEnrichLink._resolve_document("{{ doc }}", context)
+        assert result == doc, (
+            "ast.literal_eval fallback path failed to recover dict from Python repr. "
+            "If context values are JSON-serialised before rendering, remove the fallback."
+        )
+
+
+# ---------------------------------------------------------------------------
+# Design contract: StorageSaveLink._extract_data uses bare Environment()
+# intentionally (swallow-and-warn), not StrictUndefined.
+#
+# Sibling link classes (_render_template helpers) use StrictUndefined to raise
+# on missing variables.  StorageSaveLink._extract_data deliberately uses bare
+# Environment() so that undefined template variables produce an empty string
+# and emit a warning log, rather than raising an exception.  This is the
+# "swallow-and-warn" pattern: partial data is saved rather than the whole
+# operation failing.  Any change to StrictUndefined here would break this
+# intentional behaviour.
+# ---------------------------------------------------------------------------
+
+class TestStorageSaveLinkSwallowAndWarnBehavior:
+    """StorageSaveLink._extract_data must silently swallow undefined template vars
+    (return empty string) rather than raising, unlike sibling classes."""
+
+    def test_undefined_template_variable_in_dict_value_produces_empty_string(self):
+        """Bare Environment() swallows undefined vars — empty string is the design intent,
+        not a bug.  Sibling classes use StrictUndefined and raise instead."""
+        from core.domains.storage.links import StorageSaveLink
+        data_source = {"field": "{{ undefined_variable }}"}
+        # Must NOT raise — this is the intentional swallow-and-warn behavior
+        result = StorageSaveLink._extract_data(data_source, {})
+        assert result["field"] == "", (
+            "StorageSaveLink._extract_data must use bare Environment() (swallow-and-warn). "
+            "Changing to StrictUndefined would raise here and break the design intent."
+        )
+
+    def test_undefined_template_variable_in_str_produces_empty_string(self):
+        """Template string with undefined var must not raise — swallow-and-warn.
+        Bare Environment() silently renders undefined vars as empty string."""
+        from core.domains.storage.links import StorageSaveLink
+        result = StorageSaveLink._extract_data("{{ undefined_variable }}", {})
+        # Bare Environment() renders undefined vars as "" — the whole template
+        # resolves to an empty string.  If this were StrictUndefined, it would raise.
+        assert result == ""
