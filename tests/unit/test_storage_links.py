@@ -234,7 +234,17 @@ class TestStorageSaveLink:
             assert saved_data["template"] == "rendered"
     
     def test_storage_save_handles_undefined_variables(self):
-        """Test behavior when template references undefined variables"""
+        """Undefined template variables are swallowed and stored as empty string.
+
+        Design intent: StorageSaveLink._extract_data uses bare Environment()
+        (not StrictUndefined) so that a missing context variable produces an
+        empty string and a WARNING log rather than raising an exception.  This
+        "swallow-and-warn" policy allows recipes to save partial data without
+        aborting when an optional upstream link hasn't run.  Sibling link
+        classes (LLMExtractToSchemaLink, LLMEnrichLink) use StrictUndefined
+        and will raise UndefinedError for the same input — the divergence is
+        intentional.
+        """
         # Arrange
         link_config = {
             "collection": "test_collection",
@@ -242,7 +252,7 @@ class TestStorageSaveLink:
                 "undefined_field": "{{ UndefinedLink.data.value }}"
             }
         }
-        
+
         context = {
             "TestLink": {
                 "data": {
@@ -250,21 +260,21 @@ class TestStorageSaveLink:
                 }
             }
         }
-        
+
         # Mock the save_entity function
         with patch('core.domains.storage.links.save_entity') as mock_save:
             mock_save.return_value = {
                 "success": True,
                 "data": {"id": "test-123"}
             }
-            
+
             # Act
             result = StorageSaveLink.execute(link_config, context)
-            
-            # Assert - undefined variables should render as empty string
-            # or raise an exception depending on Jinja2 configuration
+
+            # Assert — bare Environment() renders undefined vars as empty string
+            # (swallow-and-warn design).  If _extract_data were changed to use
+            # StrictUndefined this assertion would never be reached.
             saved_data = mock_save.call_args[0][1]
-            # With default Jinja2, undefined variables render as empty string
             assert saved_data["undefined_field"] == ""
     
     def test_storage_save_handles_malformed_templates(self):

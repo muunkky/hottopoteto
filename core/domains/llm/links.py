@@ -193,10 +193,14 @@ class LLMExtractToSchemaLink(LinkHandler):
         # If it's a template string, render it first
         if isinstance(schema_config, str):
             rendered = cls._render_template(schema_config, context)
-            # After rendering, should be a dict (Jinja2 always returns str)
-            if isinstance(rendered, dict):
-                return rendered
-            # Try JSON first (standard format), then ast.literal_eval for Python repr
+            # _render_template always returns str when given a str input, so
+            # isinstance(rendered, dict) can never be true here.  The str → dict
+            # recovery below is needed because Jinja2 renders a Python dict context
+            # value as its Python repr (e.g. "{'key': 'val'}"), not as JSON.
+            # json.loads() therefore fails and ast.literal_eval() is the only path
+            # back to the original dict.  If the architecture ever moves to
+            # JSON-serialising context values before Jinja2 rendering, the
+            # ast.literal_eval fallback should be removed (it will never be reached).
             import json
             import ast
             try:
@@ -518,9 +522,14 @@ class LLMEnrichLink(LinkHandler):
         # If it's a template string, render it first
         if isinstance(document_config, str):
             rendered = cls._render_template(document_config, context)
-            # Jinja2 always returns str; attempt to recover the original Python object
-            if isinstance(rendered, dict):
-                return rendered
+            # _render_template always returns str when given a str input, so
+            # isinstance(rendered, dict) can never be true here.  The str → dict
+            # recovery below is needed because Jinja2 renders a Python dict context
+            # value as its Python repr (e.g. "{'schema': {}, 'data': {}}"), not as
+            # JSON.  json.loads() therefore fails and ast.literal_eval() is the only
+            # path back to the original dict.  If the architecture ever moves to
+            # JSON-serialising context values before Jinja2 rendering, the
+            # ast.literal_eval fallback should be removed (it will never be reached).
             import json
             import ast
             try:

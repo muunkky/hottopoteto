@@ -44,19 +44,32 @@ class StorageSaveLink(LinkHandler):
     def _extract_data(cls, data_source, context):
         """
         Extract and render templates in data recursively.
-        
+
         Handles:
         - Template strings: "{{ var }}" → rendered value
         - Nested dicts: {"key": {"nested": "{{ var }}"}}
         - Lists: ["{{ var1 }}", "literal", "{{ var2 }}"]
         - Non-string values: numbers, booleans, None (preserved as-is)
-        
+
         Args:
             data_source: Data to extract/render (dict, list, str, or primitive)
             context: Jinja2 template context with recipe memory
-            
+
         Returns:
             Data with all templates rendered
+
+        Design note — bare Environment() is intentional (swallow-and-warn):
+            This method uses ``Environment()`` (default Jinja2 undefined, which
+            renders undefined variables as an empty string) rather than
+            ``Environment(undefined=StrictUndefined)`` used by sibling link
+            classes such as LLMExtractToSchemaLink._render_template.
+
+            The divergence is deliberate: storage.save operates on partial data.
+            If a template variable is missing at write-time (e.g., an optional
+            link hasn't run yet), the field is stored as an empty string and a
+            WARNING is logged rather than aborting the whole save.  Changing this
+            to StrictUndefined would turn missing-variable warnings into
+            exceptions, breaking recipes that intentionally write partial data.
         """
         from jinja2 import Environment, UndefinedError
         
