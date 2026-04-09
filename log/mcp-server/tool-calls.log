@@ -218,3 +218,27 @@
 {"timestamp": "2026-04-08T15:51:12.236488Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for refactor (mode=advisory)", "operation": "template_enforcement_check"}
 {"timestamp": "2026-04-08T15:51:12.239487Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for refactor: valid=True", "operation": "template_validation"}
 {"timestamp": "2026-04-08T15:51:12.242488Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: c15awm", "operation": "create_card_success", "card_id": "c15awm"}
+{"timestamp": "2026-04-08T16:57:50.775460Z", "level": "INFO", "logger": "gitban.tools", "message": "Getting gitban stats", "operation": "get_gitban_stats_start"}
+{"timestamp": "2026-04-08T16:57:50.777461Z", "level": "INFO", "logger": "gitban.tools", "message": "Found 23 cards", "operation": "get_gitban_stats_cards_found"}
+{"timestamp": "2026-04-08T16:57:50.778460Z", "level": "INFO", "logger": "gitban.tools", "message": "Building result without git operations", "operation": "get_gitban_stats_no_subprocess"}
+{"timestamp": "2026-04-08T16:57:50.778460Z", "level": "INFO", "logger": "gitban.tools", "message": "Gitban stats completed", "operation": "get_gitban_stats_success"}
+{"timestamp": "2026-04-08T17:01:38.678988Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step-2-recipeexecutor-integration-tests-with-mocked-handlers", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T17:01:38.679989Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for test (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T17:01:38.682986Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for test: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T17:01:38.684987Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: wfvvve", "operation": "create_card_success", "card_id": "wfvvve"}
+{"timestamp": "2026-04-08T17:02:12.089349Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step-3-coverage-threshold-gate-and-testing-infra-closeout", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T17:02:12.089349Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for chore (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T17:02:12.091347Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for chore: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T17:02:12.095346Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: 5opq45", "operation": "create_card_success", "card_id": "5opq45"}
+{"timestamp": "2026-04-08T17:02:47.801082Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step-4a-spike-storageentity-tags-inheritance-investigation", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T17:02:47.801082Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for spike (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T17:02:47.804081Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for spike: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T17:02:47.806082Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: tt9cb3", "operation": "create_card_success", "card_id": "tt9cb3"}
+{"timestamp": "2026-04-08T17:03:41.162727Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step-4b-migrate-dunder-fields-to-model-fields-in-llm-and-storage-models", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T17:03:41.162727Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for refactor (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T17:03:41.165727Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for refactor: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T17:03:41.167726Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: i3y4j6", "operation": "create_card_success", "card_id": "i3y4j6"}
+{"timestamp": "2026-04-08T17:21:31.385329Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step-4b pydantic v2 deprecated api migration", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T17:21:31.386330Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for refactor (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T17:21:31.388329Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for refactor: valid=False", "operation": "template_validation"}
+{"timestamp": "2026-04-08T17:21:31.393328Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created as draft (advisory validation failure): 7l3637", "operation": "create_card_success", "card_id": "7l3637"}
