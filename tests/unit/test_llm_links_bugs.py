@@ -248,15 +248,22 @@ class TestStrictUndefined:
         result = LLMEnrichLink._render_template("{{ name }}", {"name": "eldorian"})
         assert result == "eldorian"
 
-    def test_storage_save_extract_data_raises_on_undefined_variable(self):
-        """StorageSaveLink._extract_data must raise for missing template vars."""
+    def test_storage_init_link_extract_data_raises_on_undefined_variable(self):
+        """StorageInitLink._extract_data (new in PR#4) must raise for missing template vars."""
         from jinja2 import UndefinedError
-        from core.domains.storage.links import StorageSaveLink
+        from core.domains.storage.links import StorageInitLink
         with pytest.raises(UndefinedError):
-            StorageSaveLink._extract_data("{{ nonexistent_var }}", {})
+            StorageInitLink._extract_data("{{ nonexistent_var }}", {})
+
+    def test_storage_update_link_extract_data_raises_on_undefined(self):
+        """StorageUpdateLink._extract_data (new in PR#4) must raise for missing vars."""
+        from jinja2 import UndefinedError
+        from core.domains.storage.links import StorageUpdateLink
+        with pytest.raises(UndefinedError):
+            StorageUpdateLink._extract_data("{{ nonexistent_var }}", {})
 
     def test_storage_update_link_render_template_raises_on_undefined(self):
-        """StorageUpdateLink._render_template must raise for missing vars."""
+        """StorageUpdateLink._render_template (new in PR#4) must raise for missing vars."""
         from jinja2 import UndefinedError
         from core.domains.storage.links import StorageUpdateLink
         with pytest.raises(UndefinedError):

@@ -482,49 +482,42 @@ class StorageInitLink(LinkHandler):
                 data[key] = value
         
         return data
-    
+
     @classmethod
     def _extract_data(cls, data_source: Any, context: Dict[str, Any]) -> Any:
         """
         Extract and render templates in data recursively.
-        
-        Reuses pattern from StorageSaveLink.
+
+        Uses StrictUndefined so that missing template variables raise
+        UndefinedError rather than silently expanding to empty string.
         """
-        from jinja2 import Environment, UndefinedError
-        
+        from jinja2 import Environment, StrictUndefined
+
         if data_source is None:
             return None
-        
+
         if isinstance(data_source, str):
             if "{{" in data_source and "}}" in data_source:
-                try:
-                    env = Environment()
-                    template = env.from_string(data_source)
-                    
-                    def now():
-                        return datetime.now().isoformat()
-                    
-                    context_with_funcs = {**context, "now": now}
-                    rendered = template.render(**context_with_funcs)
-                    return rendered
-                except UndefinedError as e:
-                    logger.warning(f"Undefined variable in template '{data_source}': {e}")
-                    return ""
-                except Exception as e:
-                    logger.error(f"Error rendering template '{data_source}': {e}")
-                    return data_source
+                def now():
+                    return datetime.now().isoformat()
+
+                env = Environment(undefined=StrictUndefined)
+                template = env.from_string(data_source)
+                context_with_funcs = {**context, "now": now}
+                rendered = template.render(**context_with_funcs)
+                return rendered
             else:
                 return data_source
-        
+
         elif isinstance(data_source, dict):
             return {key: cls._extract_data(value, context) for key, value in data_source.items()}
-        
+
         elif isinstance(data_source, list):
             return [cls._extract_data(item, context) for item in data_source]
-        
+
         else:
             return data_source
-    
+
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
         """Get JSON schema for this link type."""
@@ -723,54 +716,47 @@ class StorageUpdateLink(LinkHandler):
         """Render a Jinja2 template string."""
         if not isinstance(value, str) or "{{" not in value:
             return value
-            
-        from jinja2 import Environment
-        env = Environment()
+
+        from jinja2 import Environment, StrictUndefined
+        env = Environment(undefined=StrictUndefined)
         template = env.from_string(value)
         return template.render(**context)
-    
+
     @classmethod
     def _extract_data(cls, data_source: Any, context: Dict[str, Any]) -> Any:
         """
         Extract and render templates in data recursively.
-        
-        Reuses pattern from StorageSaveLink.
+
+        Uses StrictUndefined so that missing template variables raise
+        UndefinedError rather than silently expanding to empty string.
         """
-        from jinja2 import Environment, UndefinedError
-        
+        from jinja2 import Environment, StrictUndefined
+
         if data_source is None:
             return None
-        
+
         if isinstance(data_source, str):
             if "{{" in data_source and "}}" in data_source:
-                try:
-                    env = Environment()
-                    template = env.from_string(data_source)
-                    
-                    def now():
-                        return datetime.now().isoformat()
-                    
-                    context_with_funcs = {**context, "now": now}
-                    rendered = template.render(**context_with_funcs)
-                    return rendered
-                except UndefinedError as e:
-                    logger.warning(f"Undefined variable in template '{data_source}': {e}")
-                    return ""
-                except Exception as e:
-                    logger.error(f"Error rendering template '{data_source}': {e}")
-                    return data_source
+                def now():
+                    return datetime.now().isoformat()
+
+                env = Environment(undefined=StrictUndefined)
+                template = env.from_string(data_source)
+                context_with_funcs = {**context, "now": now}
+                rendered = template.render(**context_with_funcs)
+                return rendered
             else:
                 return data_source
-        
+
         elif isinstance(data_source, dict):
             return {key: cls._extract_data(value, context) for key, value in data_source.items()}
-        
+
         elif isinstance(data_source, list):
             return [cls._extract_data(item, context) for item in data_source]
-        
+
         else:
             return data_source
-    
+
     @classmethod
     def _deep_merge(
         cls, 

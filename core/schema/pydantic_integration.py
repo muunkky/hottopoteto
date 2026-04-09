@@ -4,6 +4,7 @@ Utilities to integrate Pydantic models with recipes
 
 from typing import Type
 from pydantic import BaseModel
+from pydantic_core import PydanticUndefined
 import yaml
 
 
@@ -44,10 +45,10 @@ def generate_recipe_template(
             if field_info.is_required():
                 field_def["required"] = True
 
-            # Add default if available; intentionally omit None defaults
+            # Add default if available; omit None and PydanticUndefined (default_factory fields)
             if not field_info.is_required():
                 default = field_info.default
-                if default is not None:
+                if default is not None and default is not PydanticUndefined:
                     field_def["default"] = default
 
             inputs[field_name] = field_def

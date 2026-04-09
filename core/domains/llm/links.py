@@ -130,16 +130,18 @@ class LLMExtractToSchemaLink(LinkHandler):
             
             model = link_config.get("model", "gpt-4o")
             temperature = link_config.get("temperature", 0.2)  # Low temp for extraction
-            
+            provider = link_config.get("provider", "openai")
+
             # Build extraction prompt
             prompt = cls._build_extraction_prompt(source, schema, hint)
-            
+
             # Call LLM with JSON mode
             extracted_data = cls._call_llm_json_mode(
                 prompt=prompt,
                 schema=schema,
                 model=model,
-                temperature=temperature
+                temperature=temperature,
+                provider=provider,
             )
             
             # Validate against schema
@@ -170,12 +172,12 @@ class LLMExtractToSchemaLink(LinkHandler):
             return value
         if "{{" not in value:
             return value
-            
-        from jinja2 import Environment
-        env = Environment()
+
+        from jinja2 import Environment, StrictUndefined
+        env = Environment(undefined=StrictUndefined)
         template = env.from_string(value)
         return template.render(**context)
-    
+
     @classmethod
     def _resolve_schema(cls, schema_config: Any, context: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -191,16 +193,24 @@ class LLMExtractToSchemaLink(LinkHandler):
         # If it's a template string, render it first
         if isinstance(schema_config, str):
             rendered = cls._render_template(schema_config, context)
-            # After rendering, should be a dict
+            # After rendering, should be a dict (Jinja2 always returns str)
             if isinstance(rendered, dict):
                 return rendered
-            # If still a string, might be JSON
+            # Try JSON first (standard format), then ast.literal_eval for Python repr
             import json
+            import ast
             try:
                 return json.loads(rendered)
             except (json.JSONDecodeError, TypeError):
-                # Return as minimal schema
-                return {"type": "object"}
+                pass
+            try:
+                result = ast.literal_eval(rendered)
+                if isinstance(result, dict):
+                    return result
+            except (ValueError, SyntaxError):
+                pass
+            # Return as minimal schema
+            return {"type": "object"}
         
         # If it's already a dict, return as-is
         if isinstance(schema_config, dict):
@@ -259,27 +269,30 @@ class LLMExtractToSchemaLink(LinkHandler):
         prompt: str,
         schema: Dict[str, Any],
         model: str = "gpt-4o",
-        temperature: float = 0.2
+        temperature: float = 0.2,
+        provider: str = "openai",
     ) -> Any:
         """
         Call LLM with JSON mode for structured output.
-        
+
         Args:
             prompt: Extraction prompt
             schema: Expected output schema
             model: LLM model to use
             temperature: Sampling temperature
-            
+            provider: LLM provider (e.g. 'openai', 'anthropic')
+
         Returns:
             Parsed JSON data from LLM
         """
         import json
-        
+
         # Use the domain's generate_text function
         result = generate_text(
             prompt=prompt,
             model=model,
             temperature=temperature,
+            provider=provider,
             system="You are a data extraction assistant. Extract structured data from text and return valid JSON only."
         )
         
@@ -445,7 +458,8 @@ class LLMEnrichLink(LinkHandler):
             # Get LLM parameters
             model = link_config.get("model", "gpt-4o")
             temperature = link_config.get("temperature", 0.3)
-            
+            provider = link_config.get("provider", "openai")
+
             # Build enrichment prompt with full context
             prompt = cls._build_enrichment_prompt(
                 current_data=current_data,
@@ -454,13 +468,14 @@ class LLMEnrichLink(LinkHandler):
                 schema=schema,
                 hint=hint
             )
-            
+
             # Call LLM with JSON mode
             enriched_data = cls._call_llm_json_mode(
                 prompt=prompt,
                 schema=schema,
                 model=model,
-                temperature=temperature
+                temperature=temperature,
+                provider=provider,
             )
             
             # Validate enriched document
@@ -498,14 +513,29 @@ class LLMEnrichLink(LinkHandler):
         # If it's a template string, render it first
         if isinstance(document_config, str):
             rendered = cls._render_template(document_config, context)
+            # Jinja2 always returns str; attempt to recover the original Python object
             if isinstance(rendered, dict):
                 return rendered
+            import json
+            import ast
+            try:
+                result = json.loads(rendered)
+                if isinstance(result, dict):
+                    return result
+            except (json.JSONDecodeError, TypeError):
+                pass
+            try:
+                result = ast.literal_eval(rendered)
+                if isinstance(result, dict):
+                    return result
+            except (ValueError, SyntaxError):
+                pass
             return {"schema": {}, "data": {}}
-        
+
         # If it's already a dict, return as-is
         if isinstance(document_config, dict):
             return document_config
-        
+
         return {"schema": {}, "data": {}}
     
     @classmethod
@@ -515,12 +545,12 @@ class LLMEnrichLink(LinkHandler):
             return value
         if "{{" not in value:
             return value
-            
-        from jinja2 import Environment
-        env = Environment()
+
+        from jinja2 import Environment, StrictUndefined
+        env = Environment(undefined=StrictUndefined)
         template = env.from_string(value)
         return template.render(**context)
-    
+
     @classmethod
     def _find_empty_fields(cls, data: Dict[str, Any], schema: Dict[str, Any]) -> list:
         """
@@ -611,26 +641,29 @@ class LLMEnrichLink(LinkHandler):
         prompt: str,
         schema: Dict[str, Any],
         model: str = "gpt-4o",
-        temperature: float = 0.3
+        temperature: float = 0.3,
+        provider: str = "openai",
     ) -> Dict[str, Any]:
         """
         Call LLM with JSON mode for structured output.
-        
+
         Args:
             prompt: Enrichment prompt
             schema: Expected output schema
             model: LLM model to use
             temperature: Sampling temperature
-            
+            provider: LLM provider (e.g. 'openai', 'anthropic')
+
         Returns:
             Parsed JSON data from LLM
         """
         import json
-        
+
         result = generate_text(
             prompt=prompt,
             model=model,
             temperature=temperature,
+            provider=provider,
             system="You are a document enrichment assistant. Return the complete enriched document as valid JSON."
         )
         
