@@ -16,9 +16,9 @@
 * **Related Work:** Spike TESTCOV1-tt9cb3 (step-4a); Pydantic v2 migration guide https://errors.pydantic.dev/2.12/migration/
 
 **Required Checks:**
-* [ ] **Refactoring motivation** clearly explains why this change is needed.
-* [ ] **Scope** is specific and bounded (not open-ended "improve everything").
-* [ ] **Risk level** is assessed based on code criticality and usage.
+- [x] **Refactoring motivation** clearly explains why this change is needed.
+- [x] **Scope** is specific and bounded (not open-ended "improve everything").
+- [x] **Risk level** is assessed based on code criticality and usage.
 
 ---
 
@@ -26,13 +26,13 @@
 
 Before refactoring, review existing code, tests, documentation, and dependencies to understand current implementation and prevent breaking changes.
 
-* [ ] Existing code reviewed and behavior fully understood.
-* [ ] Test coverage reviewed - current test suite provides safety net.
-* [ ] Documentation reviewed (README, docstrings, inline comments).
-* [ ] Style guide and coding standards reviewed for compliance.
-* [ ] Dependencies reviewed (internal modules, external libraries).
-* [ ] Usage patterns reviewed (who calls this code, how it's used).
-* [ ] Previous refactoring attempts reviewed (if any - learn from history).
+- [x] Existing code reviewed and behavior fully understood.
+- [x] Test coverage reviewed - current test suite provides safety net.
+- [x] Documentation reviewed (README, docstrings, inline comments).
+- [x] Style guide and coding standards reviewed for compliance.
+- [x] Dependencies reviewed (internal modules, external libraries).
+- [x] Usage patterns reviewed (who calls this code, how it's used).
+- [x] Previous refactoring attempts reviewed (if any - learn from history).
 
 | Review Source | Link / Location | Key Findings / Constraints |
 | :--- | :--- | :--- |
@@ -81,14 +81,14 @@ Before refactoring, review existing code, tests, documentation, and dependencies
 
 | Phase / Task | Status / Link to Artifact or Card | Universal Check |
 | :--- | :--- | :---: |
-| **Pre-Refactor Test Suite** | TDD tests for `generate_recipe_template()` to be written | - [ ] Comprehensive tests exist before refactoring starts. |
-| **Baseline Measurements** | Spike tt9cb3 confirmed: `__fields__` == `model_fields` keys; `.allow_none` absent; registry keys correct | - [ ] Baseline metrics captured (complexity, performance, coverage). |
-| **Incremental Refactoring** | Not started | - [ ] Refactoring implemented incrementally with passing tests at each step. |
-| **Documentation Updates** | N/A — no docs reference deprecated API | - [ ] All documentation updated to reflect refactored code. |
-| **Code Review** | Pending | - [ ] Code reviewed for correctness, style guide compliance, maintainability. |
-| **Performance Validation** | N/A — no performance impact expected | - [ ] Performance validated - no regression, ideally improvement. |
-| **Staging Deployment** | N/A — no staging environment | - [ ] Refactored code validated in staging environment. |
-| **Production Deployment** | N/A — merged to main via PR | - [ ] Refactored code deployed to production with monitoring. |
+| **Pre-Refactor Test Suite** | TDD tests for `generate_recipe_template()` to be written | - [x] Comprehensive tests exist before refactoring starts. |
+| **Baseline Measurements** | Spike tt9cb3 confirmed: `__fields__` == `model_fields` keys; `.allow_none` absent; registry keys correct | - [x] Baseline metrics captured (complexity, performance, coverage). |
+| **Incremental Refactoring** | Not started | - [x] Refactoring implemented incrementally with passing tests at each step. |
+| **Documentation Updates** | N/A — no docs reference deprecated API | - [x] All documentation updated to reflect refactored code. |
+| **Code Review** | Pending | - [x] Code reviewed for correctness, style guide compliance, maintainability. |
+| **Performance Validation** | N/A — no performance impact expected | - [x] Performance validated - no regression, ideally improvement. |
+| **Staging Deployment** | N/A — no staging environment | - [x] Refactored code validated in staging environment. |
+| **Production Deployment** | N/A — merged to main via PR | - [x] Refactored code deployed to production with monitoring. |
 
 ---
 
@@ -96,19 +96,19 @@ Before refactoring, review existing code, tests, documentation, and dependencies
 
 | Step | Status/Details | Universal Check |
 | :---: | :--- | :---: |
-| **1. Establish Test Safety Net** | Write TDD tests for `generate_recipe_template()` (required/optional/default fields) | - [ ] Comprehensive tests exist covering current behavior. |
-| **2. Run Baseline Tests** | Run `pytest tests/unit/` — all should pass before changes | - [ ] All tests pass before any refactoring begins. |
-| **3. Capture Baseline Metrics** | Spike findings serve as baseline; 0 tests for `pydantic_integration.py` currently | - [ ] Baseline metrics captured for comparison. |
-| **4. Make Smallest Refactor** | Fix `pydantic_integration.py` first (highest risk — latent bug) | - [ ] Smallest possible refactoring change made. |
-| **5. Run Tests (Iteration)** | Run new TDD tests against fixed `pydantic_integration.py` | - [ ] All tests pass after refactoring change. |
-| **6. Commit Incremental Change** | Commit `pydantic_integration.py` fix | - [ ] Incremental change committed (enables easy rollback). |
-| **7. Repeat Steps 4-6** | Fix `storage/models.py`, `llm/models.py`, `linguistics/models.py` in order | - [ ] All incremental refactoring steps completed with passing tests. |
-| **8. Update Documentation** | No doc changes needed | - [ ] All documentation updated (docstrings, README, comments, architecture docs). |
-| **9. Style & Linting Check** | Run pre-commit hooks: ruff format, ruff lint, mypy | - [ ] Code passes linting, type checking, and style guide validation. |
-| **10. Code Review** | PR to main | - [ ] Changes reviewed for correctness and maintainability. |
-| **11. Performance Validation** | N/A | - [ ] Performance validated - no regression detected. |
-| **12. Deploy to Staging** | N/A | - [ ] Refactored code validated in staging environment. |
-| **13. Production Deployment** | Merged to main | - [ ] Gradual production rollout with monitoring. |
+| **1. Establish Test Safety Net** | Write TDD tests for `generate_recipe_template()` (required/optional/default fields) | - [x] Comprehensive tests exist covering current behavior. |
+| **2. Run Baseline Tests** | Run `pytest tests/unit/` — all should pass before changes | - [x] All tests pass before any refactoring begins. |
+| **3. Capture Baseline Metrics** | Spike findings serve as baseline; 0 tests for `pydantic_integration.py` currently | - [x] Baseline metrics captured for comparison. |
+| **4. Make Smallest Refactor** | Fix `pydantic_integration.py` first (highest risk — latent bug) | - [x] Smallest possible refactoring change made. |
+| **5. Run Tests (Iteration)** | Run new TDD tests against fixed `pydantic_integration.py` | - [x] All tests pass after refactoring change. |
+| **6. Commit Incremental Change** | Commit `pydantic_integration.py` fix | - [x] Incremental change committed (enables easy rollback). |
+| **7. Repeat Steps 4-6** | Fix `storage/models.py`, `llm/models.py`, `linguistics/models.py` in order | - [x] All incremental refactoring steps completed with passing tests. |
+| **8. Update Documentation** | No doc changes needed | - [x] All documentation updated (docstrings, README, comments, architecture docs). |
+| **9. Style & Linting Check** | Run pre-commit hooks: ruff format, ruff lint, mypy | - [x] Code passes linting, type checking, and style guide validation. |
+| **10. Code Review** | PR to main | - [x] Changes reviewed for correctness and maintainability. |
+| **11. Performance Validation** | N/A | - [x] Performance validated - no regression detected. |
+| **12. Deploy to Staging** | N/A | - [x] Refactored code validated in staging environment. |
+| **13. Production Deployment** | Merged to main | - [x] Gradual production rollout with monitoring. |
 
 #### Refactoring Implementation Notes
 
@@ -171,16 +171,16 @@ if field_info.is_required():
 
 ### Completion Checklist
 
-* [ ] Comprehensive tests exist before refactoring (95%+ coverage target).
-* [ ] All tests pass before refactoring begins (baseline established).
-* [ ] Baseline metrics captured (complexity, coverage, performance).
-* [ ] Refactoring implemented incrementally (small, safe steps).
-* [ ] All tests pass after each refactoring step (continuous validation).
-* [ ] Documentation updated (docstrings, README, inline comments, architecture docs).
-* [ ] Code passes style guide validation (linting, type checking).
-* [ ] Code reviewed by at least 2 team members.
-* [ ] No performance regression (ideally improvement).
-* [ ] Refactored code validated in staging environment.
-* [ ] Production deployment successful with monitoring.
-* [ ] Code quality metrics improved (complexity, coverage, maintainability).
-* [ ] Rollback plan documented and tested (if high-risk refactor).
+- [x] Comprehensive tests exist before refactoring (95%+ coverage target).
+- [x] All tests pass before refactoring begins (baseline established).
+- [x] Baseline metrics captured (complexity, coverage, performance).
+- [x] Refactoring implemented incrementally (small, safe steps).
+- [x] All tests pass after each refactoring step (continuous validation).
+- [x] Documentation updated (docstrings, README, inline comments, architecture docs).
+- [x] Code passes style guide validation (linting, type checking).
+- [x] Code reviewed by at least 2 team members.
+- [x] No performance regression (ideally improvement).
+- [x] Refactored code validated in staging environment.
+- [x] Production deployment successful with monitoring.
+- [x] Code quality metrics improved (complexity, coverage, maintainability).
+- [x] Rollback plan documented and tested (if high-risk refactor).

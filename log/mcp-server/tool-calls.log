@@ -242,3 +242,11 @@
 {"timestamp": "2026-04-08T17:21:31.386330Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for refactor (mode=advisory)", "operation": "template_enforcement_check"}
 {"timestamp": "2026-04-08T17:21:31.388329Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for refactor: valid=False", "operation": "template_validation"}
 {"timestamp": "2026-04-08T17:21:31.393328Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created as draft (advisory validation failure): 7l3637", "operation": "create_card_success", "card_id": "7l3637"}
+{"timestamp": "2026-04-08T21:12:50.431587Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: cleanup pydantic_integration single-pass field iteration dead guard and None-default test", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T21:12:50.433588Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for refactor (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T21:12:50.438588Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for refactor: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T21:12:50.443587Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: rmyo6v", "operation": "create_card_success", "card_id": "rmyo6v"}
+{"timestamp": "2026-04-08T21:41:18.463265Z", "level": "INFO", "logger": "gitban.tools", "message": "Creating card: step 5 install mypy dev dependency and add to quality gate", "tool": "create_card", "operation": "create_card_start"}
+{"timestamp": "2026-04-08T21:41:18.464266Z", "level": "INFO", "logger": "gitban.tools", "message": "Template enforcement enabled for chore (mode=advisory)", "operation": "template_enforcement_check"}
+{"timestamp": "2026-04-08T21:41:18.467264Z", "level": "INFO", "logger": "gitban.tools", "message": "Template validation result for chore: valid=True", "operation": "template_validation"}
+{"timestamp": "2026-04-08T21:41:18.469264Z", "level": "INFO", "logger": "gitban.tools", "message": "Card created successfully: n0mtjg", "operation": "create_card_success", "card_id": "n0mtjg"}
