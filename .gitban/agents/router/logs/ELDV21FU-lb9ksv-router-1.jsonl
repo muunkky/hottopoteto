@@ -1,0 +1,6 @@
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"init"}
+{"ts":"2026-04-09T00:00:01Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"read-review","file":".gitban/agents/reviewer/inbox/ELDV21FU-lb9ksv-reviewer-1.md","verdict":"APPROVAL"}
+{"ts":"2026-04-09T00:00:02Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"write-executor-inbox","file":".gitban/agents/executor/inbox/ELDV21FU-lb9ksv-executor-1.md"}
+{"ts":"2026-04-09T00:00:03Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"write-planner-inbox","file":".gitban/agents/planner/inbox/ELDV21FU-lb9ksv-planner-1.md"}
+{"ts":"2026-04-09T00:00:04Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"card-update","action":"append"}
+{"ts":"2026-04-09T00:00:05Z","role":"router","sprint":"ELDV21FU","card":"lb9ksv","cycle":1,"event":"summary","verdict":"APPROVAL","follow_up_cards":1,"blockers":0}
