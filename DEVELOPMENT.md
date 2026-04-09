@@ -101,7 +101,8 @@ def test_with_fixture(sample_recipe_yaml):
 
 1. Run tests: `pytest`
 2. Check coverage: `pytest --cov=core --cov=plugins`
-3. Verify code runs: `python main.py --help`
+3. Run type checks: `python -m mypy core/ plugins/`
+4. Verify code runs: `python main.py --help`
 
 ## Project Structure
 
