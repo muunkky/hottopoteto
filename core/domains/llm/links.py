@@ -451,41 +451,58 @@ class LLMEnrichLink(LinkHandler):
             # Get schema and current data from document
             schema = document.get("schema", {})
             current_data = document.get("data", {})
-            
-            # Determine target fields
+
+            # Branch quarantine: if target_schema_path is set, extract the sub-schema
+            # and sub-data, call the LLM on just that branch, then merge back.
+            target_schema_path = link_config.get("target_schema_path", "")
+
+            if target_schema_path:
+                active_schema = cls._extract_schema_branch(schema, target_schema_path) or schema
+                active_data = cls._extract_data_branch(current_data, target_schema_path) or {}
+            else:
+                active_schema = schema
+                active_data = current_data
+
+            # Determine target fields (operate on the active branch)
             target_fields = link_config.get("target_fields", "auto")
             if target_fields == "auto":
-                target_fields = cls._find_empty_fields(current_data, schema)
+                target_fields = cls._find_empty_fields(active_data, active_schema)
             elif isinstance(target_fields, str):
                 target_fields = [target_fields]
-            
+
             # Extract optional hint
             hint = link_config.get("hint", "")
             if hint:
                 hint = cls._render_template(hint, context)
-            
+
             # Get LLM parameters
             model = link_config.get("model", "gpt-4o")
             temperature = link_config.get("temperature", 0.3)
             provider = link_config.get("provider", "openai")
 
-            # Build enrichment prompt with full context
+            # Build enrichment prompt against the active branch
             prompt = cls._build_enrichment_prompt(
-                current_data=current_data,
+                current_data=active_data,
                 source=source,
                 target_fields=target_fields,
-                schema=schema,
+                schema=active_schema,
                 hint=hint
             )
 
-            # Call LLM with JSON mode
-            enriched_data = cls._call_llm_json_mode(
+            # Call LLM with JSON mode against the active (possibly quarantined) schema
+            branch_result = cls._call_llm_json_mode(
                 prompt=prompt,
-                schema=schema,
+                schema=active_schema,
                 model=model,
                 temperature=temperature,
                 provider=provider,
             )
+
+            # If branch quarantine was used, merge the result back into the full document
+            if target_schema_path:
+                enriched_data = cls._merge_at_path(current_data, target_schema_path, branch_result)
+            else:
+                enriched_data = branch_result
             
             # Validate enriched document
             validation_error = cls._validate_against_schema(enriched_data, schema)
@@ -588,7 +605,91 @@ class LLMEnrichLink(LinkHandler):
                 empty_fields.append(field)
         
         return empty_fields
-    
+
+    @classmethod
+    def _extract_schema_branch(cls, schema: Dict[str, Any], path: str) -> Any:
+        """
+        Extract a sub-schema at a dot-notation path.
+
+        Args:
+            schema: Full JSON schema object
+            path: Dot-notation path (e.g. "morphology" or "morphology.roots")
+                  Empty string returns the full schema.
+
+        Returns:
+            Sub-schema dict at the given path, or None if the path doesn't exist.
+        """
+        if not path:
+            return schema
+
+        parts = path.split(".")
+        current = schema
+        for part in parts:
+            if not isinstance(current, dict):
+                return None
+            properties = current.get("properties", {})
+            if part not in properties:
+                return None
+            current = properties[part]
+        return current
+
+    @classmethod
+    def _extract_data_branch(cls, data: Any, path: str) -> Any:
+        """
+        Extract data at a dot-notation path.
+
+        Args:
+            data: Data dict to traverse
+            path: Dot-notation path (e.g. "morphology" or "morphology.roots")
+                  Empty string returns the full data.
+
+        Returns:
+            Value at the path, or None if not found.
+        """
+        if not path:
+            return data
+
+        parts = path.split(".")
+        current = data
+        for part in parts:
+            if not isinstance(current, dict):
+                return None
+            if part not in current:
+                return None
+            current = current[part]
+        return current
+
+    @classmethod
+    def _merge_at_path(cls, data: Dict[str, Any], path: str, new_value: Any) -> Dict[str, Any]:
+        """
+        Merge/replace a value at a dot-notation path inside data.
+
+        Creates any missing intermediate dicts. For an empty path the entire
+        data dict is replaced by new_value.
+
+        Args:
+            data: Original data dict (not mutated)
+            path: Dot-notation path (e.g. "morphology" or "morphology.roots")
+            new_value: Value to place at path
+
+        Returns:
+            New data dict with the value set at path.
+        """
+        import copy
+
+        if not path:
+            return new_value
+
+        result = copy.deepcopy(data)
+        parts = path.split(".")
+        node = result
+        for part in parts[:-1]:
+            if not isinstance(node.get(part), dict):
+                node[part] = {}
+            node = node[part]
+        node[parts[-1]] = new_value
+        return result
+
     @classmethod
     def _build_enrichment_prompt(
         cls,

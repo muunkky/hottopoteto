@@ -1,0 +1,5 @@
+name: conlang
+version: "1.0.0"
+description: "Constructed language creation plugin for Hottopoteto."
+author: ""
+entry_point: "__init__.py"
