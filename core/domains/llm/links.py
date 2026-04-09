@@ -1,6 +1,7 @@
 """
 Link handlers for the LLM domain
 """
+import copy
 from typing import Dict, Any
 import logging
 from core.links import LinkHandler, register_link_type
@@ -675,8 +676,6 @@ class LLMEnrichLink(LinkHandler):
         Returns:
             New data dict with the value set at path.
         """
-        import copy
-
         if not path:
             return new_value
 

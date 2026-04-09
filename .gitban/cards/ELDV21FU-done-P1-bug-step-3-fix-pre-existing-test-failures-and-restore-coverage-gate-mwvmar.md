@@ -178,7 +178,7 @@ If fixes introduce new issues, revert the test changes. The pre-existing state (
 - [x] All 20+ previously failing tests now pass
 - [x] No new test failures introduced
 - [x] Coverage >= 50% with `pytest --cov --cov-fail-under=50`
-* [ ] Code review completed
+- [x] Code review completed
 
 ---
 
@@ -213,7 +213,7 @@ If fixes introduce new issues, revert the test changes. The pre-existing state (
 - [x] No manual infrastructure changes
 - [x] Postmortem completed (if required for P0/P1)
 - [x] Follow-up tickets created for related issues
-* [ ] Associated ticket is closed
+- [x] Associated ticket is closed
 
 
 ## Work Summary
