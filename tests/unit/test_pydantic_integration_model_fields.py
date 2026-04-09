@@ -108,3 +108,29 @@ class TestGenerateRecipeTemplateUsesModelFields:
         result = generate_recipe_template("bare.link", description="A bare link")
         assert "bare_link_Link" in result
         assert "A bare link" in result
+
+    def test_optional_none_default_field_does_not_emit_default_key(self):
+        """An Optional[str] = None field must NOT produce a 'default:' key in the YAML output.
+
+        This is intentional behavior: None defaults are omitted from the template
+        because emitting 'default: null' (or 'default: None') adds noise without value.
+        This test pins that behavior so future changes cannot silently regress it.
+
+        Card: TESTCOV1-rmyo6v (cleanup pydantic integration single-pass)
+        """
+        from core.schema.pydantic_integration import generate_recipe_template
+
+        class ModelWithNoneDefault(BaseModel):
+            required_field: str
+            optional_field: Optional[str] = None
+
+        result = generate_recipe_template("test.link", input_model=ModelWithNoneDefault)
+        assert "optional_field" in result, "optional_field must appear in the template"
+        # The default: key must NOT appear for an Optional[str] = None field
+        import yaml
+        parsed = yaml.safe_load(result)
+        inputs = parsed["links"][0]["inputs"]
+        assert "optional_field" in inputs, "optional_field must be in the inputs dict"
+        assert "default" not in inputs["optional_field"], (
+            "Optional[str] = None field must NOT emit a 'default:' key in the template"
+        )
