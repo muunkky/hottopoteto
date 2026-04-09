@@ -1,0 +1,9 @@
+{"timestamp":"2026-04-09T21:43:46Z","operation":"init","role":"router","sprint":"ELDV21FU","card_id":"i72ia1","cycle":1}
+{"timestamp":"2026-04-09T21:43:47Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && export AGENT_LOG_DIR=\".gitban/agents/router/logs\" && export AGENT_ROLE=\"router\" && export AGENT_SPRINT_TAG=\"ELDV21FU\" && export AGENT_CARD_ID=\"i72ia1\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && echo \"INIT_OK\""}
+{"timestamp":"2026-04-09T21:43:59Z","operation":"hook_cmd","command":"mkdir -p /c/Users/Cameron/Projects/hottopoteto/.gitban/agents/executor/inbox && mkdir -p /c/Users/Cameron/Projects/hottopoteto/.gitban/agents/planner/inbox"}
+{"timestamp":"2026-04-09T21:44:53Z","operation":"init","role":"router","sprint":"ELDV21FU","card_id":"i72ia1","cycle":1}
+{"timestamp":"2026-04-09T21:44:53Z","operation":"event","label":"read-review","metadata":{"file":".gitban/agents/reviewer/inbox/ELDV21FU-i72ia1-reviewer-1.md","verdict":"APPROVAL"}}
+{"timestamp":"2026-04-09T21:44:53Z","operation":"event","label":"write-executor-inbox","metadata":{"file":".gitban/agents/executor/inbox/ELDV21FU-i72ia1-executor-1.md"}}
+{"timestamp":"2026-04-09T21:44:53Z","operation":"event","label":"write-planner-inbox","metadata":{"file":".gitban/agents/planner/inbox/ELDV21FU-i72ia1-planner-1.md","cards":2}}
+{"timestamp":"2026-04-09T21:44:53Z","operation":"event","label":"card-update","metadata":{"action":"append","card_id":"i72ia1"}}
+{"timestamp":"2026-04-09T21:44:54Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":1}

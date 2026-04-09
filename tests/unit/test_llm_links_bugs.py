@@ -126,15 +126,15 @@ class TestGenerateRecipeTemplate:
         template = generate_recipe_template("storage.init", input_model=ModelWithDefaultFactory)
         parsed = yaml.safe_load(template)
         tags_field = parsed["links"][0]["inputs"]["tags"]
-        # Must not contain the sentinel; 'default' may be absent or []
-        assert tags_field.get("default") is not PydanticUndefinedSentinel(), (
-            "Bug 3: default_factory sentinel must not be serialized"
+        # 'default' key must be absent when default_factory is set
+        assert "default" not in tags_field, (
+            "Bug 3: default_factory sentinel must not be serialized — 'default' key must be absent"
         )
 
     def test_generate_recipe_template_none_default_still_omitted(self):
         """Optional[str] = None defaults should remain omitted (regression guard)."""
         template = generate_recipe_template("storage.init", input_model=ModelWithOptionalNone)
-        assert "None" not in template or "null" not in template or True  # structural check
+        assert "None" not in template  # Python repr of None must not leak into YAML output
         import yaml
         parsed = yaml.safe_load(template)
         alias_field = parsed["links"][0]["inputs"].get("alias", {})

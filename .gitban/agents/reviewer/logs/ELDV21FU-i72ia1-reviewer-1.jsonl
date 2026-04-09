@@ -1,0 +1,11 @@
+{"ts":"2026-04-09T00:00:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-09T00:01:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-diff","data":{"commit":"801ff10"}}
+{"ts":"2026-04-09T00:02:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-card","data":{"card_id":"i72ia1"}}
+{"ts":"2026-04-09T00:03:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-diff","data":{"commit":"78571aa","note":"TDD test commit"}}
+{"ts":"2026-04-09T00:04:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-diff","data":{"commit":"5fc1c91","note":"main fix commit"}}
+{"ts":"2026-04-09T00:05:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-diff","data":{"commit":"b059ba2","note":"get_schema update commit"}}
+{"ts":"2026-04-09T00:06:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"verify-tests","data":{"passed":20,"failed":0,"file":"tests/unit/test_llm_links_bugs.py"}}
+{"ts":"2026-04-09T00:07:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"verify-regression","data":{"total_pass":437,"total_fail":20,"pre_existing_fail":20,"regressions":0}}
+{"ts":"2026-04-09T00:08:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"write-review","data":{"verdict":"APPROVAL"}}
+{"ts":"2026-04-09T00:09:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"card-status-change","data":{"new_status":"in_progress"}}
+{"ts":"2026-04-09T00:10:00Z","role":"reviewer","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"summary","data":{"verdict":"APPROVAL","blockers":0,"follow_ups":4,"tdd_compliant":true,"regressions":0}}
