@@ -372,6 +372,11 @@ class LLMExtractToSchemaLink(LinkHandler):
                     "type": "number",
                     "default": 0.2,
                     "description": "Sampling temperature (low for extraction accuracy)"
+                },
+                "provider": {
+                    "type": "string",
+                    "default": "openai",
+                    "description": "LLM provider (e.g. 'openai', 'anthropic')"
                 }
             }
         }
@@ -739,6 +744,11 @@ class LLMEnrichLink(LinkHandler):
                     "type": "number",
                     "default": 0.3,
                     "description": "Sampling temperature"
+                },
+                "provider": {
+                    "type": "string",
+                    "default": "openai",
+                    "description": "LLM provider (e.g. 'openai', 'anthropic')"
                 }
             }
         }
