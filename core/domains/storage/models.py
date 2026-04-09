@@ -54,7 +54,7 @@ class StorageAdapter(BaseModel):
     @classmethod
     def register(cls, adapter_class: Type['StorageAdapter']) -> None:
         """Register an adapter implementation"""
-        cls._registry[adapter_class.__fields__["name"].default] = adapter_class
+        cls._registry[adapter_class.model_fields["name"].default] = adapter_class
         
     @classmethod
     def get(cls, name: str) -> Optional[Type['StorageAdapter']]:

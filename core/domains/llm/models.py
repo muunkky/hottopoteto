@@ -50,7 +50,7 @@ class LLMProvider(BaseModel):
     def register(cls, provider_class: Type['LLMProvider']) -> None:
         """Register a provider implementation"""
         # Use a class property from the model as the registry key
-        cls._registry[provider_class.__fields__["name"].default] = provider_class
+        cls._registry[provider_class.model_fields["name"].default] = provider_class
         
     @classmethod
     def get(cls, name: str) -> Optional[Type['LLMProvider']]:
