@@ -1,0 +1,6 @@
+{"ts":"2026-04-08T00:00:00Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-08T00:00:01Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"read-inbox","data":{"file":"TESTCOV1-i3y4j6-planner-1.md"}}
+{"ts":"2026-04-08T00:00:02Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"search-existing","data":{"query":"pydantic_integration generate_recipe_template","duplicates_found":0}}
+{"ts":"2026-04-08T00:00:03Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"search-existing","data":{"query":"pydantic_integration field iteration dead code","duplicates_found":0}}
+{"ts":"2026-04-08T00:00:04Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"create-card","data":{"card_id":"rmyo6v","type":"refactor"}}
+{"ts":"2026-04-08T00:00:05Z","role":"planner","sprint":"TESTCOV1","card_id":"i3y4j6","cycle":1,"event":"summary","data":{"cards_created":1,"cards_skipped":0,"groups_processed":1}}

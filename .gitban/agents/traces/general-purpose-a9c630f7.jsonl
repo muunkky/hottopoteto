@@ -1,0 +1,9 @@
+{"ts":"2026-04-09T16:52:54Z","tool":"Bash","input":{"command":"gh pr view 4"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:00Z","tool":"Bash","input":{"command":"gh pr view 4 2>&1 | grep -E \"(title|state|draft|status|Merge commit|Head)\" || gh pr view 4 2>&1"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:08Z","tool":"Bash","input":{"command":"gh pr view 4 --json title,state,isDraft,commits,headRefOid 2>&1"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:14Z","tool":"Read","input":{"file_path":"C:\\Users\\Cameron\\.claude\\projects\\C--Users-Cameron-Projects-hottopoteto\\8277ee1b-1771-4ae0-b225-830cb4fd96f0\\tool-results\\blw05n8to.txt"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:19Z","tool":"Read","input":{"file_path":"C:\\Users\\Cameron\\.claude\\projects\\C--Users-Cameron-Projects-hottopoteto\\8277ee1b-1771-4ae0-b225-830cb4fd96f0\\tool-results\\blw05n8to.txt","limit":"100"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:22Z","tool":"Bash","input":{"command":"head -50 \"C:\\Users\\Cameron\\.claude\\projects\\C--Users-Cameron-Projects-hottopoteto\\8277ee1b-1771-4ae0-b225-830cb4fd96f0\\tool-results\\blw05n8to.txt\""},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:26Z","tool":"Bash","input":{"command":"gh pr view 4 --json title,state,isDraft,headRefOid 2>&1 | head -1"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:30Z","tool":"Bash","input":{"command":"gh pr view 4 --json comments 2>&1 | head -200"},"agent_id":"a9c630f7","agent_type":"general-purpose"}
+{"ts":"2026-04-09T16:53:33Z","tool":"Bash","input":{"command":"gh pr view 4 --json author,body 2>&1"},"agent_id":"a9c630f7","agent_type":"general-purpose"}

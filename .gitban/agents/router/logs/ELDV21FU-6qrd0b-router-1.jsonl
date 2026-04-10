@@ -1,0 +1,5 @@
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"init"}
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"read-review","file":".gitban/agents/reviewer/inbox/ELDV21FU-6qrd0b-reviewer-1.md","verdict":"APPROVAL"}
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"write-executor-inbox","file":".gitban/agents/executor/inbox/ELDV21FU-6qrd0b-executor-1.md"}
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"card-update","action":"append"}
+{"ts":"2026-04-09T00:00:00Z","role":"router","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"summary","verdict":"APPROVAL","blockers":0,"followup_cards":0}

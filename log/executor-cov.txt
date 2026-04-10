@@ -1,0 +1,168 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-7.1.1, pluggy-1.6.0 -- C:\Users\Cameron\Projects\hottopoteto\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Cameron\Projects\hottopoteto, configfile: pytest.ini
+plugins: anyio-4.12.0, langsmith-0.5.0, asyncio-0.18.3, cov-3.0.0, mock-3.7.0
+asyncio: mode=Mode.AUTO
+collecting ... collected 23 items
+
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_function PASSED [  4%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_with_metadata PASSED [  8%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_nonexistent_returns_none PASSED [ 13%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_returns_function PASSED [ 17%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_all_fields FAILED [ 21%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_minimal FAILED [ 26%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_error FAILED [ 30%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_plain_json_object PASSED [ 34%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_from_markdown PASSED [ 39%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_array PASSED [ 43%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_with_text_before PASSED [ 47%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_returns_original_if_no_json PASSED [ 52%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_adds_closing_brace PASSED [ 56%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_handles_already_complete_json PASSED [ 60%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_valid_recipe PASSED [ 65%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_default_domain PASSED [ 69%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_explicit_domain PASSED [ 73%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_jinja_environment PASSED [ 78%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_empty_context FAILED [ 82%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_history FAILED [ 86%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_set_memory FAILED [ 91%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_get_memory FAILED [ 95%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_get_memory_with_default FAILED [100%]
+
+================================== FAILURES ===================================
+___________ TestRecipeLinkOutput.test_create_output_with_all_fields ___________
+tests\unit\test_executor_basic.py:75: in test_create_output_with_all_fields
+    assert output.link_name == "test"
+        output     = RecipeLinkOutput(raw=None, data={})
+        self       = <unit.test_executor_basic.TestRecipeLinkOutput object at 0x00000266A4D1FCE0>
+.venv\Lib\site-packages\pydantic\main.py:891: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'RecipeLinkOutput' object has no attribute 'link_name'
+        __class__  = <class 'pydantic.main.BaseModel'>
+        item       = 'link_name'
+        private_attributes = {}
+        pydantic_extra = None
+        self       = RecipeLinkOutput(raw=None, data={})
+_______________ TestRecipeLinkOutput.test_create_output_minimal _______________
+tests\unit\test_executor_basic.py:90: in test_create_output_minimal
+    assert output.link_name == "test"
+        output     = RecipeLinkOutput(raw=None, data={})
+        self       = <unit.test_executor_basic.TestRecipeLinkOutput object at 0x00000266A4D1FE30>
+.venv\Lib\site-packages\pydantic\main.py:891: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'RecipeLinkOutput' object has no attribute 'link_name'
+        __class__  = <class 'pydantic.main.BaseModel'>
+        item       = 'link_name'
+        private_attributes = {}
+        pydantic_extra = None
+        self       = RecipeLinkOutput(raw=None, data={})
+_____________ TestRecipeLinkOutput.test_create_output_with_error ______________
+tests\unit\test_executor_basic.py:103: in test_create_output_with_error
+    assert output.error == "Connection failed"
+        output     = RecipeLinkOutput(raw=None, data={})
+        self       = <unit.test_executor_basic.TestRecipeLinkOutput object at 0x00000266A4D1FF80>
+.venv\Lib\site-packages\pydantic\main.py:891: in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E   AttributeError: 'RecipeLinkOutput' object has no attribute 'error'
+        __class__  = <class 'pydantic.main.BaseModel'>
+        item       = 'error'
+        private_attributes = {}
+        pydantic_extra = None
+        self       = RecipeLinkOutput(raw=None, data={})
+___________ TestRecipeExecutorBuildContext.test_build_empty_context ___________
+tests\unit\test_executor_basic.py:225: in test_build_empty_context
+    context = executor.build_context()
+E   TypeError: RecipeExecutor.build_context() missing 1 required positional argument: 'memory'
+        executor   = <core.executor.RecipeExecutor object at 0x00000266A4D653D0>
+        recipe_data = {'links': []}
+        recipe_file = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_build_empty_context0/test.yaml')
+        self       = <unit.test_executor_basic.TestRecipeExecutorBuildContext object at 0x00000266A4D3C890>
+        tmp_path   = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_build_empty_context0')
+_______ TestRecipeExecutorBuildContext.test_build_context_with_history ________
+tests\unit\test_executor_basic.py:246: in test_build_context_with_history
+    context = executor.build_context()
+E   TypeError: RecipeExecutor.build_context() missing 1 required positional argument: 'memory'
+        executor   = <core.executor.RecipeExecutor object at 0x00000266A4D67AD0>
+        recipe_data = {'links': []}
+        recipe_file = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_build_context_with_histor0/test.yaml')
+        self       = <unit.test_executor_basic.TestRecipeExecutorBuildContext object at 0x00000266A4D3CA40>
+        tmp_path   = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_build_context_with_histor0')
+__________________ TestRecipeExecutorMemory.test_set_memory ___________________
+tests\unit\test_executor_basic.py:262: in test_set_memory
+    executor.set_memory("test_key", "test_value")
+E   AttributeError: 'RecipeExecutor' object has no attribute 'set_memory'
+        executor   = <core.executor.RecipeExecutor object at 0x00000266A4D679E0>
+        recipe_data = {'links': []}
+        recipe_file = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_set_memory0/test.yaml')
+        self       = <unit.test_executor_basic.TestRecipeExecutorMemory object at 0x00000266A4D3C470>
+        tmp_path   = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_set_memory0')
+__________________ TestRecipeExecutorMemory.test_get_memory ___________________
+tests\unit\test_executor_basic.py:276: in test_get_memory
+    result = executor.get_memory("my_key")
+E   AttributeError: 'RecipeExecutor' object has no attribute 'get_memory'
+        executor   = <core.executor.RecipeExecutor object at 0x00000266A4D67F80>
+        recipe_data = {'links': []}
+        recipe_file = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_get_memory0/test.yaml')
+        self       = <unit.test_executor_basic.TestRecipeExecutorMemory object at 0x00000266A4D3D0A0>
+        tmp_path   = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_get_memory0')
+____________ TestRecipeExecutorMemory.test_get_memory_with_default ____________
+tests\unit\test_executor_basic.py:288: in test_get_memory_with_default
+    result = executor.get_memory("nonexistent", default="default_value")
+E   AttributeError: 'RecipeExecutor' object has no attribute 'get_memory'
+        executor   = <core.executor.RecipeExecutor object at 0x00000266A4D654F0>
+        recipe_data = {'links': []}
+        recipe_file = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_get_memory_with_default0/test.yaml')
+        self       = <unit.test_executor_basic.TestRecipeExecutorMemory object at 0x00000266A4D3D250>
+        tmp_path   = WindowsPath('C:/Users/Cameron/AppData/Local/Temp/pytest-of-Cameron/pytest-1243/test_get_memory_with_default0')
+
+---------- coverage: platform win32, python 3.12.2-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+core\__init__.py                        7      0   100%
+core\cli\__init__.py                    0      0   100%
+core\cli\commands\__init__.py           0      0   100%
+core\cli\commands\credentials.py      150    150     0%   4-239
+core\cli\commands\packages.py          98     98     0%   4-149
+core\cli\commands\recipes.py           53     53     0%   4-114
+core\domains.py                         2      2     0%   3-15
+core\domains\__init__.py                1      1     0%   13
+core\domains\llm\__init__.py            8      8     0%   4-44
+core\domains\llm\functions.py          16     16     0%   4-83
+core\domains\llm\links.py              23     23     0%   4-66
+core\domains\llm\models.py             49     49     0%   4-120
+core\domains\storage\__init__.py        4      4     0%   4-15
+core\domains\storage\functions.py      85     85     0%   4-187
+core\domains\storage\links.py         116    116     0%   4-308
+core\domains\storage\models.py         94     94     0%   4-149
+core\domains\storage\utils.py          32     32     0%   4-50
+core\executor.py                      532    377    29%   25, 41-51, 80, 95-96, 100-101, 122, 151-152, 156-157, 183-185, 197-199, 205-213, 221-223, 241-242, 253-271, 276-283, 324-326, 364-366, 372, 388-423, 427-435, 444-472, 476-624, 628-662, 665-836, 840-894, 898-923, 927-949, 954-955
+core\links\__init__.py                 47     47     0%   4-107
+core\models.py                         45     45     0%   1-69
+core\registration\__init__.py           1      1     0%   5
+core\registration\domains.py           56     56     0%   4-116
+core\registry.py                       58     29    50%   22, 38, 82, 99, 115-117, 130, 140, 157-180, 197-203
+core\schemas.py                        13     13     0%   4-44
+core\templates.py                      57     47    18%   24-29, 55-94, 106-121
+core\utils\__init__.py                 50     38    24%   24-29, 41-44, 57-68, 82-94, 106-115
+core\utils\package_template.py         45     45     0%   4-202
+core\utils\templates.py                 5      5     0%   4-23
+plugins\__init__.py                    50     50     0%   4-106
+plugins\conlang\__init__.py            15     15     0%   4-34
+plugins\gemini\__init__.py              3      3     0%   1-5
+plugins\gemini\links.py                43     43     0%   2-61
+-----------------------------------------------------------------
+TOTAL                                1758   1545    12%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+=========================== short test summary info ===========================
+FAILED tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_all_fields
+FAILED tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_minimal
+FAILED tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_error
+FAILED tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_empty_context
+FAILED tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_history
+FAILED tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_set_memory
+FAILED tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_get_memory
+FAILED tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_get_memory_with_default
+======================== 8 failed, 15 passed in 9.50s =========================

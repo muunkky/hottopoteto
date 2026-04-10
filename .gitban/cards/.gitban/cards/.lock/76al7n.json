@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "76al7n",
+  "created_at": "2026-01-04T12:53:10.594468+00:00",
+  "template_name": "feature",
+  "owner": "CAMERON",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "external-schema-file-loading",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "feature",
+    "sprint": "DOCENRICH",
+    "filename": "DOCENRICH-backlog-P1-feature-external-schema-file-loading-76al7n-CAMERON.md"
+  }
+}

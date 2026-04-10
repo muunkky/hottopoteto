@@ -1,0 +1,12 @@
+{"timestamp":"2026-04-09T03:53:42Z","operation":"init","role":"router","sprint":"TESTCOV1","card_id":"n0mtjg","cycle":1}
+{"timestamp":"2026-04-09T03:53:43Z","operation":"event","label":"read-review","metadata":{"file":"TESTCOV1-n0mtjg-reviewer-1.md","verdict":"REJECTION"}}
+{"timestamp":"2026-04-09T03:53:43Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && export AGENT_LOG_DIR=\".gitban/agents/router/logs\" && export AGENT_ROLE=\"router\" && export AGENT_SPRINT_TAG=\"TESTCOV1\" && export AGENT_CARD_ID=\"n0mtjg\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"read-review\" '{\"file\":\"TESTCOV1-n0mtjg-reviewer-1.md\",\"verdict\":\"REJECTION\"}' && echo \"DONE\""}
+{"timestamp":"2026-04-09T03:53:47Z","operation":"hook_cmd","command":"mkdir -p /c/Users/Cameron/Projects/hottopoteto/.gitban/agents/executor/inbox"}
+{"timestamp":"2026-04-09T03:53:50Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && ls .gitban/agents/traces/*n0mtjg*router*.stale 2>/dev/null && echo \"STALE\" || echo \"ok\""}
+{"timestamp":"2026-04-09T03:53:58Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && ls .gitban/agents/traces/*n0mtjg*router*.stale 2>/dev/null && echo \"STALE\" || echo \"ok\""}
+{"timestamp":"2026-04-09T03:54:06Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && ls .gitban/agents/traces/*n0mtjg*router*.stale 2>/dev/null && echo \"STALE\" || echo \"ok\""}
+{"timestamp":"2026-04-09T03:54:15Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && ls .gitban/agents/traces/*n0mtjg*router*.stale 2>/dev/null && echo \"STALE\" || echo \"ok\""}
+{"timestamp":"2026-04-09T03:54:23Z","operation":"hook_cmd","command":"cd /c/Users/Cameron/Projects/hottopoteto && ls .gitban/agents/traces/*n0mtjg*router*.stale 2>/dev/null && echo \"STALE\" || echo \"ok\""}
+{"timestamp":"2026-04-09T03:54:24Z","operation":"event","label":"write-executor-inbox","metadata":{"file":"TESTCOV1-n0mtjg-executor-1.md"}}
+{"timestamp":"2026-04-09T03:54:24Z","operation":"event","label":"card-update","metadata":{"action":"append"}}
+{"timestamp":"2026-04-09T03:54:24Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":0}

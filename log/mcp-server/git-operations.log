@@ -1,0 +1,2 @@
+{"timestamp": "2026-04-08T16:57:51.288214Z", "level": "INFO", "logger": "gitban.git", "message": "Starting git command: git remote", "operation": "git_command_start", "command": ["git", "remote"]}
+{"timestamp": "2026-04-08T16:57:51.338976Z", "level": "INFO", "logger": "gitban.git", "message": "Git command succeeded in 50.8ms", "operation": "git_command_success", "duration_ms": 50.813700014259666, "command": ["git", "remote"], "return_code": 0, "stdout": "origin\n", "stderr": ""}

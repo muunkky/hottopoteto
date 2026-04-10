@@ -1,0 +1,6 @@
+{"event":"init","sprint":"TESTCOV1","card":"tt9cb3","cycle":2,"role":"executor","ts":"2026-04-08T23:32:02Z"}
+{"event":"code-change","files":["core/domains/storage/models.py","core/registration/domains.py","core/registration/__init__.py","core/domains/llm/models.py","plugins/conlang/domains/linguistics/models.py"],"ts":"2026-04-08T23:39:04Z"}
+{"event":"test-run","file":"tests/unit/test_pydantic_v2_model_fields_inheritance.py","passed":17,"failed":0,"ts":"2026-04-08T23:39:04Z"}
+{"event":"test-run","file":"tests/unit/test_schema_nullability.py","passed":2,"failed":0,"ts":"2026-04-08T23:39:04Z"}
+{"event":"commit","hash":"385a8f3","message":"fix(spike-tt9cb3): fix StorageEntity.tags inheritance and schema nullability","ts":"2026-04-08T23:40:07Z"}
+{"event":"summary","passed_total":19,"failed_total":0,"pre_existing_failures":1,"status":"complete","ts":"2026-04-08T23:40:07Z"}

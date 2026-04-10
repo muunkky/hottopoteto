@@ -22,6 +22,8 @@ Each ADR describes:
 | [ADR-0002](./adr-0002-domain-registration-system.md) | Domain Registration System | Accepted |
 | [ADR-0003](./adr-0003-plugin-discovery-mechanism.md) | Plugin Discovery Mechanism | Accepted |
 | [ADR-0004](./adr-0004-recipe-execution-flow.md) | Recipe Execution Flow | Accepted |
+| [ADR-0005](./adr-0005-testing-strategy.md) | Testing Strategy and Framework Selection | Accepted |
+| [ADR-0006](./adr-0006-schema-driven-document-enrichment.md) | Schema-Driven Document Enrichment | Proposed |
 
 ## Creating New ADRs
 

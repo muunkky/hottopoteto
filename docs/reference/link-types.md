@@ -33,6 +33,85 @@ The `llm` link type sends prompts to language models and captures their response
     required: ["poem"]
 ```
 
+### LLM Extract to Schema Link
+
+The `llm.extract_to_schema` link type extracts structured data from unstructured text using LLM with JSON mode. It auto-generates an intelligent extraction prompt from the target schema.
+
+#### Required Parameters
+- **type**: Must be "llm.extract_to_schema"
+- **source**: Text to extract from (supports templates)
+- **schema**: Target JSON Schema for extracted data
+
+#### Optional Parameters
+- **hint**: Extraction guidance for the LLM
+- **model**: LLM model to use (default: "gpt-4o")
+- **temperature**: Sampling temperature (default: 0.2 for accuracy)
+- **provider**: LLM provider to use (default: "openai"; supports "anthropic")
+
+#### Example
+```yaml
+- name: "Extract_Origins"
+  type: "llm.extract_to_schema"
+  source: "{{ Generate_Etymology.data.raw }}"
+  schema: "{{ Working_Doc.data.schema.properties.origin_words }}"
+  hint: "Focus on the fictional etymology components"
+  model: "gpt-4o"
+  temperature: 0.2
+```
+
+With inline schema:
+```yaml
+- name: "Extract_Person"
+  type: "llm.extract_to_schema"
+  source: "John Smith is 42 years old and works as an engineer."
+  schema:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      age:
+        type: "integer"
+      occupation:
+        type: "string"
+```
+
+### LLM Enrich Link
+
+The `llm.enrich` link type is a document-aware extraction that enriches an existing document with new information. Unlike `llm.extract_to_schema`, it sees the full document context including existing values, enabling smarter context-aware inference.
+
+#### Required Parameters
+- **type**: Must be "llm.enrich"
+- **document**: Document to enrich (with schema and data)
+- **source**: New information to incorporate
+
+#### Optional Parameters
+- **target_fields**: List of fields to populate, or "auto" for automatic detection
+- **hint**: Enrichment guidance for the LLM
+- **model**: LLM model to use (default: "gpt-4o")
+- **temperature**: Sampling temperature (default: 0.3)
+- **provider**: LLM provider to use (default: "openai"; supports "anthropic")
+
+#### Example
+```yaml
+- name: "Enrich_Document"
+  type: "llm.enrich"
+  document: "{{ Working_Doc.data }}"
+  source: "{{ Generate_Etymology.data.raw }}"
+  target_fields:
+    - "origin_words"
+    - "revised_connotation"
+  hint: "Extract the fictional etymologies"
+```
+
+With auto field detection:
+```yaml
+- name: "Auto_Enrich"
+  type: "llm.enrich"
+  document: "{{ Working_Doc.data }}"
+  source: "{{ new_content }}"
+  target_fields: "auto"
+```
+
 ### User Input Link
 
 The `user_input` link type collects input from the user.
@@ -185,6 +264,94 @@ The `storage.delete` link type removes data from storage.
   type: "storage.delete"
   collection: "articles"
   id: "{{ article_id }}"
+```
+
+### Storage Init Link
+
+The `storage.init` link type creates a "working document" for schema-driven workflows. It initializes a document with a schema definition and optional initial data, enabling downstream links to work with validated, structured data.
+
+#### Required Parameters
+- **type**: Must be "storage.init"
+- **collection**: Storage collection name
+
+#### Optional Parameters
+- **schema**: JSON Schema definition (inline object or file reference)
+- **initial_data**: Data to pre-populate document fields
+
+#### Output Structure
+The link returns a document reference with:
+- **id**: Unique document ID
+- **collection**: Storage collection name
+- **schema**: The JSON Schema for validation
+- **data**: Current document state (fields from schema with initial values or null)
+
+#### Example
+```yaml
+- name: "Working_Doc"
+  type: "storage.init"
+  collection: "eldorian_words"
+  schema:
+    file: "schemas/eldorian_word.yaml"
+  initial_data:
+    english_word: "{{ User_Input.data.word }}"
+    connotation: "{{ User_Input.data.connotation }}"
+```
+
+With inline schema:
+```yaml
+- name: "Working_Doc"
+  type: "storage.init"
+  collection: "recipes"
+  schema:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      ingredients:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            item: { type: "string" }
+            amount: { type: "string" }
+  initial_data:
+    name: "{{ Recipe_Name.data }}"
+```
+
+### Storage Update Link
+
+The `storage.update` link type updates an existing document by merging new data while preserving existing fields. It validates the merged data against the document's schema.
+
+#### Required Parameters
+- **type**: Must be "storage.update"
+- **document_id**: ID of the document to update (supports templates)
+- **collection**: Storage collection name
+- **data**: New data to merge into the document
+
+#### Optional Parameters
+- **merge**: If true (default), merge with existing data. If false, replace entirely.
+- **array_merge**: How to handle arrays - "replace" (default) or "append"
+
+#### Example
+```yaml
+- name: "Update_Origins"
+  type: "storage.update"
+  document_id: "{{ Working_Doc.data.id }}"
+  collection: "{{ Working_Doc.data.collection }}"
+  data:
+    origin_words: "{{ Extract_Origins.data }}"
+  merge: true
+```
+
+With array append:
+```yaml
+- name: "Add_Tags"
+  type: "storage.update"
+  document_id: "{{ doc.id }}"
+  collection: "articles"
+  data:
+    tags: ["new-tag"]
+  array_merge: "append"
 ```
 
 ## Utility Links

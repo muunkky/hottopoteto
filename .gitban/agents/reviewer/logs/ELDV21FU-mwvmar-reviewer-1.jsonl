@@ -1,0 +1,7 @@
+{"event":"init","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","ts":"2026-04-09T22:30:00Z"}
+{"event":"read-diff","commit":"9f22e82","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","ts":"2026-04-09T22:30:10Z"}
+{"event":"read-card","card_id":"mwvmar","sprint":"ELDV21FU","cycle":1,"role":"reviewer","ts":"2026-04-09T22:30:15Z"}
+{"event":"read-adr","file":"none — docs/adr/ does not exist in this repo","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","ts":"2026-04-09T22:30:20Z"}
+{"event":"write-review","verdict":"APPROVAL","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","ts":"2026-04-09T22:31:00Z"}
+{"event":"card-status-change","new_status":"in_progress","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","ts":"2026-04-09T22:31:05Z"}
+{"event":"summary","sprint":"ELDV21FU","card":"mwvmar","cycle":1,"role":"reviewer","verdict":"APPROVAL","blockers":0,"followups":2,"ts":"2026-04-09T22:31:10Z"}

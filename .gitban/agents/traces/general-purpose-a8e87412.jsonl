@@ -1,0 +1,5 @@
+{"ts":"2026-04-09T17:09:57Z","tool":"Bash","input":{"command":"gh pr view 4 && echo \"---COMMENTS---\" && gh pr view 4 --comments"},"agent_id":"a8e87412","agent_type":"general-purpose"}
+{"ts":"2026-04-09T17:10:03Z","tool":"Bash","input":{"command":"gh pr view 4"},"agent_id":"a8e87412","agent_type":"general-purpose"}
+{"ts":"2026-04-09T17:10:08Z","tool":"Bash","input":{"command":"gh pr view 4 --json state,draft,reviews 2>/dev/null || gh api repos/{owner}/{repo}/pulls/4"},"agent_id":"a8e87412","agent_type":"general-purpose"}
+{"ts":"2026-04-09T17:10:13Z","tool":"Bash","input":{"command":"gh api repos/muunkky/hottopoteto/pulls/4/comments 2>/dev/null | jq '.[] | {author: .user.login, body: .body[:100]}' | head -50"},"agent_id":"a8e87412","agent_type":"general-purpose"}
+{"ts":"2026-04-09T17:10:16Z","tool":"Bash","input":{"command":"gh api repos/muunkky/hottopoteto/pulls/4/comments 2>/dev/null | grep -o '\"login\":\"[^\"]*\"' | head -20"},"agent_id":"a8e87412","agent_type":"general-purpose"}

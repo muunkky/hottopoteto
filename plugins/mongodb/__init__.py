@@ -1,0 +1,1 @@
+"""MongoDB plugin for Hottopoteto."""

@@ -1,0 +1,109 @@
+# DEPRECATED: This file is no longer needed
+#
+# The eldorian_word recipe now uses direct domain schema references:
+#
+#   schema:
+#     $ref: "linguistics.word"
+#
+# The linguistics domain (plugins/conlang/domains/linguistics/models.py)
+# registers the comprehensive Word schema which defines what a word IS
+# in a constructed language.
+#
+# This file remains only for backwards compatibility with old tests/docs.
+# New recipes should use the direct $ref approach shown above.
+
+title: Eldorian Word Entry (Deprecated)
+description: Minimal backward-compatible schema. Use linguistics.word domain reference instead.
+
+type: object
+
+required:
+  - english_word
+  - eldorian_word
+
+properties:
+  english_word:
+    type: string
+    description: The English word being translated to Eldorian
+  
+  eldorian_word:
+    type: string
+    description: The canonical form of the word in Eldorian (lemma)
+  
+  pronunciation:
+    type: string
+    description: IPA phonetic transcription
+  
+  language:
+    type: string
+    default: eldorian
+    description: Language code
+  
+  connotation:
+    type: string
+    description: The intended emotional coloring or nuance
+  
+  origin_words:
+    type: array
+    description: Source words from which this word derives
+    items:
+      type: object
+      properties:
+        word:
+          type: string
+        meaning:
+          type: string
+        origin:
+          type: string
+  
+  morphology:
+    type: object
+    description: Morphological breakdown of the word
+    properties:
+      roots:
+        type: array
+        items:
+          type: string
+      affixes:
+        type: array
+        items:
+          type: object
+          properties:
+            affix:
+              type: string
+            type:
+              type: string
+            meaning:
+              type: string
+      word_class:
+        type: string
+  
+  usage_examples:
+    type: array
+    description: Example sentences demonstrating usage
+    items:
+      type: object
+      properties:
+        eldorian:
+          type: string
+        translation:
+          type: string
+  
+  cultural_notes:
+    type: string
+    description: Cultural significance, associations, or context
+  
+  metadata:
+    type: object
+    description: Generation metadata
+    properties:
+      source:
+        type: string
+      generated_at:
+        type: string
+      version:
+        type: string
+      schema_file:
+        type: string
+      working_document_id:
+        type: string

@@ -1,0 +1,5 @@
+name: sqlite
+version: "1.0.0"
+description: "SQLite storage plugin for Hottopoteto."
+author: ""
+entry_point: "__init__.py"

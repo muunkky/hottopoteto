@@ -1,0 +1,254 @@
+# Eldorian Word Recipe Master Output Schema
+# 
+# This schema defines the comprehensive output from the eldorian_word_v2 recipe,
+# which includes BOTH:
+# 1. The final lexicon entry (official dictionary entry)
+# 2. All intermediate processing steps (for traceability and analysis)
+#
+# Philosophy:
+# - The lexicon_entry field contains the "official" word for the dictionary
+# - All other fields are process data that can be added freely by the recipe
+# - Process fields document the creative journey and can vary between recipe versions
+
+type: "object"
+additionalProperties: true  # Allow recipe to add arbitrary process data
+
+required:
+  - lexicon_entry  # Only require the final official entry
+
+properties:
+  # =========================================================================
+  # REQUIRED: Final Lexicon Entry (Official Dictionary Entry)
+  # =========================================================================
+  lexicon_entry:
+    type: "object"
+    description: |
+      The final, complete, official dictionary entry for this word.
+      This is what gets published to the lexicon.
+      Must conform to eldorian_lexicon_entry.yaml schema.
+    $ref: "eldorian_lexicon_entry.yaml"
+  
+  # =========================================================================
+  # OPTIONAL: Process and Creative Data (Added by Recipe)
+  # =========================================================================
+  # The recipe may include any additional fields for documentation, analysis,
+  # or debugging. Common examples include:
+  
+  Initial_User_Inputs:
+    type: "object"
+    properties:
+      english_word:
+        type: "string"
+        description: "The original English word input by the user."
+      connotation:
+        type: "string"
+        description: "The original provided connotation."
+      length:
+        type: "integer"
+        description: "The calculated length of the input word."
+      synonyms:
+        type: "array"
+        items:
+          type: "string"
+        description: "Any synonyms provided or computed."
+      part_of_speech:
+        type: "string"
+        description: "The part of speech."
+      declension:
+        type: "string"
+        description: "The declension, or 'N/A' if not applicable."
+      base_form:
+        type: "string"
+        description: "The base form of the input word."
+    required:
+      - english_word
+      - connotation
+      - base_form
+  Clarify_Instructions:
+    type: "object"
+    properties:
+      raw_content:
+        type: "string"
+        description: "Output from the Clarify Instructions step."
+    required:
+      - raw_content
+  Selecting_an_Origin_Language:
+    type: "object"
+    properties:
+      origin_language:
+        type: "string"
+        description: "The language selected as the origin language. Example: 'Sylvan'."
+    required:
+      - origin_language
+  Choose_number_of_origin_words:
+    type: "object"
+    properties:
+      number_of_origin_words:
+        type: "integer"
+        description: "The determined number of origin words. Example: 3."
+      justification:
+        type: "string"
+        description: "Explanation for the selected number."
+    required:
+      - number_of_origin_words
+  Target_number_of_syllables:
+    type: "object"
+    properties:
+      number_of_syllables:
+        type: "integer"
+        description: "The target number of syllables for the Eldorian translation."
+    required:
+      - number_of_syllables
+  Generate_the_Origin_Words:
+    type: "object"
+    properties:
+      compound_origin_word:
+        type: "string"
+        description: "The concatenated generated origin words. Example: 'foobarbaz'."
+      revised_connotation:
+        type: "string"
+        description: "The updated connotation after considering the origin words."
+      origin_words:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            word:
+              type: "string"
+              description: "The individual origin word."
+            english_word:
+              type: "string"
+              description: "Its English counterpart."
+            origin_language:
+              type: "string"
+              description: "The language of the origin word."
+            meaning:
+              type: "string"
+              description: "The meaning assigned to this origin."
+            notes:
+              type: "string"
+              description: "Notes from the selection process."
+            part_of_speech:
+              type: "string"
+              description: "Part of speech."
+            connotation:
+              type: "string"
+              description: "Connotation for the origin word."
+            usage_examples:
+              type: "array"
+              items:
+                type: "string"
+              description: "Usage examples for this origin."
+        description: "Array of generated origin word objects."
+    required:
+      - compound_origin_word
+      - revised_connotation
+      - origin_words
+  Apply_Morphology:
+    type: "object"
+    properties:
+      morphology:
+        type: "string"
+        description: "Summary of morphological adjustments. Example: 'softened consonants, fronted vowels.'"
+      updated_word:
+        type: "string"
+        description: "The final word after morphology. Must include all changes."
+    required:
+      - morphology
+      - updated_word
+  Apply_Phonology:
+    type: "object"
+    properties:
+      phonology:
+        type: "string"
+        description: "Summary of phonological adjustments made."
+      updated_word:
+        type: "string"
+        description: "The final word after applying phonological adjustments."
+      pronunciation:
+        type: "string"
+        description: "IPA or phonetic pronunciation guide."
+    required:
+      - updated_word
+  Generate_Derivatives:
+    type: "object"
+    properties:
+      base_word:
+        type: "string"
+        description: "The base word in Eldorian."
+      english_word:
+        type: "string"
+        description: "The English translation of the base word."
+      derivatives:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            word:
+              type: "string"
+              description: "The derivative word in Eldorian."
+            part_of_speech:
+              type: "string"
+              description: "The grammatical category of the derivative word (e.g., 'noun', 'verb', 'adjective', 'adverb')."
+            meaning:
+              type: "string"
+              description: "The meaning or translation of the derivative word in English."
+            notes:
+              type: "string"
+              description: "Any relevant notes or usage examples for the derivative word."
+            morphological_changes:
+              type: "string"
+              description: "Description of any morphological changes applied to create the derivative."
+            examples:
+              type: "array"
+              items:
+                type: "string"
+              description: "Example sentences or phrases using the derivative word."
+        description: "A list of derivatives generated from the base word."
+    required:
+      - base_word
+      - english_word
+      - derivatives
+  Generate_Cultural_Context:
+    type: "object"
+    properties:
+      usage_examples:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            eldorian:
+              type: "string"
+              description: "Eldorian language sentence."
+            translation:
+              type: "string"
+              description: "English translation."
+        description: "Example sentences using the word."
+      cultural_notes:
+        type: "string"
+        description: "Cultural context and usage notes for the word."
+  
+  # Legacy compatibility fields
+  final_word_entry:
+    type: "object"
+    description: "Deprecated: Use lexicon_entry instead. Working document data."
+  
+  working_document_id:
+    type: "string"
+    description: "Reference to the working document used during generation."
+
+# ============================================================================
+# Schema Notes
+# ============================================================================
+# 
+# Design Philosophy:
+# - Only lexicon_entry is required (the official dictionary entry)
+# - All intermediate process fields are optional and can vary by recipe version
+# - additionalProperties: true allows recipes to evolve without schema updates
+# - Process data provides full traceability and supports retrospective analysis
+#
+# Benefits:
+# - Recipes can add new intermediate steps without schema changes
+# - Different recipe variants can include different process data
+# - Core lexicon remains consistent across all recipes
+# - Full creative process is preserved for learning and debugging

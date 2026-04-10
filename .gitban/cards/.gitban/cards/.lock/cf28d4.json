@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "cf28d4",
+  "created_at": "2026-01-07T00:00:07.042930+00:00",
+  "template_name": "documentation",
+  "owner": "UNASSIGNED",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "documentation-updates-for-type-coercion-architecture",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "documentation",
+    "sprint": null,
+    "filename": "backlog-P1-documentation-documentation-updates-for-type-coercion-architecture-cf28d4.md"
+  }
+}

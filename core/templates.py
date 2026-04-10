@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 # Registry of template directories from plugins
 _template_directories = {
     "text": ["templates/text"],     # Default directory first
-    "recipes": ["templates/recipes"]  # Default directory first
+    "recipes": ["templates/recipes"],  # Default directory first
+    "schemas": ["templates/schemas"]   # Schema files (DOCENRICH Sprint)
 }
 
 def register_template_directory(template_type: str, directory: str) -> None:

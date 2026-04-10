@@ -1,0 +1,5 @@
+name: mongodb
+version: "1.0.0"
+description: "MongoDB storage plugin for Hottopoteto."
+author: ""
+entry_point: "__init__.py"

@@ -1,0 +1,249 @@
+schema_version: 1.0.0
+document_version: 0.1.0
+last_updated: '2025-12-18'
+metadata:
+  maintained_by: Your Team
+  review_frequency: Monthly
+  related_docs:
+    - docs/README.md
+  tools:
+    roadmap_tracking: roadmap.yaml
+    task_tracking: gitban cards
+    Gitban_mcp: https://github.com/muunkky/gitban-mcp
+  changelog_usage_notes: "The changelog tracks significant project milestones, feature
+    releases, and \narchitectural changes. It is NOT for tracking individual gitban
+    card updates.\n\nWhat to include:\n- Version releases and feature completions\n\
+    - Milestone achievements (e.g., \"M1: Foundation & Quality complete\")\n- Major
+    architectural decisions (e.g., \"Adopted pytest for testing\")\n- Breaking changes
+    or significant refactors\n- Sprint completions with high-level summaries\n\nWhat
+    NOT to include:\n- Individual card creation, updates, or completions\n- Day-to-day
+    task progress\n- Minor bug fixes (unless critical/production)\n- Card status changes
+    or reassignments\n\nPrinciple: Changelog is strategic (roadmap-level), not tactical
+    (card-level).\nCards are semi-ephemeral and tracked separately via gitban tools.\n"
+changelog:
+  - version: 0.1.0
+    date: '2025-12-18'
+    changes:
+      - Initial roadmap structure created
+  - version: 0.2.0
+    date: '2025-12-18'
+    changes:
+      - Created FOUNDATION sprint for testing infrastructure and developer 
+        experience
+      - Initialized gitban workspace with roadmap and templates
+      - Created 5 cards covering test framework setup, documentation, and 
+        quality standards
+      - 'Updated roadmap with M1 milestone: Foundation & Quality'
+      - 'Added 3 features to roadmap: Testing Infrastructure, Developer Experience,
+        CI/CD Pipeline'
+  - version: 0.2.0
+    date: '2025-12-18'
+    changes:
+      - Created FOUNDATION sprint with 5 cards for testing infrastructure
+      - 'Established roadmap milestone M1: Foundation & Quality'
+      - 'Added 3 roadmap features: testing-infra, dev-experience, cicd-pipeline'
+      - Created sprint planning card (tlqyva) to track sprint setup and 
+        execution
+  - version: 0.2.0
+    date: '2025-12-18'
+    changes:
+      - Added pytest testing framework with coverage, mocking, and asyncio 
+        support
+      - Created ADR-0005 documenting testing strategy decision
+      - Established 8% baseline test coverage with 12 initial unit tests
+      - 'Fixed dependency compatibility: PyExecJS 1.5.1, Jinja2 3.1.6, MarkupSafe
+        3.0.3'
+      - Added comprehensive testing documentation to README
+      - Created shared test fixtures and configuration (pytest.ini, conftest.py)
+  - version: 0.3.0
+    date: '2026-01-04'
+    changes:
+      - Created DOCENRICH sprint for Schema-Driven Document Enrichment 
+        architecture
+      - 'Designed new link types: storage.init, storage.update, llm.extract_to_schema,
+        llm.enrich'
+      - Established pattern for external schema files (templates/schemas/)
+      - Created 7 sprint cards covering ADR, features, and closeout tasks
+      - Added schema-enrichment feature to roadmap with 6 projects
+      - 'Architecture decision: Two-step LLM+Storage pattern preserving domain isolation'
+versions:
+  v1:
+    id: v1
+    title: Version 1.0
+    description: Initial release
+    status: todo
+    start_date: '2025-12-18'
+    target_completion: '2026-01-31'
+    milestones:
+      m1:
+        id: m1
+        title: Foundation & Quality
+        description: Establish testing infrastructure, documentation 
+          completeness, and developer experience improvements for the 
+          Hottopoteto framework
+        status: in_progress
+        due_date: '2026-02-15'
+        success_criteria:
+          - Comprehensive test suite with >80% coverage
+          - Complete developer onboarding documentation
+          - CI/CD pipeline with automated testing
+          - All TODOs in codebase addressed
+        features:
+          testing-infra:
+            description: Establish comprehensive testing framework for 
+              Hottopoteto
+            id: testing-infra
+            priority: critical
+            status: in_progress
+            title: Testing Infrastructure
+            projects:
+              test-framework-setup:
+                description: pytest infrastructure with coverage, mocking, 
+                  fixtures
+                id: test-framework-setup
+                sequence: 1
+                status: done
+                title: Test Framework Setup
+              unit-test-core:
+                name: Core Module Unit Tests
+                description: Write unit tests for core modules (executor, 
+                  registry, domains, templates)
+                status: todo
+                sequence: 2
+                tdd_spec: Test RecipeExecutor, domain registration, template 
+                  processing, and schema validation
+                owner: CAMERON
+              integration-tests:
+                name: Integration Tests
+                description: Create integration tests for recipe execution flows
+                status: todo
+                sequence: 3
+                tdd_spec: Test complete recipe execution with multiple link 
+                  types and domain interactions
+                owner: CAMERON
+              test-coverage:
+                name: Test Coverage Analysis
+                description: Implement coverage reporting and establish baseline
+                status: todo
+                sequence: 4
+                tdd_spec: Configure coverage.py, generate HTML reports, set 
+                  minimum coverage thresholds
+                owner: CAMERON
+          dev-experience:
+            id: dev-experience
+            title: Developer Experience
+            description: Improve onboarding and developer documentation
+            status: todo
+            priority: high
+            depends_on: []
+            projects:
+              quickstart-guide:
+                name: Enhanced Quickstart Guide
+                description: Create comprehensive getting started documentation 
+                  with examples
+                status: todo
+                sequence: 1
+                owner: CAMERON
+              architecture-diagrams:
+                name: Architecture Diagrams
+                description: Create visual diagrams for domain isolation, plugin
+                  system, and recipe flow
+                status: todo
+                sequence: 2
+                owner: CAMERON
+              example-recipes:
+                name: Example Recipe Library
+                description: Expand recipe examples covering common patterns
+                status: todo
+                sequence: 3
+                owner: CAMERON
+              api-reference:
+                name: API Reference Documentation
+                description: Generate comprehensive API docs for core modules
+                status: todo
+                sequence: 4
+                owner: CAMERON
+          cicd-pipeline:
+            id: cicd-pipeline
+            title: CI/CD Pipeline
+            description: Automated testing and quality gates
+            status: todo
+            priority: high
+            depends_on:
+              - testing-infra
+            projects:
+              github-actions:
+                name: GitHub Actions Workflow
+                description: Configure automated testing on push and PR
+                status: todo
+                sequence: 1
+                owner: CAMERON
+              pre-commit-hooks:
+                name: Pre-commit Hooks
+                description: Set up pre-commit hooks for linting and formatting
+                status: todo
+                sequence: 2
+                owner: CAMERON
+              code-quality:
+                name: Code Quality Checks
+                description: Integrate pylint, black, and mypy
+                status: todo
+                sequence: 3
+                owner: CAMERON
+          schema-enrichment:
+            id: schema-enrichment
+            title: Schema-Driven Document Enrichment
+            description: Implement schema-driven document building with 
+              llm.extract_to_schema, llm.enrich, storage.init, storage.update 
+              link types. Enable recipes to progressively build validated 
+              documents.
+            status: in_progress
+            priority: high
+            depends_on: []
+            projects:
+              external-schemas:
+                name: External Schema Files
+                description: Load schemas from external YAML files 
+                  (templates/schemas/)
+                status: todo
+                sequence: 1
+                owner: CAMERON
+                tdd_spec: Test schema file loading, validation, caching
+              storage-init:
+                name: storage.init Link Type
+                description: Initialize working documents with schema and 
+                  initial data
+                status: todo
+                sequence: 2
+                owner: CAMERON
+                tdd_spec: Test document creation, schema attachment, ID 
+                  generation
+              storage-update:
+                name: storage.update Link Type
+                description: Merge data into documents with schema validation
+                status: todo
+                sequence: 3
+                owner: CAMERON
+                tdd_spec: Test merge logic, validation, nested updates
+              llm-extract:
+                name: llm.extract_to_schema Link Type
+                description: Extract structured data from prose using schema
+                status: todo
+                sequence: 4
+                owner: CAMERON
+                tdd_spec: Test prompt generation, JSON mode, validation
+              llm-enrich:
+                name: llm.enrich Link Type
+                description: Document-aware enrichment with full context
+                status: todo
+                sequence: 5
+                owner: CAMERON
+                tdd_spec: Test context awareness, field preservation, target 
+                  fields
+              adr-documentation:
+                name: ADR-0006 Documentation
+                description: Document architecture decision for schema 
+                  enrichment
+                status: todo
+                sequence: 6
+                owner: CAMERON

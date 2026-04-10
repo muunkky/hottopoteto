@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "0rh3o8",
+  "created_at": "2026-01-04T12:54:47.894124+00:00",
+  "template_name": "feature",
+  "owner": "CAMERON",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "llm-enrich-link-type",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "feature",
+    "sprint": "DOCENRICH",
+    "filename": "DOCENRICH-backlog-P1-feature-llm-enrich-link-type-0rh3o8-CAMERON.md"
+  }
+}

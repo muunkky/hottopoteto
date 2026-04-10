@@ -1,0 +1,9 @@
+{"timestamp":"2026-04-08T23:30:00Z","operation":"init","role":"reviewer","sprint":"TESTCOV1","card_id":"tt9cb3","cycle":1}
+{"timestamp":"2026-04-08T23:30:05Z","operation":"event","label":"read-diff","metadata":{"commit":"cc49dcd"}}
+{"timestamp":"2026-04-08T23:30:10Z","operation":"event","label":"read-card","metadata":{"card_id":"tt9cb3"}}
+{"timestamp":"2026-04-08T23:30:15Z","operation":"event","label":"read-source","metadata":{"file":"core/domains/storage/models.py"}}
+{"timestamp":"2026-04-08T23:30:20Z","operation":"event","label":"read-source","metadata":{"file":"core/models.py"}}
+{"timestamp":"2026-04-08T23:30:25Z","operation":"event","label":"test-run","metadata":{"file":"tests/unit/test_pydantic_v2_model_fields_inheritance.py","passed":14,"failed":3}}
+{"timestamp":"2026-04-08T23:30:30Z","operation":"event","label":"write-review","metadata":{"verdict":"REJECTION"}}
+{"timestamp":"2026-04-08T23:30:35Z","operation":"event","label":"card-status-change","metadata":{"new_status":"blocked"}}
+{"timestamp":"2026-04-08T23:30:35Z","operation":"summary","total_commands":6,"failed_commands":0,"total_duration_s":35}

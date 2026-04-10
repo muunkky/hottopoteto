@@ -17,7 +17,8 @@ class StorageEntity(GenericEntryModel):
     """Base model for stored entities"""
     collection: str
     data: Dict[str, Any] = Field(default_factory=dict)
-    
+
+
 class StorageQuery(BaseModel):
     """Query parameters for storage operations"""
     collection: str
@@ -53,7 +54,7 @@ class StorageAdapter(BaseModel):
     @classmethod
     def register(cls, adapter_class: Type['StorageAdapter']) -> None:
         """Register an adapter implementation"""
-        cls._registry[adapter_class.__fields__["name"].default] = adapter_class
+        cls._registry[adapter_class.model_fields["name"].default] = adapter_class
         
     @classmethod
     def get(cls, name: str) -> Optional[Type['StorageAdapter']]:
@@ -145,5 +146,17 @@ StorageAdapter.register(FileAdapter)
 # Register schemas with domain schema registry
 from core.registration import register_domain_schema
 
-register_domain_schema("storage", "entity", StorageEntity.schema())
-register_domain_schema("storage", "query", StorageQuery.schema())
+# Build entity schema using model_json_schema (Pydantic v2 preferred API).
+# The tags field inherits List[str] from GenericEntryModel (default_factory=list),
+# so model_json_schema emits it as {"type": "array"} without null.
+# We explicitly allow null so that storage.init links can create documents with
+# partial data (tags omitted / null) without schema validation failures.
+_entity_schema = StorageEntity.model_json_schema()
+if "tags" in _entity_schema.get("properties", {}):
+    _entity_schema["properties"]["tags"] = {
+        "anyOf": [{"items": {"type": "string"}, "type": "array"}, {"type": "null"}],
+        "default": [],
+        "title": "Tags",
+    }
+register_domain_schema("storage", "entity", _entity_schema)
+register_domain_schema("storage", "query", StorageQuery.model_json_schema())

@@ -58,7 +58,7 @@ def main():
 
     # Register package commands
     # Create a subparser for packages commands
-    packages_parser = subparsers.add_subparser("packages", help="Manage packages")
+    packages_parser = subparsers.add_parser("packages", help="Manage packages")
     packages_subparsers = packages_parser.add_subparsers(dest="packages_command", required=True)
     
     # Add package commands to the subparser

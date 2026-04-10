@@ -1,0 +1,7 @@
+{"ts":"2026-04-09T00:00:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-09T00:01:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"read-diff","data":{"commit":"ac0970e"}}
+{"ts":"2026-04-09T00:02:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"read-card","data":{"card_id":"6qrd0b"}}
+{"ts":"2026-04-09T00:03:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"verify-tests","data":{"passed":3,"failed":0,"file":"tests/unit/test_llm_links_bugs.py::TestGenerateRecipeTemplate"}}
+{"ts":"2026-04-09T00:04:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"write-review","data":{"verdict":"APPROVAL"}}
+{"ts":"2026-04-09T00:05:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"card-status-change","data":{"new_status":"in_progress"}}
+{"ts":"2026-04-09T00:06:00Z","role":"reviewer","sprint":"ELDV21FU","card":"6qrd0b","cycle":1,"event":"summary","data":{"verdict":"APPROVAL","blockers":0,"follow_ups":0,"tdd_compliant":true,"regressions":0}}

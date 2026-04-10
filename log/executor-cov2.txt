@@ -1,0 +1,129 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.2, pytest-7.1.1, pluggy-1.6.0 -- C:\Users\Cameron\Projects\hottopoteto\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Cameron\Projects\hottopoteto, configfile: pytest.ini
+plugins: anyio-4.12.0, langsmith-0.5.0, asyncio-0.18.3, cov-3.0.0, mock-3.7.0
+asyncio: mode=Mode.AUTO
+collecting ... collected 35 items
+
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_function PASSED [  2%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_register_with_metadata PASSED [  5%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_nonexistent_returns_none PASSED [  8%]
+tests/unit/test_executor_basic.py::TestFunctionRegistry::test_get_returns_function PASSED [ 11%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_with_raw_and_data PASSED [ 14%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_create_output_minimal PASSED [ 17%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_returns_data PASSED [ 20%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_falls_back_to_raw PASSED [ 22%]
+tests/unit/test_executor_basic.py::TestRecipeLinkOutput::test_get_data_wraps_unparseable_raw PASSED [ 25%]
+tests/unit/test_executor_basic.py::TestLLMOutput::test_create_llm_output PASSED [ 28%]
+tests/unit/test_executor_basic.py::TestFunctionOutput::test_create_function_output PASSED [ 31%]
+tests/unit/test_executor_basic.py::TestUserInputOutput::test_create_user_input_output PASSED [ 34%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_adds_closing_brace PASSED [ 37%]
+tests/unit/test_executor_basic.py::TestAttemptFixTruncatedJson::test_handles_already_complete_json PASSED [ 40%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_plain_json_object PASSED [ 42%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_from_markdown PASSED [ 45%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_array PASSED [ 48%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_json_with_text_before PASSED [ 51%]
+tests/unit/test_executor_basic.py::TestExtractJsonSimple::test_extract_returns_original_if_no_json PASSED [ 54%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_valid_recipe PASSED [ 57%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_default_domain PASSED [ 60%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_with_explicit_domain PASSED [ 62%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_jinja_environment PASSED [ 65%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_memory_dict PASSED [ 68%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorInit::test_init_creates_function_registry PASSED [ 71%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_empty_context PASSED [ 74%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_memory PASSED [ 77%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorBuildContext::test_build_context_with_dict_memory PASSED [ 80%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_memory_initialized_as_dict PASSED [ 82%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_can_store_in_memory PASSED [ 85%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorMemory::test_can_retrieve_from_memory PASSED [ 88%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_function_exists PASSED [ 91%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_function_returns_dict PASSED [ 94%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_within_range PASSED [ 97%]
+tests/unit/test_executor_basic.py::TestRecipeExecutorFunctionRandom::test_random_number_default_range PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:692
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:692
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:692: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    and isinstance(item.value, ast.Str)
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:694
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:694: DeprecationWarning: Attribute s is deprecated and will be removed in Python 3.14; use value instead
+    doc = item.value.s
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:1075: 50 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:1075: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    syms.append(ast.Str(sym))
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:1077: 50 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:1077: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    expls.append(ast.Str(expl))
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:826: 215 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:826: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    keys = [ast.Str(key) for key in current.keys()]
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:936: 59 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:936: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    assertmsg = ast.Str("")
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:938: 59 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:938: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    template = ast.BinOp(assertmsg, ast.Add(), ast.Str(explanation))
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:950: 60 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:950: DeprecationWarning: ast.NameConstant is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    clear = ast.Assign(variables, ast.NameConstant(None))
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:962: 66 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:962: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    inlocs = ast.Compare(ast.Str(name.id), [ast.In()], [locs])
+
+.venv\Lib\site-packages\_pytest\assertion\rewrite.py:965: 66 warnings
+  C:\Users\Cameron\Projects\hottopoteto\.venv\Lib\site-packages\_pytest\assertion\rewrite.py:965: DeprecationWarning: ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    expr = ast.IfExp(test, self.display(name), ast.Str(name.id))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform win32, python 3.12.2-final-0 -----------
+Name                                Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------
+core\__init__.py                        7      0   100%
+core\cli\__init__.py                    0      0   100%
+core\cli\commands\__init__.py           0      0   100%
+core\cli\commands\credentials.py      150    150     0%   4-239
+core\cli\commands\packages.py          98     98     0%   4-149
+core\cli\commands\recipes.py           53     53     0%   4-114
+core\domains.py                         2      2     0%   3-15
+core\domains\__init__.py                1      1     0%   13
+core\domains\llm\__init__.py            8      8     0%   4-44
+core\domains\llm\functions.py          16     16     0%   4-83
+core\domains\llm\links.py              23     23     0%   4-66
+core\domains\llm\models.py             49     49     0%   4-120
+core\domains\storage\__init__.py        4      4     0%   4-15
+core\domains\storage\functions.py      85     85     0%   4-187
+core\domains\storage\links.py         116    116     0%   4-308
+core\domains\storage\models.py         94     94     0%   4-149
+core\domains\storage\utils.py          32     32     0%   4-50
+core\executor.py                      532    357    33%   25, 51, 80, 95-96, 100-101, 122, 151-152, 156-157, 183-185, 197-199, 205-213, 221-223, 241-242, 253-271, 276-283, 324-326, 364-366, 388-423, 427-435, 457, 476-624, 628-662, 665-836, 840-894, 898-923, 927-949, 954-955
+core\links\__init__.py                 47     47     0%   4-107
+core\models.py                         45     45     0%   1-69
+core\registration\__init__.py           1      1     0%   5
+core\registration\domains.py           56     56     0%   4-116
+core\registry.py                       58     29    50%   22, 38, 82, 99, 115-117, 130, 140, 157-180, 197-203
+core\schemas.py                        13     13     0%   4-44
+core\templates.py                      57     47    18%   24-29, 55-94, 106-121
+core\utils\__init__.py                 50     38    24%   24-29, 41-44, 57-68, 82-94, 106-115
+core\utils\package_template.py         45     45     0%   4-202
+core\utils\templates.py                 5      5     0%   4-23
+plugins\__init__.py                    50     50     0%   4-106
+plugins\conlang\__init__.py            15     15     0%   4-34
+plugins\gemini\__init__.py              3      3     0%   1-5
+plugins\gemini\links.py                43     43     0%   2-61
+-----------------------------------------------------------------
+TOTAL                                1758   1525    13%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+====================== 35 passed, 628 warnings in 8.65s =======================

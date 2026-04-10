@@ -94,7 +94,7 @@ class Repository:
         return self.adapter.query(filter_criteria)
 
 # Domain functions that leverage repository pattern
-def save_entity(collection: str, data: Dict[str, Any], metadata: Dict[str, Any] = None) -> Dict[str, Any]:
+def save_entity(collection: str, data: Dict[str, Any], metadata: Dict[str, Any] = None, filename: str = None) -> Dict[str, Any]:
     """
     Save an entity to storage
     
@@ -102,12 +102,22 @@ def save_entity(collection: str, data: Dict[str, Any], metadata: Dict[str, Any] 
         collection: Collection name
         data: Entity data
         metadata: Optional metadata
+        filename: Optional custom filename (without extension)
         
     Returns:
         Saved entity with ID
     """
     repository = Repository(collection)
-    entity_id = f"{collection.lower()}-{str(uuid.uuid4())[:8]}"
+    
+    # Generate entity ID - use filename if provided, otherwise auto-generate
+    if filename:
+        # Sanitize filename: remove special chars, replace spaces with hyphens
+        import re
+        sanitized = re.sub(r'[^a-zA-Z0-9-_]', '-', filename)
+        sanitized = re.sub(r'-+', '-', sanitized)  # Replace multiple hyphens with single
+        entity_id = sanitized.strip('-')
+    else:
+        entity_id = f"{collection.lower()}-{str(uuid.uuid4())[:8]}"
     
     entity = {
         "id": entity_id,
@@ -119,9 +129,14 @@ def save_entity(collection: str, data: Dict[str, Any], metadata: Dict[str, Any] 
     success = repository.save(entity_id, entity)
     
     if success:
+        # Get file path for logging
+        file_path = repository.adapter._get_file_path(entity_id)
+        logger.info(f"Saved entity to: {file_path}")
+        
         return {
             "success": True,
             "message": "Entity saved successfully",
+            "file_path": file_path,
             "data": entity
         }
     else:

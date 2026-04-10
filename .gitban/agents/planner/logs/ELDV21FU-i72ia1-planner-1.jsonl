@@ -1,0 +1,7 @@
+{"ts":"2026-04-09T00:00:00Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-09T00:00:01Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"read-inbox","data":{"file":"ELDV21FU-i72ia1-planner-1.md"}}
+{"ts":"2026-04-09T00:00:02Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"search-existing","data":{"query":"dead code isinstance rendered dict links.py","duplicates_found":0}}
+{"ts":"2026-04-09T00:00:03Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"search-existing","data":{"query":"weak test assertions TestGenerateRecipeTemplate pydantic","duplicates_found":0}}
+{"ts":"2026-04-09T00:00:04Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"create-card","data":{"card_id":"lb9ksv","type":"chore","title":"step-2a-clean-up-dead-code-and-document-jinja2-design-choices-in-link-files"}}
+{"ts":"2026-04-09T00:00:05Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"create-card","data":{"card_id":"6qrd0b","type":"bug","title":"step-2b-fix-weak-test-assertions-in-testgeneraterecipetemplate"}}
+{"ts":"2026-04-09T00:00:06Z","role":"planner","sprint":"ELDV21FU","card":"i72ia1","cycle":1,"event":"summary","data":{"cards_created":2,"cards_skipped":0,"cards_todo":2,"sprint":"ELDV21FU"}}

@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "oroau2",
+  "created_at": "2026-01-07T08:57:33.695356+00:00",
+  "template_name": "feature",
+  "owner": "UNASSIGNED",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "pre-execution-recipe-template-validation",
+    "priority": "P1",
+    "status": "backlog",
+    "type": "feature",
+    "sprint": null,
+    "filename": "backlog-P1-feature-pre-execution-recipe-template-validation-oroau2.md"
+  }
+}

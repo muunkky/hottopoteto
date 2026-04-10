@@ -74,17 +74,12 @@ def attempt_fix_truncated_json(text: str) -> str:
         Repaired JSON string
     """
     logger.trace("Attempting to fix truncated/malformed JSON")
-    # Extract text between first { and last }
+    # Extract text starting from first {
     start_idx = text.find('{')
     if start_idx == -1:
         return text
-        
-    end_idx = text.rfind('}')
-    if end_idx == -1:
-        # No closing brace, try to add one
-        return text[start_idx:] + "}"
-        
-    json_text = text[start_idx:end_idx+1]
+    
+    json_text = text[start_idx:]
     
     # Count opening and closing braces to check for balance
     opening_braces = json_text.count('{')
@@ -100,36 +95,36 @@ def attempt_fix_truncated_json(text: str) -> str:
         logger.trace(f"Adding {closing_braces - opening_braces} missing opening braces")
         json_text = "{" * (closing_braces - opening_braces) + json_text
     
-    # Fix common issues that break JSON parsing
-    json_text = fix_common_json_errors(json_text)
+    # Try to parse - if it works, return as-is
+    try:
+        json.loads(json_text)
+        return json_text
+    except json.JSONDecodeError:
+        # Fix common issues that break JSON parsing
+        json_text = fix_common_json_errors(json_text)
     
     return json_text
 
 def fix_common_json_errors(text: str) -> str:
     """Fix common errors in JSON strings."""
+    # If it's already valid JSON, don't touch it
+    try:
+        json.loads(text)
+        return text
+    except json.JSONDecodeError:
+        pass
+    
     fixed = text
     
-    # Fix missing quotes around string values
-    fixed = re.sub(
-        r':\s*(?![\[\{\"]|true|false|null|[0-9])([^,\}\]]+)([,\}\]])',
-        r': "\1"\2',
-        fixed
-    )
+    # Fix trailing commas first (safe operation)
+    fixed = re.sub(r',\s*([\}\]])', r'\1', fixed)
     
-    # Fix single quotes used instead of double quotes
-    single_quoted_keys = re.findall(r"'([^']+)':", fixed)
-    for key in single_quoted_keys:
-        fixed = fixed.replace(f"'{key}':", f'"{key}":')
-        
     # Fix JavaScript-style comments
-    fixed = re.sub(r'//.*?\n', '', fixed)
+    fixed = re.sub(r'//.*?$', '', fixed, flags=re.MULTILINE)
     fixed = re.sub(r'/\*.*?\*/', '', fixed, flags=re.DOTALL)
     
-    # Fix unquoted keys
-    fixed = re.sub(r'([{,])\s*([a-zA-Z0-9_]+):', r'\1"\2":', fixed)
-    
-    # Fix trailing commas
-    fixed = re.sub(r',\s*([\}\]])', r'\1', fixed)
+    # Fix unquoted keys (but don't touch already quoted keys)
+    fixed = re.sub(r'([{,])\s*([a-zA-Z0-9_]+)\s*:', r'\1"\2":', fixed)
     
     return fixed
 
@@ -144,12 +139,12 @@ def extract_json(text: str) -> str:
     Returns:
         String containing valid JSON or the original text if extraction fails
     """
-    logger.trace(f"🔍 Attempting to extract JSON from text: {text[:200]}...")
-    
-    # If it's already a dict, convert to JSON string
+    # If it's already a dict, convert to JSON string (BEFORE any string operations)
     if isinstance(text, dict):
         logger.trace("Input is already a dictionary, converting to JSON string")
         return json.dumps(text)
+    
+    logger.trace(f"🔍 Attempting to extract JSON from text: {text[:200]}...")
         
     # Return empty dict for empty input
     if not text or not text.strip():
@@ -409,11 +404,43 @@ class RecipeExecutor:
             link_type = link_config.get("type")
             link_config["name"] = link_name
             
+            logger.trace(f"Processing link: {link_name} (type: {link_type})")
+            
+            # Check if link has a condition
+            if 'condition' in link_config:
+                try:
+                    logger.trace(f"Evaluating condition for link {link_name}: {link_config['condition']}")
+                    # Evaluate the condition using Jinja2 template
+                    base_context = self.build_context(self.memory)
+                    condition_template = self.env.from_string(link_config['condition'])
+                    condition_result = condition_template.render(**base_context)
+                    logger.trace(f"Condition result: '{condition_result}'")
+                    
+                    # Convert string result to boolean
+                    condition_met = False
+                    if condition_result.lower() in ('true', 'yes', '1'):
+                        condition_met = True
+                    elif condition_result.isdigit() and int(condition_result) > 0:
+                        condition_met = True
+                    
+                    logger.trace(f"Condition evaluated to: {condition_met}")
+                    if not condition_met:
+                        logging.info(f"Skipping link '{link_name}' because condition was not met")
+                        continue
+                except Exception as e:
+                    logging.error(f"Error evaluating condition for link '{link_name}': {e}")
+                    logger.trace(f"Condition evaluation exception: {type(e).__name__}: {str(e)}")
+                    # Default to executing the link if condition evaluation fails
+            
+            logging.info(f"Executing link: {link_name}")
+            
             # Execute link based on type
             link_output = self._execute_link(link_config)
                 
-            # Store link output in memory
-            self.memory[link_name] = link_output
+            # Store link output in memory with sanitized key (spaces -> underscores)
+            # This allows templates to reference links like {{ Initial_User_Inputs.data }}
+            sanitized_key = link_name.replace(" ", "_")
+            self.memory[sanitized_key] = link_output
                 
         # Note: We don't return the memory/context as if it were a "result" -
         # executing the recipe itself is the purpose
@@ -470,6 +497,162 @@ class RecipeExecutor:
 
         logger.trace(f"Built context with keys: {list(context.keys())}")
         return context
+
+    def _execute_user_input_link(self, link: Dict[str, Any]) -> UserInputOutput:
+        """Execute a user input link in the recipe."""
+        logging.info(f"Prompt for user input ({link['name']}): {link.get('description', '')}")
+        inputs = {}
+        
+        base_context = self.build_context(self.memory)
+        
+        for input_name, input_config in link['inputs'].items():
+            # Process description template
+            raw_description = input_config['description']
+            try:
+                description_template = self.env.from_string(raw_description)
+                prompt_text = description_template.render(**base_context) + ": "
+            except Exception as e:
+                logging.error(f"Error rendering description: {e}")
+                prompt_text = raw_description + ": "
+            
+            input_type = input_config.get('type', 'string')
+            
+            if input_type == 'string':
+                inputs[input_name] = input(prompt_text)
+                
+            elif input_type == 'number':
+                while True:
+                    try:
+                        value = input(prompt_text)
+                        inputs[input_name] = float(value)
+                        break
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        
+            elif input_type == 'boolean':
+                while True:
+                    value = input(prompt_text + "(yes/no): ").lower()
+                    if value in ['yes', 'y', 'true', '1']:
+                        inputs[input_name] = True
+                        break
+                    elif value in ['no', 'n', 'false', '0']:
+                        inputs[input_name] = False
+                        break
+                    print("Please enter 'yes' or 'no'.")
+                    
+            elif input_type == 'select':
+                if 'options' not in input_config:
+                    logging.error(f"No options provided for select input {input_name}")
+                    inputs[input_name] = ""
+                    continue
+                    
+                options = []
+                # Process template in each option
+                for option in input_config['options']:
+                    processed_option = {'value': option['value'], 'description': option.get('description', '')}
+                    
+                    # Process value template
+                    if isinstance(processed_option['value'], str) and '{{' in processed_option['value']:
+                        try:
+                            value_template = self.env.from_string(processed_option['value'])
+                            processed_option['value'] = value_template.render(**base_context)
+                        except Exception as e:
+                            logging.error(f"Error rendering option value: {e}")
+                    
+                    # Process description template
+                    if isinstance(processed_option['description'], str) and '{{' in processed_option['description']:
+                        try:
+                            desc_template = self.env.from_string(processed_option['description'])
+                            processed_option['description'] = desc_template.render(**base_context)
+                        except Exception as e:
+                            logging.error(f"Error rendering option description: {e}")
+                    
+                    options.append(processed_option)
+                    
+                print(f"\n{prompt_text}")
+                
+                # Display options with numbers
+                for i, option in enumerate(options, 1):
+                    desc = option.get('description', '')
+                    print(f"{i}. {option['value']}{' - ' + desc if desc else ''}")
+                    
+                # Get valid selection
+                while True:
+                    try:
+                        selection = input("\nEnter number of your choice: ")
+                        idx = int(selection) - 1
+                        if 0 <= idx < len(options):
+                            inputs[input_name] = options[idx]['value']
+                            break
+                        else:
+                            print(f"Please enter a number between 1 and {len(options)}")
+                    except ValueError:
+                        print("Please enter a valid number")
+                        
+            elif input_type == 'multiselect':
+                # For selecting multiple options
+                if 'options' not in input_config:
+                    logging.error(f"No options provided for multiselect input {input_name}")
+                    inputs[input_name] = []
+                    continue
+                    
+                options = input_config['options']
+                print(f"\n{prompt_text}")
+                
+                # Display options with numbers
+                for i, option in enumerate(options, 1):
+                    desc = option.get('description', '')
+                    print(f"{i}. {option['value']}{' - ' + desc if desc else ''}")
+                    
+                # Get valid selections
+                while True:
+                    try:
+                        selection = input("\nEnter numbers of your choices (comma-separated, e.g., '1,3,4'): ")
+                        indices = [int(idx.strip()) - 1 for idx in selection.split(',')]
+                        
+                        # Validate all indices
+                        if all(0 <= idx < len(options) for idx in indices):
+                            inputs[input_name] = [options[idx]['value'] for idx in indices]
+                            break
+                        else:
+                            print(f"Please enter valid numbers between 1 and {len(options)}")
+                    except ValueError:
+                        print("Please enter valid comma-separated numbers")
+        
+        # Process through LLM for validation and enhancement
+        output_schema_obj = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": link['output_schema']['properties']
+        }
+        if "required" in link['output_schema']:
+            output_schema_obj["required"] = link['output_schema']["required"]
+
+        llm_prompt = f"""
+You are a helpful assistant designed to structure user input into a JSON format that adheres to the following JSON Schema:
+{json.dumps(output_schema_obj, indent=2)}
+
+User Inputs:
+{json.dumps(inputs, indent=2)}
+
+Return ONLY valid JSON.
+"""
+        # Direct LLM invocation
+        try:
+            llm = ChatOpenAI(model_name="gpt-4o", temperature=0.0, max_tokens=500)
+            response = llm.invoke(llm_prompt)
+            raw_result = response.content
+            
+            # Extract and validate JSON
+            extracted = extract_json(raw_result)
+            parsed = json.loads(extracted)
+            validate(instance=parsed, schema=output_schema_obj)
+            
+            return UserInputOutput(data=parsed)
+        except Exception as e:
+            logging.error(f"Error processing user input through LLM: {e}")
+            # Fallback: return raw inputs
+            return UserInputOutput(data=inputs)
 
     def _execute_function_link(self, link: Dict[str, Any]) -> FunctionOutput:
         """Execute a function link in the recipe."""
@@ -841,16 +1024,12 @@ class RecipeExecutor:
             try:
                 template_file = link['template']['file']
                 
-                # Try to resolve template path using our utility
-                from core.utils.templates import resolve_template_path
-                resolved_path = resolve_template_path(template_file)
-                if resolved_path:
-                    # Use the resolved path relative to template dir
-                    rel_path = os.path.relpath(resolved_path, TEMPLATE_DIR)
-                    jinja_template = self.env.get_template(rel_path)
-                else:
-                    # Fall back to direct template lookup
-                    jinja_template = self.env.get_template(template_file)
+                # Normalize path separators for cross-platform compatibility
+                # Jinja2 expects forward slashes even on Windows
+                template_file_normalized = template_file.replace('\\', '/')
+                
+                # Try to load the template
+                jinja_template = self.env.get_template(template_file_normalized)
                 
                 inputs_context = {}
                 if 'inputs' in link['template']:
@@ -926,27 +1105,32 @@ class RecipeExecutor:
         """Execute a link with any registered link handler."""
         link_type = link_config.get("type")
         
-        # Check if we have a handler for this link type
+        # Check built-in link types first (they have priority)
+        if link_type == "llm":
+            return self._execute_llm_link(link_config)
+        elif link_type == "function":
+            return self._execute_function_link(link_config)
+        elif link_type == "user_input":
+            return self._execute_user_input_link(link_config)
+        
+        # Check if we have a registered handler for this link type
         try:
             from .links import get_link_handler
             handler = get_link_handler(link_type)
             
-            # Build context from memory
-            context = self.build_context(self.memory)
-            
-            # Execute the link using its handler
-            return handler.execute(link_config, context)
+            # If handler is found, use it
+            if handler is not None:
+                # Build context from memory
+                context = self.build_context(self.memory)
+                
+                # Execute the link using its handler
+                return handler.execute(link_config, context)
             
         except ImportError:
-            # Fall back to built-in link types
-            if link_type == "llm":
-                return self._execute_llm_link(link_config)
-            elif link_type == "function":
-                return self._execute_function_link(link_config)
-            elif link_type == "user_input":
-                return self._execute_user_input_link(link_config)
-            else:
-                raise ValueError(f"Unknown link type: {link_type}")
+            pass
+        
+        # Unknown link type
+        raise ValueError(f"Unknown link type: {link_type}")
 
 class TerminateProcessException(Exception):
     """Custom exception to signal termination of the recipe process."""

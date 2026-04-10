@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "card_id": "hgw39p",
+  "created_at": "2026-01-06T23:53:01.778638+00:00",
+  "template_name": "documentation-adr",
+  "owner": "UNASSIGNED",
+  "created_by": "mcp_tool",
+  "initial_metadata": {
+    "title": "type-handling-architecture-for-recipe-templates-and-schema-validation",
+    "priority": "P1",
+    "status": "todo",
+    "type": "documentation",
+    "sprint": null,
+    "filename": "todo-P1-documentation-type-handling-architecture-for-recipe-templates-and-schema-validation-hgw39p.md"
+  }
+}

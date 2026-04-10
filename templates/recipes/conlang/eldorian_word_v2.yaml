@@ -1,0 +1,647 @@
+# ============================================================================
+# Eldorian Word Generator v2.1 - Schema-Driven Document Enrichment
+# ============================================================================
+#
+# This recipe demonstrates the DOCENRICH Sprint pattern (ADR-0006) for
+# progressively building structured documents with schema validation.
+#
+# Key Improvements over v1.0:
+# - Uses storage.init to create schema-validated working document
+# - Uses llm.extract_to_schema for structured LLM output extraction
+# - Uses llm.enrich to fill empty fields with context-aware extraction
+# - Uses llm.enrich with target_schema_path for token-efficient branch quarantine
+# - Uses storage.update to progressively build document across LLM calls
+# - Schema validation at each step prevents malformed data
+#
+# Pattern: storage.init → llm → llm.extract_to_schema → storage.update → ...
+#
+# Schema: Uses linguistics domain's comprehensive Word model
+# Process data stored separately as generation logs
+# ============================================================================
+
+name: "Eldorian Word Generator v2"
+description: "Generate a new word in the Eldorian language using schema-driven document enrichment."
+version: "2.1"
+
+links:
+  # ==========================================================================
+  # PHASE 1: User Input & Document Initialization
+  # ==========================================================================
+  
+  - name: "Initial User Inputs"
+    type: "user_input"
+    description: "Collect the initial English input and connotation."
+    inputs:
+      english_word:
+        type: "string"
+        description: "The English word to be translated into Eldorian. Example: 'woman'. Must be non-empty."
+        required: true
+      connotation:
+        type: "string"
+        description: "The connotation of the English word as provided. Example: 'of marriageable age'. Ensure clarity."
+        required: true
+    output_schema:
+      properties:
+        english_word:
+          type: "string"
+          description: "The English word as provided. Example: 'woman'."
+        connotation:
+          type: "string"
+          description: "The connotation. Example: 'of marriageable age'. Do not leave blank."
+        length:
+          type: "integer"
+          description: "The length of the English word. Example: 5."
+        synonyms:
+          type: "array"
+          items:
+            type: "string"
+          description: "List synonyms that align with the connotation provided"
+        part_of_speech:
+          type: "string"
+          description: "The part of speech. Example: 'noun'. Must be provided."
+        declension:
+          type: "string"
+          description: "The declension, if applicable; otherwise, provide 'N/A'."
+        base_form:
+          type: "string"
+          description: "The base form of the English word. Example: 'woman'. Must be provided."
+      required:
+        - english_word
+        - connotation
+        - base_form
+
+  # Initialize working document with linguistics domain schema
+  - name: "Initialize Word Document"
+    type: "storage.init"
+    description: "Create a schema-validated Word using linguistics domain."
+    collection: "eldorian_words"
+    schema:
+      $ref: "linguistics.word"
+    initial_data:
+      english_word: "{{ Initial_User_Inputs.data.base_form }}"
+      connotation: "{{ Initial_User_Inputs.data.connotation }}"
+      language: "eldorian"
+
+  # Initialize generation log to track procedural information
+  - name: "Initialize Generation Log"
+    type: "storage.init"
+    description: "Create log document to track generation process and decisions."
+    collection: "generation_logs"
+    schema:
+      type: "object"
+      properties:
+        word_id:
+          type: "string"
+          description: "Reference to the Word document being generated"
+        english_word:
+          type: "string"
+        target_syllables:
+          type: "integer"
+          description: "Target number of syllables for generation"
+        origin_language:
+          type: "string"
+          description: "Selected origin language"
+        num_origin_words:
+          type: "integer"
+          description: "Number of origin words to blend"
+        generation_steps:
+          type: "array"
+          description: "Sequential log of generation steps"
+          items:
+            type: "object"
+            properties:
+              step:
+                type: "string"
+              timestamp:
+                type: "string"
+              llm_model:
+                type: "string"
+              result:
+                type: "object"
+        metadata:
+          type: "object"
+          description: "Additional procedural metadata"
+      additionalProperties: true
+    initial_data:
+      word_id: "{{ Initialize_Word_Document.data.id }}"
+      english_word: "{{ Initial_User_Inputs.data.base_form }}"
+      generation_steps: []
+
+  # ==========================================================================
+  # PHASE 2: Origin Language Selection & Etymology Generation
+  # ==========================================================================
+
+  - name: "Clarify Instructions"
+    type: "llm"
+    template: 
+      file: "conlang/1-Instructions for applying the EECH.txt"
+      inputs:
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Initial_User_Inputs.data.connotation }}"
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 200
+    execution_method: "direct"
+    output_schema:
+      properties:
+        raw_content:
+          type: "string"
+          description: "The clarified instructions for the word generation process."
+      required:
+        - raw_content
+
+  - name: "Selecting an Origin Language"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 200
+    execution_method: "direct"
+    template: 
+      file: "conlang/2-Select the origin language.txt"
+      inputs:
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Initial_User_Inputs.data.connotation }}"
+        part_of_speech: "{{ Initial_User_Inputs.data.part_of_speech }}"
+    output_schema:
+      required:
+        - origin_language
+      properties:
+        origin_language:
+          type: "string"
+          enum: 
+            - "Old Elven"
+            - "Modern Elven"
+            - "Old Dwarven"
+            - "Sylvan"
+            - "Celestial"
+            - "Draconic"
+          description: "The selected origin language."
+
+  - name: "Choose number of origin words"
+    type: "llm"
+    prompt: "Determine the number of imaginary origin words for '{{ Initial_User_Inputs.data.base_form }}' based on the word's length and complexity. For a simple, short word, return 1; for a longer, more complex word, return at least 3. Return valid JSON."
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 200
+    output_schema:
+      properties:
+        number_of_origin_words:
+          type: "integer"
+          description: "The total number of origin words to be generated."
+        justification:
+          type: "string"
+          description: "A brief explanation justifying the chosen number."
+      required:
+        - number_of_origin_words
+        
+  - name: "Target number of syllables"
+    type: "llm"
+    temperature: 0.3
+    token_limit: 50
+    prompt: "Determine the target number of syllables for the Eldorian translation of '{{ Initial_User_Inputs.data.base_form }}' will have based on the commonness and concept complexity. (just output a number)"
+    model: "gpt-4o"
+    output_schema:
+      properties:
+        number_of_syllables:
+          type: "integer"
+          description: "The target number of syllables for the Eldorian translation."
+      required:
+        - number_of_syllables
+
+  # Log procedural decisions
+  - name: "Log Generation Parameters"
+    type: "storage.update"
+    description: "Record procedural generation parameters in log."
+    document_id: "{{ Initialize_Generation_Log.data.id }}"
+    collection: "generation_logs"
+    data:
+      target_syllables: "{{ Target_number_of_syllables.data.number_of_syllables }}"
+      origin_language: "{{ Selecting_an_Origin_Language.data.origin_language }}"
+      num_origin_words: "{{ Choose_number_of_origin_words.data.number_of_origin_words }}"
+
+  - name: "Generate the Origin Words"
+    type: "llm"
+    conversation: "none"
+    temperature: 0.7
+    token_limit: 2000
+    template: 
+      file: "conlang/3-Generate the origin words.txt"
+      inputs:
+        connotation: "{{ Initial_User_Inputs.data.connotation }}"
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        num_words: "{{ Choose_number_of_origin_words.data.number_of_origin_words }}"
+        origin_language: "{{ Selecting_an_Origin_Language.data.origin_language }}"
+    output_schema:
+      properties:
+        compound_origin_word:
+          type: "string"
+        revised_connotation:
+          type: "string"
+        origin_words:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              word:
+                type: "string"
+              english_word:
+                type: "string"
+              origin_language:
+                type: "string"
+              meaning:
+                type: "string"
+              notes:
+                type: "string"
+              part_of_speech:
+                type: "string"
+              connotation:
+                type: "string"
+              usage_examples:
+                type: "array"
+                items:
+                  type: "string"
+      required:
+        - compound_origin_word
+        - revised_connotation
+        - origin_words
+
+  # NEW: Extract origin_words using llm.extract_to_schema for schema validation
+  - name: "Extract Origin Words"
+    type: "llm.extract_to_schema"
+    description: "Extract structured origin_words array from LLM response with schema validation."
+    source: "{{ Generate_the_Origin_Words.raw }}"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          word:
+            type: "string"
+            description: "The origin word"
+          meaning:
+            type: "string"
+            description: "The meaning of the origin word"
+          origin:
+            type: "string"
+            description: "The language or culture of origin"
+        required:
+          - word
+          - meaning
+    hint: "Extract the fictional etymology root words with their meanings and origins. Map 'origin_language' to 'origin' field."
+    model: "gpt-4o"
+    temperature: 0.2
+
+  # NEW: Update document with extracted origin_words
+  - name: "Update with Origins"
+    type: "storage.update"
+    description: "Merge extracted origin_words into working document."
+    document_id: "{{ Initialize_Word_Document.data.id }}"
+    collection: "{{ Initialize_Word_Document.data.collection }}"
+    data:
+      origin_words: "{{ Extract_Origin_Words.data }}"
+
+  # ==========================================================================
+  # PHASE 3: Originality Check
+  # ==========================================================================
+
+  - name: "Real language check"
+    type: "llm"
+    conversation: none
+    description: "Check if the root words have been using real languages."
+    prompt: "Is this word '{{ Generate_the_Origin_Words.data.compound_origin_word }}' based on real world languages? Or is it an original word?"
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 200
+    output_schema:
+      properties:
+        is_original:
+          type: "boolean"
+          description: "Indicates whether the word is original and not based on existing languages."
+        explanation:
+          type: "string"
+          description: "Explanation of the decision."
+      required:
+        - is_original
+
+  - name: "Originality review"
+    type: "user_input"
+    description: "Have the user select whether to abandon the word."
+    condition: "{{ Real_language_check.data.is_original == false }}"
+    inputs:
+      continue:
+        type: "select"
+        description: "{{Generate_the_Origin_Words.data.compound_origin_word }}: is_original == {{Real_language_check.data.is_original }}. Please confirm if you would like to proceed with this word:"
+        required: true
+        options:
+          - value: "true"
+            description: "Continue with {{Generate_the_Origin_Words.data.compound_origin_word }} - The word is acceptable."
+          - value: "false" 
+            description: "Abandon {{Generate_the_Origin_Words.data.compound_origin_word }} - Too similar to real language."
+    output_schema:
+      properties:
+        continue:
+          type: "string" 
+          description: "The user's decision on whether to continue with the word."
+          enum: ["true", "false"]
+      required:
+        - continue
+
+  - name: "Check and Terminate"
+    type: "function"
+    description: "Check if the word should be rejected and terminate if so"
+    condition: "{{ Originality_review.data.continue == 'false' }}"
+    function:
+      name: "terminate_process"
+    inputs:
+      message: "Word rejected by user during originality review"
+    output_schema:
+      properties:
+        terminated:
+          type: "boolean"
+        message:
+          type: "string"
+      required:
+        - terminated
+        - message
+
+  # ==========================================================================
+  # PHASE 4: Morphological Processing
+  # ==========================================================================
+
+  - name: "Number of linguistic events"
+    type: "function"
+    description: "Calculate a random number of linguistic events."
+    function:
+      name: "random_number"
+    inputs:
+      min_value:
+        type: "integer"
+        default: 1
+      max_value:
+        type: "integer"
+        default: 3
+    output_schema:
+      properties:
+        num_events:
+          type: "integer"
+      required:
+        - num_events
+
+  - name: "Apply Morphology"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 800
+    execution_method: "direct"
+    template:
+      file: "conlang/4-Apply Morphology.txt"
+      inputs:
+        compound_word: "{{ Generate_the_Origin_Words.data.compound_origin_word }}"
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Generate_the_Origin_Words.data.revised_connotation }}"
+        part_of_speech: "{{ Initial_User_Inputs.data.part_of_speech }}"
+        num_events: "{{ Number_of_linguistic_events.data.num_events }}"
+        num_syllables: "{{ Target_number_of_syllables.data.number_of_syllables }}"
+    output_schema:
+      properties:
+        morphology:
+          type: "string"
+          description: "A condensed summary of the morphological changes applied."
+        updated_word:
+          type: "string"
+          description: "The final evolved word after applying morphology."
+      required:
+        - morphology
+        - updated_word
+
+  # NEW: Enrich document with morphology using llm.enrich with branch quarantine
+  - name: "Enrich Morphology"
+    type: "llm.enrich"
+    description: "Fill morphology object fields with context-aware extraction using branch quarantine."
+    document: "{{ Update_with_Origins.data }}"
+    source: "{{ Apply_Morphology.raw }}"
+    target_schema_path: "morphology"
+    hint: "Extract root morphemes, affixes (with type prefix/suffix/infix and meaning), and word class from the morphological analysis."
+    model: "gpt-4o"
+    temperature: 0.2
+
+  # NEW: Update document with enriched morphology
+  - name: "Update with Morphology"
+    type: "storage.update"
+    description: "Merge enriched morphology data into working document."
+    document_id: "{{ Initialize_Word_Document.data.id }}"
+    collection: "{{ Initialize_Word_Document.data.collection }}"
+    data:
+      morphology: "{{ Enrich_Morphology.data.morphology }}"
+
+  # ==========================================================================
+  # PHASE 5: Phonological Processing & Final Word
+  # ==========================================================================
+        
+  - name: "Apply Phonology"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.5
+    token_limit: 800
+    execution_method: "direct"
+    template:
+      file: "conlang/5-Apply Phonology.txt"
+      inputs:
+        eldorian_word: "{{ Apply_Morphology.data.updated_word }}"
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Generate_the_Origin_Words.data.revised_connotation }}"
+        part_of_speech: "{{ Initial_User_Inputs.data.part_of_speech }}"
+        num_syllables: "{{ Target_number_of_syllables.data.number_of_syllables }}"
+    output_schema:
+      properties:
+        phonology: 
+          type: "string"
+          description: "A summary of the phonological adjustments made."
+        updated_word:
+          type: "string"
+          description: "The final word after applying phonological adjustments."
+        pronunciation:
+          type: "string"
+          description: "IPA or phonetic pronunciation guide."
+      required:
+        - updated_word
+
+  # NEW: Enrich document with pronunciation and final word
+  - name: "Enrich Phonology"
+    type: "llm.enrich"
+    description: "Extract pronunciation and fill remaining empty fields."
+    document: "{{ Update_with_Morphology.data }}"
+    source: "{{ Apply_Phonology.raw }}"
+    target_fields:
+      - "eldorian_word"
+      - "pronunciation"
+    hint: "Extract the final Eldorian word and IPA/phonetic pronunciation from the phonological analysis."
+    model: "gpt-4o"
+    temperature: 0.2
+
+  # NEW: Update document with eldorian_word and pronunciation
+  - name: "Update with Phonology"
+    type: "storage.update"
+    description: "Merge final word and pronunciation into working document."
+    document_id: "{{ Initialize_Word_Document.data.id }}"
+    collection: "{{ Initialize_Word_Document.data.collection }}"
+    data:
+      eldorian_word: "{{ Apply_Phonology.data.updated_word }}"
+      pronunciation: "{{ Enrich_Phonology.data.pronunciation }}"
+
+  # ==========================================================================
+  # PHASE 6: Derivatives & Cultural Context
+  # ==========================================================================
+
+  - name: "Generate Derivatives"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.7
+    token_limit: 1500
+    execution_method: "direct"
+    template:
+      file: "conlang/6-Derivatives.txt"
+      inputs:
+        eldorian_word: "{{ Apply_Phonology.data.updated_word }}"
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Generate_the_Origin_Words.data.revised_connotation }}"
+    output_schema:
+      properties:
+        base_word:
+          type: "string"
+        english_word:
+          type: "string"
+        derivatives:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              word:
+                type: "string"
+              part_of_speech:
+                type: "string"
+              meaning:
+                type: "string"
+              notes:
+                type: "string"
+              morphological_changes:
+                type: "string"
+              examples:
+                type: "array"
+                items:
+                  type: "string"
+      required:
+        - base_word
+        - english_word
+        - derivatives
+
+  # NEW: Generate usage examples and cultural notes
+  - name: "Generate Cultural Context"
+    type: "llm"
+    model: "gpt-4o"
+    temperature: 0.7
+    token_limit: 800
+    prompt: |
+      Given the Eldorian word '{{ Apply_Phonology.data.updated_word }}' meaning '{{ Initial_User_Inputs.data.base_form }}' 
+      with connotation '{{ Generate_the_Origin_Words.data.revised_connotation }}':
+      
+      Create 2-3 example sentences using this word in the Eldorian language, with English translations.
+      Also provide cultural notes about how this word might be used in Eldorian society.
+      
+      Format your response as JSON with:
+      - usage_examples: array of {eldorian: string, translation: string}
+      - cultural_notes: string describing cultural context
+    output_schema:
+      properties:
+        usage_examples:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              eldorian:
+                type: "string"
+              translation:
+                type: "string"
+        cultural_notes:
+          type: "string"
+
+  # NEW: Final enrichment to fill any remaining empty fields
+  - name: "Final Enrichment"
+    type: "llm.enrich"
+    description: "Fill any remaining empty fields with context-aware extraction."
+    document: "{{ Update_with_Phonology.data }}"
+    source: "{{ Generate_Cultural_Context.raw }}"
+    target_fields:
+      - "usage_examples"
+      - "cultural_notes"
+    hint: "Extract the usage examples and cultural notes to complete the word entry."
+    model: "gpt-4o"
+    temperature: 0.2
+
+  # NEW: Final update with usage examples and cultural notes
+  - name: "Update with Cultural Context"
+    type: "storage.update"
+    description: "Final merge with usage examples and cultural notes."
+    document_id: "{{ Initialize_Word_Document.data.id }}"
+    collection: "{{ Initialize_Word_Document.data.collection }}"
+    data:
+      usage_examples: "{{ Generate_Cultural_Context.data.usage_examples }}"
+      cultural_notes: "{{ Generate_Cultural_Context.data.cultural_notes }}"
+
+  # ==========================================================================
+  # PHASE 7: Final Save (for backward compatibility)
+  # ==========================================================================
+
+  - name: "Save Eldorian Word"
+    type: "storage.save"
+    description: "Save Word (linguistics.word) + generation log as separate documents."
+    collection: "eldorian_words"
+    data:
+      # The canonical linguistics.word object
+      word: "{{ Update_with_Cultural_Context.data }}"
+      
+      # Reference to the generation log document (stored separately)
+      generation_log_id: "{{ Initialize_Generation_Log.data.id }}"
+      
+      # Lightweight summary for quick reference
+      generation_summary:
+        origin_language: "{{ Selecting_an_Origin_Language.data.origin_language }}"
+        num_origin_words: "{{ Choose_number_of_origin_words.data.number_of_origin_words }}"
+        target_syllables: "{{ Target_number_of_syllables.data.number_of_syllables }}"
+        final_word: "{{ Apply_Phonology.data.updated_word }}"
+    filename: "eldorian_words-{{ Initial_User_Inputs.data.base_form }}-{{ Apply_Phonology.data.updated_word }}-{{ Initialize_Word_Document.data.id }}-{{ now() }}"
+    metadata:
+      source: "eldorian_word_generator_v2"
+      generated_at: "{{ now() }}"
+      version: "2.1"
+      word_id: "{{ Initialize_Word_Document.data.id }}"
+      log_id: "{{ Initialize_Generation_Log.data.id }}"
+
+  # Update the generation log with final references
+  - name: "Finalize Generation Log"
+    type: "storage.update"
+    description: "Update generation log with final word reference and completion timestamp."
+    document_id: "{{ Initialize_Generation_Log.data.id }}"
+    collection: "generation_logs"
+    data:
+      word_document_id: "{{ Initialize_Word_Document.data.id }}"
+      final_eldorian_word: "{{ Apply_Phonology.data.updated_word }}"
+      completed_at: "{{ now() }}"
+      status: "completed"
+      user_inputs:
+        english_word: "{{ Initial_User_Inputs.data.base_form }}"
+        connotation: "{{ Initial_User_Inputs.data.connotation }}"
+        part_of_speech: "{{ Initial_User_Inputs.data.part_of_speech }}"
+      etymology:
+        origin_language: "{{ Selecting_an_Origin_Language.data.origin_language }}"
+        compound_origin_word: "{{ Generate_the_Origin_Words.data.compound_origin_word }}"
+        revised_connotation: "{{ Generate_the_Origin_Words.data.revised_connotation }}"
+        origin_words: "{{ Generate_the_Origin_Words.data.origin_words }}"
+      evolution:
+        morphology_summary: "{{ Apply_Morphology.data.morphology }}"
+        after_morphology: "{{ Apply_Morphology.data.updated_word }}"
+        phonology_summary: "{{ Apply_Phonology.data.phonology }}"
+        final_word: "{{ Apply_Phonology.data.updated_word }}"
+        pronunciation: "{{ Apply_Phonology.data.pronunciation }}"
+      derivatives: "{{ Generate_Derivatives.data.derivatives }}"
+

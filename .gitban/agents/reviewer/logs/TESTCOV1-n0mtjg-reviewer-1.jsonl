@@ -1,0 +1,7 @@
+{"ts":"2026-04-08T00:00:00Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"init","data":{}}
+{"ts":"2026-04-08T00:00:01Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"read-diff","data":{"commit":"2fabd66"}}
+{"ts":"2026-04-08T00:00:02Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"read-card","data":{"card_id":"n0mtjg"}}
+{"ts":"2026-04-08T00:00:03Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"read-adr","data":{"file":"docs/architecture/decisions/adr-0005-testing-strategy.md"}}
+{"ts":"2026-04-08T00:00:04Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"write-review","data":{"verdict":"REJECTION"}}
+{"ts":"2026-04-08T00:00:05Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"card-status-change","data":{"new_status":"blocked"}}
+{"ts":"2026-04-08T00:00:06Z","role":"reviewer","sprint":"TESTCOV1","card":"n0mtjg","cycle":1,"event":"summary","data":{"verdict":"REJECTION","blockers":1,"follow_ups":0,"duration_approx_s":60}}
